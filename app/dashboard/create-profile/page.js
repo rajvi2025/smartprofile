@@ -1,0 +1,518 @@
+﻿'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
+const PLANS = [
+  { id: 'basic', name: 'Basic', price: '₹199', color: 'bg-green-500', border: 'border-green-500', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about'] },
+  { id: 'business', name: 'Business', price: '₹399', color: 'bg-blue-600', border: 'border-blue-600', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social','products','services','testimonials'] },
+  { id: 'premium', name: 'Premium', price: '₹599', color: 'bg-orange-500', border: 'border-orange-500', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social','products','services','testimonials','gallery','brochure','biz_presence'] },
+  { id: 'pro', name: 'Pro', price: '₹999', color: 'bg-purple-600', border: 'border-purple-600', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social','products','services','testimonials','gallery','brochure','biz_presence','lead_form','verified','video','analytics'] },
+];
+
+const THEMES = [
+  { id: 'ocean', name: 'Ocean', bg: 'from-blue-800 to-cyan-500', accent: '#1e40af' },
+  { id: 'sunset', name: 'Sunset', bg: 'from-orange-600 to-pink-500', accent: '#ea580c' },
+  { id: 'forest', name: 'Forest', bg: 'from-green-700 to-teal-500', accent: '#15803d' },
+  { id: 'royal', name: 'Royal', bg: 'from-purple-700 to-indigo-500', accent: '#7c3aed' },
+  { id: 'midnight', name: 'Midnight', bg: 'from-gray-900 to-slate-700', accent: '#334155' },
+  { id: 'luxury', name: 'Luxury', bg: 'from-yellow-700 to-amber-500', accent: '#b45309' },
+];
+
+const SOCIALS = [
+  { key: 'facebook', label: 'Facebook', color: '#1877F2' },
+  { key: 'instagram', label: 'Instagram', color: '#E4405F' },
+  { key: 'youtube', label: 'YouTube', color: '#FF0000' },
+  { key: 'linkedin', label: 'LinkedIn', color: '#0A66C2' },
+  { key: 'twitter', label: 'Twitter/X', color: '#000000' },
+];
+
+const BIZ_PLATFORMS = [
+  { key: 'google', label: 'Google Business', color: '#4285F4' },
+  { key: 'indiamart', label: 'IndiaMART', color: '#ef4444' },
+  { key: 'justdial', label: 'JustDial', color: '#ff6600' },
+  { key: 'tradeindia', label: 'TradeIndia', color: '#0066cc' },
+  { key: 'exportersindia', label: 'ExportersIndia', color: '#009900' },
+  { key: 'alibaba', label: 'Alibaba', color: '#ff6a00' },
+];
+
+export default function CreateProfilePage() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [planId, setPlanId] = useState('basic');
+  const [theme, setTheme] = useState(THEMES[0]);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
+  const [bannerFile, setBannerFile] = useState(null);
+  const [showCheckout, setShowCheckout] = useState(false);
+
+  const [products, setProducts] = useState([{ name: '', price: '', description: '' }]);
+  const [services, setServices] = useState([{ name: '', price: '', description: '' }]);
+  const [gallery, setGallery] = useState([]);
+  const [testimonials, setTestimonials] = useState([{ name: '', rating: 5, text: '' }]);
+  const [bizPresence, setBizPresence] = useState([{ platform: '', url: '' }]);
+
+  const [form, setForm] = useState({
+    username: '', full_name: '', designation: '', business_name: '',
+    tagline: '', category: '', phone: '', whatsapp: '', email: '',
+    website: '', address: '', city: '', about: '', maps_url: '',
+    facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '',
+    video_url: '', brochure_url: '',
+  });
+
+  if (status === 'loading') return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (!session) { router.push('/login'); return null; }
+
+  const plan = PLANS.find(p => p.id === planId);
+  const has = (f) => plan.features.includes(f);
+  const update = (f, v) => setForm(p => ({ ...p, [f]: v }));
+
+  const maxProducts = planId === 'business' ? 2 : planId === 'premium' ? 5 : planId === 'pro' ? 10 : 0;
+  const maxServices = planId === 'business' ? 2 : planId === 'premium' ? 5 : planId === 'pro' ? 10 : 0;
+  const maxGallery = planId === 'premium' ? 10 : planId === 'pro' ? 20 : 0;
+  const maxTestimonials = planId === 'business' ? 2 : planId === 'premium' ? 5 : planId === 'pro' ? 10 : 0;
+  const maxBiz = planId === 'premium' ? 3 : planId === 'pro' ? 6 : 0;
+
+  const handleImage = (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    if (type === 'logo') { setLogoPreview(url); setLogoFile(file); }
+    else { setBannerPreview(url); setBannerFile(file); }
+  };
+
+  const handleGallery = (e) => {
+    const files = Array.from(e.target.files).slice(0, maxGallery);
+    setGallery(files.map(f => ({ file: f, preview: URL.createObjectURL(f) })));
+  };
+
+  const uploadImage = async (file, folder) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('folder', folder);
+    const res = await fetch('/api/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    return data.url;
+  };
+
+  const handleSubmit = async () => {
+    if (!form.username || !form.business_name || !form.phone) {
+      setError('Username, Business Name aur Phone required!'); return;
+    }
+    setLoading(true); setError('');
+    try {
+      let logo_url = null, banner_url = null;
+      if (logoFile) logo_url = await uploadImage(logoFile, 'logos');
+      if (bannerFile) banner_url = await uploadImage(bannerFile, 'banners');
+
+      const res = await fetch('/api/profile/create', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, theme: theme.id, plan: planId, logo_url, banner_url }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Error'); setLoading(false); return; }
+
+      const profileId = data.profile.id;
+
+      if (has('products') && products[0].name) {
+        await fetch('/api/profile/sections', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profileId, type: 'products', items: products.filter(p => p.name) }),
+        });
+      }
+      if (has('services') && services[0].name) {
+        await fetch('/api/profile/sections', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profileId, type: 'services', items: services.filter(s => s.name) }),
+        });
+      }
+      if (has('testimonials') && testimonials[0].name) {
+        await fetch('/api/profile/sections', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profileId, type: 'testimonials', items: testimonials.filter(t => t.name) }),
+        });
+      }
+      if (has('biz_presence') && bizPresence[0].url) {
+        await fetch('/api/profile/sections', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profileId, type: 'biz_presence', items: bizPresence.filter(b => b.url) }),
+        });
+      }
+
+      router.push(`/${form.username}`);
+    } catch { setError('Network error.'); }
+    finally { setLoading(false); }
+  };
+
+  const inp = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50';
+  const lbl = 'block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide';
+
+  const Lock = ({ need, children }) => (
+    <div className="relative rounded-2xl overflow-hidden">
+      <div className="blur-sm pointer-events-none select-none opacity-50">{children}</div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 rounded-2xl">
+        <div className="text-4xl mb-2">🔒</div>
+        <p className="font-bold text-gray-800 text-sm">Upgrade to <span className="text-blue-600">{need}</span></p>
+        <button onClick={() => { const p = PLANS.find(x => x.name === need.split(' ')[0]); if(p) setPlanId(p.id); }}
+          className="mt-2 bg-blue-600 text-white text-xs px-4 py-1.5 rounded-full font-semibold">Unlock Now →</button>
+      </div>
+    </div>
+  );
+
+  if (showCheckout) return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+        <div className="text-center mb-6">
+          <div className="text-5xl mb-3">💳</div>
+          <h2 className="text-2xl font-bold text-gray-800">Complete Payment</h2>
+          <p className="text-gray-500 mt-1">SmartProfile — {plan.name} Plan</p>
+        </div>
+        <div className={`${plan.color} text-white rounded-2xl p-5 text-center mb-6`}>
+          <div className="text-4xl font-bold">{plan.price}</div>
+          <div className="text-sm opacity-80 mt-1">per year · {plan.name} Plan</div>
+        </div>
+        <div className="space-y-2 mb-6 text-sm text-gray-600">
+          <div className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> smartprofile.in/{form.username}</div>
+          <div className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> {form.business_name}</div>
+          <div className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> All {plan.name} features · 1 Year</div>
+        </div>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-5 text-center">
+          <p className="text-xs text-yellow-700 font-semibold">🧪 Test Mode — No real payment</p>
+        </div>
+        <button onClick={() => { setShowCheckout(false); handleSubmit(); }}
+          className={`w-full ${plan.color} text-white font-bold py-4 rounded-2xl text-lg hover:opacity-90 shadow-lg`}>
+          {loading ? '⏳ Creating...' : `✅ Pay ${plan.price} & Create Profile`}
+        </button>
+        <button onClick={() => setShowCheckout(false)} className="w-full mt-3 text-gray-400 text-sm">← Back to Edit</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <div className="bg-white border-b px-4 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
+        <h1 className="text-lg font-bold text-gray-800">✨ Create SmartProfile</h1>
+        <a href="/dashboard" className="text-sm text-blue-600">← Back</a>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-3 py-4 flex flex-col md:flex-row gap-4 items-start">
+
+        <div className="w-full md:flex-1 space-y-4">
+          {error && <div className="bg-red-50 border border-red-300 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
+
+          {/* Plan */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">💎 Choose Your Plan</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {PLANS.map(p => (
+                <button key={p.id} onClick={() => setPlanId(p.id)}
+                  className={`rounded-xl p-3 border-2 transition-all text-center ${planId === p.id ? `${p.border} bg-blue-50` : 'border-gray-200'}`}>
+                  <div className={`${p.color} text-white text-xs font-bold px-2 py-1 rounded-lg mb-2`}>{p.name}</div>
+                  <div className="font-bold text-gray-800">{p.price}</div>
+                  <div className="text-xs text-gray-400">/year</div>
+                  {planId === p.id && <div className="text-blue-600 text-xs mt-1 font-bold">✓ Selected</div>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Basic Info */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">📋 Basic Info</h2>
+            <div className="space-y-3">
+              <div>
+                <label className={lbl}>Profile URL *</label>
+                <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 overflow-hidden">
+                  <span className="px-3 py-3 text-xs text-gray-400 bg-gray-100 border-r whitespace-nowrap">smartprofile.in/</span>
+                  <input value={form.username} onChange={e => update('username', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,''))} placeholder="your-name" className="flex-1 px-3 py-3 text-sm bg-gray-50 focus:outline-none"/>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className={lbl}>Full Name *</label><input value={form.full_name} onChange={e=>update('full_name',e.target.value)} placeholder="Rajesh Sharma" className={inp}/></div>
+                <div><label className={lbl}>Designation</label><input value={form.designation} onChange={e=>update('designation',e.target.value)} placeholder="CEO / Realtor" className={inp}/></div>
+              </div>
+              <div><label className={lbl}>Business Name *</label><input value={form.business_name} onChange={e=>update('business_name',e.target.value)} placeholder="Sharma Properties" className={inp}/></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className={lbl}>Tagline</label><input value={form.tagline} onChange={e=>update('tagline',e.target.value)} placeholder="Your tagline..." className={inp}/></div>
+                <div><label className={lbl}>Category</label><input value={form.category} onChange={e=>update('category',e.target.value)} placeholder="Real Estate" className={inp}/></div>
+              </div>
+              <div><label className={lbl}>City</label><input value={form.city} onChange={e=>update('city',e.target.value)} placeholder="Mumbai, Maharashtra" className={inp}/></div>
+            </div>
+          </div>
+
+          {/* Logo */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">📷 Logo / Photo</h2>
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-full border-4 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {logoPreview ? <img src={logoPreview} className="w-full h-full object-cover"/> : <span className="text-3xl">🏢</span>}
+              </div>
+              <div>
+                <input type="file" accept="image/*" onChange={e=>handleImage(e,'logo')} className="hidden" id="logo-up"/>
+                <label htmlFor="logo-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 Upload Logo</label>
+                {logoPreview && <p className="text-xs text-green-600 mt-1">✓ Logo ready!</p>}
+              </div>
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">📞 Contact</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div><label className={lbl}>Phone *</label><input value={form.phone} onChange={e=>update('phone',e.target.value)} placeholder="+91 98765 43210" className={inp}/></div>
+              <div><label className={lbl}>WhatsApp</label><input value={form.whatsapp} onChange={e=>update('whatsapp',e.target.value)} placeholder="919876543210" className={inp}/></div>
+              <div><label className={lbl}>Email</label><input value={form.email} onChange={e=>update('email',e.target.value)} placeholder="you@email.com" className={inp}/></div>
+              <div><label className={lbl}>Website</label><input value={form.website} onChange={e=>update('website',e.target.value)} placeholder="https://yoursite.com" className={inp}/></div>
+            </div>
+          </div>
+
+          {/* Banner */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">🖼️ Cover Banner</h2>
+            {!has('banner') ? <Lock need="Business ₹399"><div className="h-28 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold">Your Banner Here</div></Lock> : (
+              <>
+                <div className="w-full h-28 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
+                  {bannerPreview ? <img src={bannerPreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload banner image</span>}
+                </div>
+                <input type="file" accept="image/*" onChange={e=>handleImage(e,'banner')} className="hidden" id="banner-up"/>
+                <label htmlFor="banner-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 Upload Banner</label>
+                {bannerPreview && <span className="ml-2 text-xs text-green-600 font-semibold">✓ Banner ready!</span>}
+              </>
+            )}
+          </div>
+
+          {/* About & Address */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">📍 About & Address</h2>
+            {!has('about') ? <Lock need="Business ₹399"><div className="space-y-3"><div className="h-20 bg-gray-100 rounded-xl"/><div className="h-12 bg-gray-100 rounded-xl"/></div></Lock> : (
+              <div className="space-y-3">
+                <div><label className={lbl}>About Us</label><textarea value={form.about} onChange={e=>update('about',e.target.value)} rows={3} placeholder="About your business..." className={inp+' resize-none'}/></div>
+                <div><label className={lbl}>Address</label><input value={form.address} onChange={e=>update('address',e.target.value)} placeholder="Shop No. 12, City Center..." className={inp}/></div>
+                <div><label className={lbl}>Google Maps URL</label><input value={form.maps_url} onChange={e=>update('maps_url',e.target.value)} placeholder="https://maps.google.com/..." className={inp}/></div>
+              </div>
+            )}
+          </div>
+
+          {/* Social */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">🔗 Social Media</h2>
+            {!has('social') ? <Lock need="Business ₹399"><div className="space-y-2">{SOCIALS.map(s=><div key={s.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
+              <div className="space-y-3">
+                {SOCIALS.map(s=>(
+                  <div key={s.key} className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{backgroundColor:s.color}}>{s.label.slice(0,2)}</div>
+                    <input value={form[s.key]||''} onChange={e=>update(s.key,e.target.value)} placeholder={`${s.label} URL`} className={inp}/>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Products */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">📦 Products <span className="text-xs text-gray-400 font-normal">(max {maxProducts || 0})</span></h2>
+            {!has('products') ? <Lock need="Business ₹399"><div className="space-y-2"><div className="h-16 bg-gray-100 rounded-xl"/><div className="h-16 bg-gray-100 rounded-xl"/></div></Lock> : (
+              <div className="space-y-3">
+                {products.slice(0, maxProducts).map((p,i)=>(
+                  <div key={i} className="border border-gray-200 rounded-xl p-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <input value={p.name} onChange={e=>{const n=[...products];n[i].name=e.target.value;setProducts(n);}} placeholder="Product name" className={inp}/>
+                      <input value={p.price} onChange={e=>{const n=[...products];n[i].price=e.target.value;setProducts(n);}} placeholder="Price (₹)" className={inp}/>
+                    </div>
+                    <input value={p.description} onChange={e=>{const n=[...products];n[i].description=e.target.value;setProducts(n);}} placeholder="Description" className={inp}/>
+                  </div>
+                ))}
+                {products.length < maxProducts && (
+                  <button onClick={()=>setProducts([...products,{name:'',price:'',description:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Product</button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Services */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">⚙️ Services <span className="text-xs text-gray-400 font-normal">(max {maxServices || 0})</span></h2>
+            {!has('services') ? <Lock need="Business ₹399"><div className="space-y-2"><div className="h-16 bg-gray-100 rounded-xl"/><div className="h-16 bg-gray-100 rounded-xl"/></div></Lock> : (
+              <div className="space-y-3">
+                {services.slice(0, maxServices).map((s,i)=>(
+                  <div key={i} className="border border-gray-200 rounded-xl p-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <input value={s.name} onChange={e=>{const n=[...services];n[i].name=e.target.value;setServices(n);}} placeholder="Service name" className={inp}/>
+                      <input value={s.price} onChange={e=>{const n=[...services];n[i].price=e.target.value;setServices(n);}} placeholder="Price (₹)" className={inp}/>
+                    </div>
+                    <input value={s.description} onChange={e=>{const n=[...services];n[i].description=e.target.value;setServices(n);}} placeholder="Description" className={inp}/>
+                  </div>
+                ))}
+                {services.length < maxServices && (
+                  <button onClick={()=>setServices([...services,{name:'',price:'',description:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Service</button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Gallery */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">🖼️ Gallery <span className="text-xs text-gray-400 font-normal">(max {maxGallery || 0} photos)</span></h2>
+            {!has('gallery') ? <Lock need="Premium ₹599"><div className="grid grid-cols-3 gap-2">{[1,2,3].map(i=><div key={i} className="aspect-square bg-gray-100 rounded-xl"/>)}</div></Lock> : (
+              <>
+                <input type="file" accept="image/*" multiple onChange={handleGallery} className="hidden" id="gallery-up"/>
+                <label htmlFor="gallery-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 mb-3">📤 Upload Photos (max {maxGallery})</label>
+                {gallery.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mt-3">
+                    {gallery.map((g,i)=><div key={i} className="aspect-square rounded-xl overflow-hidden"><img src={g.preview} className="w-full h-full object-cover"/></div>)}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Testimonials */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">💬 Testimonials <span className="text-xs text-gray-400 font-normal">(max {maxTestimonials || 0})</span></h2>
+            {!has('testimonials') ? <Lock need="Business ₹399"><div className="space-y-2"><div className="h-20 bg-gray-100 rounded-xl"/></div></Lock> : (
+              <div className="space-y-3">
+                {testimonials.slice(0, maxTestimonials).map((t,i)=>(
+                  <div key={i} className="border border-gray-200 rounded-xl p-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <input value={t.name} onChange={e=>{const n=[...testimonials];n[i].name=e.target.value;setTestimonials(n);}} placeholder="Customer name" className={inp}/>
+                      <select value={t.rating} onChange={e=>{const n=[...testimonials];n[i].rating=Number(e.target.value);setTestimonials(n);}} className={inp}>
+                        {[5,4,3,2,1].map(r=><option key={r} value={r}>{'⭐'.repeat(r)} {r} Star</option>)}
+                      </select>
+                    </div>
+                    <textarea value={t.text} onChange={e=>{const n=[...testimonials];n[i].text=e.target.value;setTestimonials(n);}} placeholder="What did they say?" rows={2} className={inp+' resize-none'}/>
+                  </div>
+                ))}
+                {testimonials.length < maxTestimonials && (
+                  <button onClick={()=>setTestimonials([...testimonials,{name:'',rating:5,text:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Testimonial</button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Business Presence */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">🏢 Business Presence <span className="text-xs text-gray-400 font-normal">(IndiaMART, JustDial etc.)</span></h2>
+            {!has('biz_presence') ? <Lock need="Premium ₹599"><div className="flex gap-2 flex-wrap">{BIZ_PLATFORMS.slice(0,3).map(b=><div key={b.key} className="h-10 w-28 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
+              <div className="space-y-3">
+                {bizPresence.slice(0, maxBiz).map((b,i)=>(
+                  <div key={i} className="grid grid-cols-2 gap-2">
+                    <select value={b.platform} onChange={e=>{const n=[...bizPresence];n[i].platform=e.target.value;setBizPresence(n);}} className={inp}>
+                      <option value="">Select Platform</option>
+                      {BIZ_PLATFORMS.map(p=><option key={p.key} value={p.label}>{p.label}</option>)}
+                    </select>
+                    <input value={b.url} onChange={e=>{const n=[...bizPresence];n[i].url=e.target.value;setBizPresence(n);}} placeholder="Profile URL" className={inp}/>
+                  </div>
+                ))}
+                {bizPresence.length < maxBiz && (
+                  <button onClick={()=>setBizPresence([...bizPresence,{platform:'',url:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Platform</button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Brochure */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">📄 PDF Brochure</h2>
+            {!has('brochure') ? <Lock need="Premium ₹599"><div className="h-12 bg-gray-100 rounded-xl"/></Lock> : (
+              <input value={form.brochure_url} onChange={e=>update('brochure_url',e.target.value)} placeholder="Google Drive PDF link" className={inp}/>
+            )}
+          </div>
+
+          {/* Video */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">🎥 Company Video</h2>
+            {!has('video') ? <Lock need="Pro ₹999"><div className="h-12 bg-gray-100 rounded-xl"/></Lock> : (
+              <input value={form.video_url} onChange={e=>update('video_url',e.target.value)} placeholder="YouTube video URL" className={inp}/>
+            )}
+          </div>
+
+          {/* Theme */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">🎨 Card Theme</h2>
+            <div className="grid grid-cols-3 gap-3">
+              {THEMES.map(t=>(
+                <button key={t.id} onClick={()=>setTheme(t)}
+                  className={`h-14 rounded-xl bg-gradient-to-r ${t.bg} border-4 transition-all relative ${theme.id===t.id?'border-blue-500 scale-105':'border-transparent'}`}>
+                  <span className="text-white text-sm font-bold drop-shadow">{t.name}</span>
+                  {theme.id===t.id && <span className="absolute top-1 right-2 text-white">✓</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button onClick={()=>{if(!form.username||!form.business_name||!form.phone){setError('Username, Business Name aur Phone required!');return;}setError('');setShowCheckout(true);}}
+            className={`w-full ${plan.color} text-white font-bold py-4 rounded-2xl text-lg hover:opacity-90 shadow-lg mb-8`}>
+            🚀 Get Started — {plan.price}/year
+          </button>
+        </div>
+
+        {/* Live Preview */}
+        <div className="hidden md:block w-72 flex-shrink-0 sticky top-20">
+          <p className="text-center text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">📱 Live Preview</p>
+          <div className="bg-gray-900 rounded-[2.5rem] p-2.5 shadow-2xl">
+            <div className="rounded-[2rem] overflow-hidden bg-white" style={{height:'600px',overflowY:'auto'}}>
+              <div className="relative" style={{height:'110px',flexShrink:0}}>
+                {bannerPreview && has('banner') ? <img src={bannerPreview} className="w-full h-full object-cover"/> : <div className={`w-full h-full bg-gradient-to-r ${theme.bg}`}/>}
+                <div className="absolute -bottom-9 left-1/2 -translate-x-1/2">
+                  <div className="w-16 h-16 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden flex items-center justify-center" style={{width:68,height:68}}>
+                    {logoPreview ? <img src={logoPreview} className="w-full h-full object-cover"/> : <span className="text-2xl font-bold text-gray-600">{form.business_name?form.business_name[0].toUpperCase():'?'}</span>}
+                  </div>
+                </div>
+              </div>
+              <div className="pt-10 pb-2 px-3 text-center">
+                <h2 className="font-bold text-gray-900 text-sm">{form.business_name||'Business Name'}</h2>
+                {(form.full_name||form.designation) && <p className="text-xs mt-0.5 font-semibold" style={{color:theme.accent}}>{form.full_name}{form.designation?` · ${form.designation}`:''}</p>}
+                {form.city && <p className="text-xs text-gray-400 mt-0.5">📍 {form.city}</p>}
+                {form.tagline && <p className="text-xs text-gray-400 mt-0.5 italic">"{form.tagline}"</p>}
+              </div>
+              <div className="px-3 pb-2">
+                <div className="grid grid-cols-3 gap-1.5 mb-1.5">
+                  {form.phone && <div className="bg-green-500 rounded-xl py-2 text-center text-white"><div className="text-sm">📞</div><div className="text-xs font-semibold">Call</div></div>}
+                  {form.whatsapp && <div className="bg-green-400 rounded-xl py-2 text-center text-white"><div className="text-sm">💬</div><div className="text-xs">WhatsApp</div></div>}
+                  <div className="bg-blue-600 rounded-xl py-2 text-center text-white"><div className="text-sm">👤</div><div className="text-xs">Save</div></div>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {form.email && <div className="border border-gray-200 rounded-xl py-2 text-center"><div className="text-xs">✉️</div><div className="text-xs text-gray-500">Email</div></div>}
+                  {form.website && <div className="border border-gray-200 rounded-xl py-2 text-center"><div className="text-xs">🌐</div><div className="text-xs text-gray-500">Website</div></div>}
+                  {form.maps_url && <div className="border border-gray-200 rounded-xl py-2 text-center"><div className="text-xs">📍</div><div className="text-xs text-gray-500">Maps</div></div>}
+                </div>
+              </div>
+              {form.about && has('about') && <div className="mx-3 mb-2 bg-blue-50 rounded-xl p-2.5"><p className="text-xs font-bold text-blue-700 mb-1">About Us</p><p className="text-xs text-gray-600 line-clamp-2">{form.about}</p></div>}
+              {has('social') && SOCIALS.some(s=>form[s.key]) && (
+                <div className="mx-3 mb-2">
+                  <p className="text-xs font-bold text-gray-400 mb-1.5 text-center">Connect With Us</p>
+                  <div className="flex justify-center gap-2">
+                    {SOCIALS.map(s=>form[s.key]?<div key={s.key} className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{backgroundColor:s.color}}>{s.label.slice(0,1)}</div>:null)}
+                  </div>
+                </div>
+              )}
+              {has('products') && products.some(p=>p.name) && (
+                <div className="mx-3 mb-2">
+                  <p className="text-xs font-bold text-gray-700 mb-1.5">📦 Products</p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {products.filter(p=>p.name).slice(0,2).map((p,i)=><div key={i} className="border border-gray-100 rounded-lg p-2"><p className="text-xs font-semibold">{p.name}</p>{p.price&&<p className="text-xs text-blue-600">₹{p.price}</p>}</div>)}
+                  </div>
+                </div>
+              )}
+              {has('testimonials') && testimonials.some(t=>t.name) && (
+                <div className="mx-3 mb-2">
+                  <p className="text-xs font-bold text-gray-700 mb-1.5">💬 Testimonials</p>
+                  {testimonials.filter(t=>t.name).slice(0,1).map((t,i)=><div key={i} className="bg-gray-50 rounded-lg p-2"><p className="text-xs italic text-gray-600">"{t.text}"</p><p className="text-xs font-bold mt-1">— {t.name}</p></div>)}
+                </div>
+              )}
+              <div className="mx-3 mb-3"><div className="bg-gray-900 rounded-xl py-2.5 text-center text-white text-xs font-bold">💾 Save Contact</div></div>
+              <div className="text-center pb-3"><p className="text-xs text-gray-400">Powered by <span className="font-bold text-blue-500">SmartProfile.in</span></p></div>
+            </div>
+          </div>
+          <div className="mt-3 text-center">
+            <span className={`inline-block ${plan.color} text-white text-sm font-bold px-4 py-1.5 rounded-full shadow`}>{plan.name} {plan.price}/yr</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
