@@ -212,7 +212,8 @@ function BusinessProfile({ profile, products, socials }) {
 }
 
 export default function ProfilePage({ params }) {
-  const { username } = use(params);
+  const resolvedParams = use(params);
+  const username = resolvedParams.username;
   const [profile, setProfile] = useState(null);
   const [products, setProducts] = useState([]);
   const [socials, setSocials] = useState([]);
