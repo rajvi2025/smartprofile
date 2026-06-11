@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 
@@ -42,7 +42,7 @@ export default function HomePage() {
   }, [statsStarted]);
 
   const features = [
-    { title: 'Digital Business Profile', desc: 'Full mini-website at one link. Not just a card — your complete business online.', color: '#6366f1', bg: '#eef2ff', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="26" height="26"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg> },
+    { title: 'Digital Business Profile', desc: 'Full mini-website at one link. Not just a card â€” your complete business online.', color: '#6366f1', bg: '#eef2ff', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="26" height="26"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg> },
     { title: 'NFC Smart Cards', desc: 'Tap your card on any phone. Profile opens instantly. No app needed.', color: '#8b5cf6', bg: '#f5f3ff', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="26" height="26"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M12 10v4M10 12h4"/></svg> },
     { title: 'Dynamic QR Code', desc: 'One QR code, always updated. Share on print, banner, packaging anywhere.', color: '#3b82f6', bg: '#eff6ff', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="26" height="26"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg> },
     { title: 'Business Directory', desc: 'Get listed in SmartProfile directory. Customers find you by city and category.', color: '#10b981', bg: '#ecfdf5', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="26" height="26"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
@@ -66,12 +66,12 @@ export default function HomePage() {
   ];
 
   const directoryCategories = [
-    { icon: '🏭', name: 'Manufacturers', count: '120+ Listed', color: '#3b82f6', bg: '#eff6ff' },
-    { icon: '🏠', name: 'Real Estate', count: '85+ Listed', color: '#8b5cf6', bg: '#f5f3ff' },
-    { icon: '🩺', name: 'Doctors', count: '60+ Listed', color: '#10b981', bg: '#ecfdf5' },
-    { icon: '💼', name: 'Consultants', count: '95+ Listed', color: '#f59e0b', bg: '#fffbeb' },
-    { icon: '🍽️', name: 'Restaurants', count: '40+ Listed', color: '#ef4444', bg: '#fef2f2' },
-    { icon: '🛍️', name: 'Retail Stores', count: '70+ Listed', color: '#0ea5e9', bg: '#f0f9ff' },
+    { icon: 'ðŸ­', name: 'Manufacturers', count: '120+ Listed', color: '#3b82f6', bg: '#eff6ff' },
+    { icon: 'ðŸ ', name: 'Real Estate', count: '85+ Listed', color: '#8b5cf6', bg: '#f5f3ff' },
+    { icon: 'ðŸ©º', name: 'Doctors', count: '60+ Listed', color: '#10b981', bg: '#ecfdf5' },
+    { icon: 'ðŸ’¼', name: 'Consultants', count: '95+ Listed', color: '#f59e0b', bg: '#fffbeb' },
+    { icon: 'ðŸ½ï¸', name: 'Restaurants', count: '40+ Listed', color: '#ef4444', bg: '#fef2f2' },
+    { icon: 'ðŸ›ï¸', name: 'Retail Stores', count: '70+ Listed', color: '#0ea5e9', bg: '#f0f9ff' },
   ];
 
   const plans = [
@@ -95,16 +95,16 @@ export default function HomePage() {
   ];
 
   const testimonials = [
-    { name: 'Rohit Sharma', role: 'Founder, Digital Agency — Pune', text: 'SmartProfile completely changed how I share my business. One link and clients see everything — services, gallery, contact. Extremely professional.', avatar: 'RS', color: '#6366f1' },
-    { name: 'Priya Kapoor', role: 'Real Estate Agent — Mumbai', text: 'I used to spend thousands printing visiting cards. Now I share my SmartProfile QR code and get leads the same day. Totally worth it!', avatar: 'PK', color: '#10b981' },
-    { name: 'Dr. Amit Verma', role: 'General Physician — Nashik', text: 'My patients connect directly via WhatsApp from my profile. Appointment booking became so simple. I highly recommend SmartProfile.', avatar: 'AV', color: '#8b5cf6' },
+    { name: 'Rohit Sharma', role: 'Founder, Digital Agency â€” Pune', text: 'SmartProfile completely changed how I share my business. One link and clients see everything â€” services, gallery, contact. Extremely professional.', avatar: 'RS', color: '#6366f1' },
+    { name: 'Priya Kapoor', role: 'Real Estate Agent â€” Mumbai', text: 'I used to spend thousands printing visiting cards. Now I share my SmartProfile QR code and get leads the same day. Totally worth it!', avatar: 'PK', color: '#10b981' },
+    { name: 'Dr. Amit Verma', role: 'General Physician â€” Nashik', text: 'My patients connect directly via WhatsApp from my profile. Appointment booking became so simple. I highly recommend SmartProfile.', avatar: 'AV', color: '#8b5cf6' },
   ];
 
   const faqs = [
-    { q: 'What is the difference between SmartProfile and a simple visiting card?', a: 'A visiting card only gives name and number. SmartProfile is a complete mini-website — photos, services, gallery, reviews, Google Maps, lead form — all in one link.' },
-    { q: 'How does the NFC Card work?', a: 'Hold the NFC card near any smartphone — your profile opens automatically in the browser. No app download needed. Works on both Android and iPhone.' },
+    { q: 'What is the difference between SmartProfile and a simple visiting card?', a: 'A visiting card only gives name and number. SmartProfile is a complete mini-website â€” photos, services, gallery, reviews, Google Maps, lead form â€” all in one link.' },
+    { q: 'How does the NFC Card work?', a: 'Hold the NFC card near any smartphone â€” your profile opens automatically in the browser. No app download needed. Works on both Android and iPhone.' },
     { q: 'Can I upgrade my plan later?', a: 'Yes! You can upgrade from Basic to Business, Premium or Pro anytime. Remaining time is adjusted on a pro-rata basis.' },
-    { q: 'Is the Business Directory listing free?', a: 'Yes! Free Directory Listing is included in all plans. Local customers can find you by city and category — completely free.' },
+    { q: 'Is the Business Directory listing free?', a: 'Yes! Free Directory Listing is included in all plans. Local customers can find you by city and category â€” completely free.' },
     { q: 'How long does it take to create a profile?', a: 'Just 5-10 minutes! Fill in your basic details, upload your logo, choose a plan and your profile goes live at smartprofile.in/your-name.' },
     { q: 'What is the refund policy?', a: 'We offer a 7-day money back guarantee. If SmartProfile does not work for you, get a full refund. No questions asked.' },
   ];
@@ -120,27 +120,6 @@ export default function HomePage() {
         .hero-card { animation: fadeInUp 0.5s ease forwards; }
       `}</style>
 
-      {/* NAVBAR */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: navScrolled ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', borderBottom: navScrolled ? '1px solid #e2e8f0' : '1px solid transparent', padding: '0 24px', transition: 'all 0.3s', boxShadow: navScrolled ? '0 2px 20px rgba(0,0,0,0.08)' : 'none' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64 }}>
-          <Link href="/" style={{ fontWeight: 800, fontSize: 22, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 1 }}>
-            <span style={{ color: '#0f172a' }}>Smart</span><span style={{ color: '#3b82f6' }}>Profile</span>
-          </Link>
-          <div style={{ display: 'flex', gap: 28, fontSize: 14, fontWeight: 500 }}>
-            {[['Features','#features'],['Directory','#directory'],['NFC Cards','#nfc-cards'],['Pricing','#pricing'],['Blog','#'],['Contact','#']].map(([label,href]) => (
-              <a key={label} href={href} style={{ color: '#64748b', textDecoration: 'none', transition: 'color 0.2s' }}
-                onMouseEnter={e => e.target.style.color='#3b82f6'}
-                onMouseLeave={e => e.target.style.color='#64748b'}>{label}</a>
-            ))}
-          </div>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <Link href="/login" style={{ fontSize: 14, fontWeight: 500, color: '#64748b', textDecoration: 'none' }}>Login</Link>
-            <Link href="/dashboard/create-profile" style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff', padding: '9px 22px', borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: 'none', boxShadow: '0 2px 12px rgba(59,130,246,0.35)', transition: 'opacity 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.opacity='0.9'}
-              onMouseLeave={e => e.currentTarget.style.opacity='1'}>Get Started</Link>
-          </div>
-        </div>
-      </nav>
 
 
       {/* HERO */}
@@ -190,12 +169,12 @@ export default function HomePage() {
             <div className="hero-card" style={{ position: 'absolute', top: 10, right: -25, background: 'rgba(255,255,255,0.97)', borderRadius: 16, padding: '14px 18px', boxShadow: '0 8px 28px rgba(0,0,0,0.2)', zIndex: 12, minWidth: 150 }}>
               <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, marginBottom: 4 }}>Profile Views</div>
               <div style={{ fontSize: 26, fontWeight: 800, color: '#1e293b', marginBottom: 2 }}>1,250+</div>
-              <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>↑ +18% this week</div>
+              <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>â†‘ +18% this week</div>
             </div>
             <div className="hero-card" style={{ position: 'absolute', bottom: 40, right: -25, background: 'rgba(255,255,255,0.97)', borderRadius: 16, padding: '14px 18px', boxShadow: '0 8px 28px rgba(0,0,0,0.2)', zIndex: 12, minWidth: 150 }}>
               <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, marginBottom: 4 }}>Leads Captured</div>
               <div style={{ fontSize: 26, fontWeight: 800, color: '#1e293b', marginBottom: 2 }}>320+</div>
-              <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>↑ +24% this week</div>
+              <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>â†‘ +24% this week</div>
             </div>
             <div className="float-anim" style={{ width: 285, height: 575, background: '#0a0f1e', borderRadius: 44, padding: '13px', boxShadow: '0 40px 100px rgba(0,0,0,0.4)' }}>
               <div style={{ background: 'linear-gradient(160deg, #1e40af 0%, #312e81 50%, #1e1b4b 100%)', borderRadius: 34, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 18px 20px', overflow: 'hidden' }}>
@@ -233,7 +212,7 @@ export default function HomePage() {
           <div style={{ textAlign: 'center', marginBottom: 60 }}>
             <div style={{ display: 'inline-block', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.35)', borderRadius: 20, padding: '6px 18px', fontSize: 13, fontWeight: 600, color: '#a5b4fc', marginBottom: 18 }}>New Launch</div>
             <h2 style={{ fontSize: 'clamp(30px, 4vw, 48px)', fontWeight: 800, color: '#fff', marginBottom: 14 }}>Tap. Connect. Grow.</h2>
-            <p style={{ fontSize: 16, color: '#94a3b8', maxWidth: 540, margin: '0 auto', lineHeight: 1.7 }}>SmartProfile NFC Smart Cards — tap on any phone, your profile opens instantly. No app needed.</p>
+            <p style={{ fontSize: 16, color: '#94a3b8', maxWidth: 540, margin: '0 auto', lineHeight: 1.7 }}>SmartProfile NFC Smart Cards â€” tap on any phone, your profile opens instantly. No app needed.</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 28, marginBottom: 52 }}>
             {[
@@ -304,7 +283,7 @@ export default function HomePage() {
           <div style={{ textAlign: 'center', marginBottom: 60 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: '#3b82f6', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>See It Live</p>
             <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, color: '#0f172a' }}>SmartProfile in Action</h2>
-            <p style={{ color: '#64748b', fontSize: 16, marginTop: 12 }}>Real businesses, real profiles — see how SmartProfile looks</p>
+            <p style={{ color: '#64748b', fontSize: 16, marginTop: 12 }}>Real businesses, real profiles â€” see how SmartProfile looks</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 28, marginBottom: 44 }}>
             {demoProfiles.map((p, i) => (
@@ -441,7 +420,7 @@ export default function HomePage() {
                 {p.popular && <div style={{ position: 'absolute', top: -13, left: '50%', transform: 'translateX(-50%)', background: `linear-gradient(135deg, ${p.color}, #8b5cf6)`, color: '#fff', fontSize: 11, fontWeight: 700, padding: '5px 16px', borderRadius: 20, whiteSpace: 'nowrap', letterSpacing: '0.05em' }}>MOST POPULAR</div>}
                 <div style={{ fontSize: 12, fontWeight: 700, color: p.color, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>{p.name}</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 1, marginBottom: 4 }}>
-                  <span style={{ fontSize: 14, color: '#94a3b8', fontWeight: 600 }}>₹</span>
+                  <span style={{ fontSize: 14, color: '#94a3b8', fontWeight: 600 }}>â‚¹</span>
                   <span style={{ fontSize: 40, fontWeight: 800, color: '#0f172a' }}>{p.price}</span>
                   <span style={{ color: '#94a3b8', fontSize: 13, marginLeft: 2 }}>/year</span>
                 </div>
@@ -477,7 +456,7 @@ export default function HomePage() {
               <div style={{ padding: '18px 22px', fontWeight: 700, fontSize: 13, color: '#64748b' }}>Feature</div>
               {[['Basic','#6366f1'],['Business','#8b5cf6'],['Premium','#3b82f6'],['Pro','#f59e0b']].map(([name,color],i) => (
                 <div key={i} style={{ padding: '18px 12px', textAlign: 'center', fontWeight: 800, fontSize: 13, color: name==='Premium' ? '#3b82f6' : '#1e293b' }}>
-                  {name}{name==='Premium' && <span style={{ display: 'block', fontSize: 10, color: '#3b82f6', fontWeight: 600, marginTop: 2 }}>★ Popular</span>}
+                  {name}{name==='Premium' && <span style={{ display: 'block', fontSize: 10, color: '#3b82f6', fontWeight: 600, marginTop: 2 }}>â˜… Popular</span>}
                 </div>
               ))}
             </div>
@@ -520,13 +499,13 @@ export default function HomePage() {
             <div style={{ position: 'absolute', bottom: 28, right: 28, display: 'flex', gap: 8, alignItems: 'center' }}>
               <button onClick={() => setActiveTestimonial((activeTestimonial-1+testimonials.length)%testimonials.length)} style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 18, color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
                 onMouseEnter={e => { e.currentTarget.style.background='#3b82f6'; e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='#3b82f6'; }}
-                onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#64748b'; e.currentTarget.style.borderColor='#e2e8f0'; }}>‹</button>
+                onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#64748b'; e.currentTarget.style.borderColor='#e2e8f0'; }}>â€¹</button>
               {testimonials.map((_, i) => (
                 <div key={i} onClick={() => setActiveTestimonial(i)} style={{ width: i===activeTestimonial?22:8, height: 8, borderRadius: 4, background: i===activeTestimonial?'#3b82f6':'#e2e8f0', cursor: 'pointer', transition: 'all 0.3s' }} />
               ))}
               <button onClick={() => setActiveTestimonial((activeTestimonial+1)%testimonials.length)} style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 18, color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
                 onMouseEnter={e => { e.currentTarget.style.background='#3b82f6'; e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='#3b82f6'; }}
-                onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#64748b'; e.currentTarget.style.borderColor='#e2e8f0'; }}>›</button>
+                onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#64748b'; e.currentTarget.style.borderColor='#e2e8f0'; }}>â€º</button>
             </div>
           </div>
         </div>
@@ -560,7 +539,7 @@ export default function HomePage() {
         <div style={{ position: 'absolute', top: -80, right: -80, width: 300, height: 300, background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', borderRadius: '50%' }} />
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
-            <div style={{ width: 64, height: 64, background: 'rgba(255,255,255,0.12)', borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, flexShrink: 0, backdropFilter: 'blur(10px)' }}>🚀</div>
+            <div style={{ width: 64, height: 64, background: 'rgba(255,255,255,0.12)', borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, flexShrink: 0, backdropFilter: 'blur(10px)' }}>ðŸš€</div>
             <div>
               <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 24, marginBottom: 6, lineHeight: 1.3 }}>Start Your Digital Journey Today!</h3>
               <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: 15 }}>Create your smart profile in 5 minutes. No technical skills needed.</p>
@@ -575,53 +554,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer style={{ background: '#0a0f1e', padding: '68px 24px 36px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 48, marginBottom: 52 }}>
-            <div>
-              <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 14 }}>
-                <span style={{ color: '#fff' }}>Smart</span><span style={{ color: '#3b82f6' }}>Profile</span>
-              </div>
-              <p style={{ fontSize: 14, lineHeight: 1.75, marginBottom: 24, color: '#475569', maxWidth: 240 }}>One Profile. Complete Business. India ka #1 digital business profile platform.</p>
-              <div style={{ display: 'flex', gap: 10 }}>
-                {[
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>,
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>,
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>,
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#0a0f1e"/></svg>
-                ].map((icon, i) => (
-                  <div key={i} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', cursor: 'pointer', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.05)' }}
-                    onMouseEnter={e => { e.currentTarget.style.background='rgba(59,130,246,0.2)'; e.currentTarget.style.color='#60a5fa'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.07)'; e.currentTarget.style.color='#64748b'; }}>
-                    {icon}
-                  </div>
-                ))}
-              </div>
-            </div>
-            {[
-              { title: 'Product', links: ['Features','Directory','NFC Cards','Pricing','How it Works'] },
-              { title: 'Company', links: ['About Us','Blog','Careers','Contact Us'] },
-              { title: 'Support', links: ['Help Center','Terms of Service','Privacy Policy','Refund Policy'] },
-            ].map((col, i) => (
-              <div key={i}>
-                <div style={{ color: '#fff', fontWeight: 700, marginBottom: 18, fontSize: 14, letterSpacing: '0.02em' }}>{col.title}</div>
-                {col.links.map(l => (
-                  <div key={l} style={{ marginBottom: 11 }}>
-                    <a href="#" style={{ color: '#475569', textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }}
-                      onMouseEnter={e => e.target.style.color='#94a3b8'}
-                      onMouseLeave={e => e.target.style.color='#475569'}>{l}</a>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <div style={{ fontSize: 13, color: '#334155' }}>© 2024 SmartProfile.in — All rights reserved.</div>
-            <div style={{ fontSize: 13, color: '#334155' }}>Made with ❤️ in India</div>
-          </div>
-        </div>
-      </footer>
 
     </div>
   );
