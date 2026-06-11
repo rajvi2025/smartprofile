@@ -1,6 +1,11 @@
 ﻿import { NextResponse } from "next/server";
-import { supabase } from "../../../lib/supabase";
 import bcrypt from "bcryptjs";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export async function POST(request) {
   try {
@@ -10,17 +15,8 @@ export async function POST(request) {
       return NextResponse.json({ error: "All fields required" }, { status: 400 });
     }
 
-    const { data: existing } = await supabase
-      .from("users")
-      .select("id")
-      .eq("email", email)
-      .single();
-
-    if (existing) {
-      return NextResponse.json({ error: "Email already registered" }, { status: 400 });
-    }
-
-    const cleanPassword = password.replace(/[^\x00-\x7F]/g, "");`r`n    const hashedPassword = await bcrypt.hash(cleanPassword, 10);
+    const cleanPassword = password.replace(/[^\x00-\x7F]/g, "");
+    const hashedPassword = await bcrypt.hash(cleanPassword, 10);
 
     const { data, error } = await supabase
       .from("users")
