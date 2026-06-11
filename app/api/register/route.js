@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { supabase } from "../../../lib/supabase";
 import bcrypt from "bcryptjs";
 
@@ -20,7 +20,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "Email already registered" }, { status: 400 });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const cleanPassword = password.replace(/[^\x00-\x7F]/g, "");`r`n    const hashedPassword = await bcrypt.hash(cleanPassword, 10);
 
     const { data, error } = await supabase
       .from("users")
