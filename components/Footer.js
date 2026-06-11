@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div>
             <h3 className="text-white font-bold text-lg mb-3">SmartProfile.in</h3>
-            <p className="text-sm leading-relaxed">One Profile. Complete Business. Powered by Rajvi Enterprises.</p>
+            <p className="text-sm leading-relaxed">One Profile. Complete Business.</p>
           </div>
           <div>
             <h4 className="text-white font-semibold mb-3">Product</h4>
@@ -38,7 +38,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center text-sm">
-          <p>© 2025 Rajvi Enterprises. All rights reserved.</p>
+          <p>© 2025 SmartProfile.in. All rights reserved.</p>
           <div className="flex gap-4 mt-3 md:mt-0">
             <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition">Terms</Link>
