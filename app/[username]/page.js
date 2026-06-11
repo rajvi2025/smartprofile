@@ -1,11 +1,26 @@
 "use client";
 import { useEffect, useState, use } from "react";
 import { createClient } from "@supabase/supabase-js";
+import QRCode from "qrcode";
 
 const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
+
+function QRSection({ username }) {
+  const [qrUrl, setQrUrl] = useState("");
+  useEffect(() => {
+    const url = `https://smartprofile.in/${username}`;
+    QRCode.toDataURL(url, { width: 120, margin: 1, color: { dark: "#0f172a", light: "#ffffff" } })
+      .then(setQrUrl);
+  }, [username]);
+  return qrUrl ? (
+    <img src={qrUrl} alt="QR Code" className="w-20 h-20 rounded-xl border border-gray-200" />
+  ) : (
+    <div className="w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center text-xs text-gray-400">Loading...</div>
+  );
+}
 
 function BasicProfile({ profile }) {
   const saveContact = () => {
@@ -65,7 +80,7 @@ function BasicProfile({ profile }) {
           </div>}
         </div>
         <div className="mx-4 mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center gap-4">
-          <div className="w-20 h-20 bg-white border border-gray-300 rounded-xl flex items-center justify-center text-xs text-gray-400">QR Code</div>
+          <QRSection username={profile.username} />
           <div className="flex-1">
             <p className="font-bold text-gray-800 text-sm">Share My Profile</p>
             <p className="text-gray-500 text-xs mt-1">Scan QR code to save my details instantly.</p>
@@ -191,7 +206,7 @@ function BusinessProfile({ profile, products, socials }) {
           </div>
         )}
         <div className="mx-4 mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center gap-4">
-          <div className="w-20 h-20 bg-white border border-gray-300 rounded-xl flex items-center justify-center text-xs text-gray-400">QR Code</div>
+          <QRSection username={profile.username} />
           <div className="flex-1">
             <p className="font-bold text-gray-800 text-sm">Share My Profile</p>
             <p className="text-gray-500 text-xs mt-1">Scan QR code to save my details instantly.</p>
