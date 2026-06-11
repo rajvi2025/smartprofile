@@ -3,22 +3,38 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 const categories = [
-  { name: 'Manufacturers', icon: '🏭', count: '120+', color: '#3b82f6' },
-  { name: 'Real Estate', icon: '🏠', count: '95+', color: '#8b5cf6' },
-  { name: 'Doctors', icon: '⚕️', count: '80+', color: '#10b981' },
-  { name: 'Consultants', icon: '💼', count: '110+', color: '#f59e0b' },
-  { name: 'Restaurants', icon: '🍽️', count: '70+', color: '#ef4444' },
-  { name: 'Retail Shops', icon: '🛍️', count: '150+', color: '#06b6d4' },
+  { name: 'Estate Agents', icon: '🏠' },
+  { name: 'AC Repairing', icon: '❄️' },
+  { name: 'Doctors', icon: '⚕️' },
+  { name: 'Dentists', icon: '🦷' },
+  { name: 'Physiotherapy', icon: '🏃' },
+  { name: 'Salons', icon: '✂️' },
+  { name: 'Restaurants', icon: '🍽️' },
+  { name: 'Education', icon: '🎓' },
+  { name: 'Travel Agents', icon: '✈️' },
+  { name: 'Automotive', icon: '🚗' },
 ];
 
 const businesses = [
-  { name: 'Dream Home Realty', category: 'Real Estate', city: 'Mumbai', rating: 4.8, reviews: 124, verified: true, initials: 'DH', color: '#3b82f6' },
-  { name: 'HealthFirst Clinic', category: 'Doctor', city: 'Pune', rating: 4.9, reviews: 89, verified: true, initials: 'HF', color: '#10b981' },
-  { name: 'Sharma Manufacturers', category: 'Manufacturer', city: 'Nashik', rating: 4.7, reviews: 56, verified: false, initials: 'SM', color: '#f59e0b' },
-  { name: 'TaxPro Consultants', category: 'Consultant', city: 'Thane', rating: 4.6, reviews: 43, verified: true, initials: 'TP', color: '#8b5cf6' },
-  { name: 'Spice Garden Restaurant', category: 'Restaurant', city: 'Nagpur', rating: 4.5, reviews: 201, verified: false, initials: 'SG', color: '#ef4444' },
-  { name: 'Fashion Hub', category: 'Retail', city: 'Aurangabad', rating: 4.4, reviews: 67, verified: true, initials: 'FH', color: '#06b6d4' },
+  { name: 'Dream Home Realty', category: 'Real Estate', city: 'Mumbai', state: 'Maharashtra', rating: 4.7, reviews: 96, verified: true, initials: 'DH', color: '#3b82f6', img: null },
+  { name: 'Cool Breeze AC Care', category: 'AC Repairing', city: 'Delhi', state: 'Delhi', rating: 4.6, reviews: 84, verified: true, initials: 'CB', color: '#06b6d4', img: null },
+  { name: 'Dr. Amit Sharma', category: 'General Physician', city: 'Pune', state: 'Maharashtra', rating: 4.8, reviews: 112, verified: true, initials: 'AS', color: '#10b981', img: null },
+  { name: 'Bright Smile Dental', category: 'Dentist', city: 'Chennai', state: 'Tamil Nadu', rating: 4.7, reviews: 68, verified: true, initials: 'BS', color: '#8b5cf6', img: null },
+  { name: 'Active Physio Care', category: 'Physiotherapy', city: 'Kolkata', state: 'West Bengal', rating: 4.6, reviews: 73, verified: true, initials: 'AP', color: '#f59e0b', img: null },
+  { name: 'Spice Garden', category: 'Restaurant', city: 'Jaipur', state: 'Rajasthan', rating: 4.5, reviews: 104, verified: false, initials: 'SG', color: '#ef4444', img: null },
 ];
+
+function StarRating({ rating }) {
+  return (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      {[1,2,3,4,5].map(i => (
+        <svg key={i} width="12" height="12" viewBox="0 0 20 20" fill={i <= Math.floor(rating) ? '#f59e0b' : '#e2e8f0'}>
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+      ))}
+    </span>
+  );
+}
 
 export default function DirectoryPage() {
   const [search, setSearch] = useState('');
@@ -33,151 +49,269 @@ export default function DirectoryPage() {
   });
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif", background: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{ fontFamily: "'Inter', sans-serif", background: '#f0f4f8', minHeight: '100vh' }}>
 
       {/* HERO SECTION */}
-      <section style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)', padding: '80px 24px 60px', position: 'relative', overflow: 'hidden' }}>
-        {/* Background dots */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(59,130,246,0.15) 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+      <section style={{ background: 'linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 50%, #e8f4fd 100%)', padding: '48px 24px 40px', position: 'relative', overflow: 'hidden' }}>
+        
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }}>
+          
+          {/* LEFT SIDE */}
+          <div style={{ position: 'relative', zIndex: 2 }}>
+            <h1 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 800, color: '#0f172a', margin: '0 0 12px', lineHeight: 1.15 }}>
+              Find Trusted<br />
+              Businesses <span style={{ color: '#3b82f6' }}>Across India</span>
+            </h1>
+            <p style={{ color: '#64748b', fontSize: 16, marginBottom: 28, lineHeight: 1.6 }}>
+              Search, discover and connect with verified businesses<br />and professionals in your city.
+            </p>
 
-        {/* India Map SVG background */}
-        <svg style={{ position: 'absolute', right: '5%', top: '10%', opacity: 0.07, width: '40%', maxWidth: 400 }} viewBox="0 0 400 480" fill="white">
-          <path d="M200,20 L280,60 L320,80 L350,120 L360,160 L340,200 L360,240 L350,280 L320,310 L300,340 L280,370 L260,400 L240,430 L220,450 L200,460 L180,450 L160,430 L140,400 L120,370 L100,340 L80,310 L50,280 L40,240 L60,200 L40,160 L50,120 L80,80 L120,60 L160,40 Z"/>
-        </svg>
-
-        <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 999, padding: '6px 16px', marginBottom: 24 }}>
-            <span style={{ width: 8, height: 8, background: '#3b82f6', borderRadius: '50%', display: 'inline-block' }}></span>
-            <span style={{ color: '#93c5fd', fontSize: 13, fontWeight: 500 }}>India ka #1 Business Directory</span>
-          </div>
-
-          <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 800, color: 'white', margin: '0 0 16px', lineHeight: 1.1 }}>
-            Find Local Businesses<br />
-            <span style={{ background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Near You</span>
-          </h1>
-
-          <p style={{ color: '#94a3b8', fontSize: 18, marginBottom: 36, maxWidth: 500, margin: '0 auto 36px' }}>
-            1000+ verified businesses across Maharashtra. Discover, connect, and grow.
-          </p>
-
-          {/* Search Bar */}
-          <div style={{ display: 'flex', gap: 12, maxWidth: 640, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <input
-              type="text"
-              placeholder="Search business, category..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{ flex: 1, minWidth: 220, padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.08)', color: 'white', fontSize: 15, outline: 'none', backdropFilter: 'blur(8px)' }}
-            />
-            <select
-              value={selectedCity}
-              onChange={e => setSelectedCity(e.target.value)}
-              style={{ padding: '14px 16px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.08)', color: 'white', fontSize: 14, outline: 'none', cursor: 'pointer' }}
-            >
-              <option value="" style={{ color: '#000' }}>All Cities</option>
-              <option value="Mumbai" style={{ color: '#000' }}>Mumbai</option>
-              <option value="Pune" style={{ color: '#000' }}>Pune</option>
-              <option value="Thane" style={{ color: '#000' }}>Thane</option>
-              <option value="Nashik" style={{ color: '#000' }}>Nashik</option>
-              <option value="Nagpur" style={{ color: '#000' }}>Nagpur</option>
-            </select>
-            <button style={{ padding: '14px 28px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
-              Search
-            </button>
-          </div>
-
-          {/* Stats */}
-          <div style={{ display: 'flex', gap: 32, justifyContent: 'center', marginTop: 40, flexWrap: 'wrap' }}>
-            {[['1000+', 'Businesses'], ['50+', 'Cities'], ['10K+', 'Monthly Visitors'], ['500+', 'Verified']].map(([num, label]) => (
-              <div key={label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: 'white' }}>{num}</div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
+            {/* Search Bar */}
+            <div style={{ display: 'flex', gap: 8, background: 'white', borderRadius: 14, padding: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', marginBottom: 20, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 2, minWidth: 160, padding: '6px 12px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" placeholder="Search business or service..." value={search} onChange={e => setSearch(e.target.value)}
+                  style={{ border: 'none', outline: 'none', fontSize: 14, color: '#0f172a', width: '100%', background: 'transparent' }} />
               </div>
+              <div style={{ width: 1, background: '#e2e8f0', margin: '4px 0' }}></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minWidth: 120, padding: '6px 12px' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <select value={selectedCity} onChange={e => setSelectedCity(e.target.value)}
+                  style={{ border: 'none', outline: 'none', fontSize: 14, color: '#0f172a', background: 'transparent', cursor: 'pointer' }}>
+                  <option value="">All India</option>
+                  {['Mumbai','Delhi','Pune','Chennai','Bangalore','Kolkata','Jaipur','Hyderabad'].map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div style={{ width: 1, background: '#e2e8f0', margin: '4px 0' }}></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minWidth: 120, padding: '6px 12px' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <select value={selectedCat} onChange={e => setSelectedCat(e.target.value)}
+                  style={{ border: 'none', outline: 'none', fontSize: 14, color: '#0f172a', background: 'transparent', cursor: 'pointer' }}>
+                  <option value="">All Categories</option>
+                  {['Real Estate','Doctor','Dentist','Restaurant','Retail','Consultant'].map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <button style={{ padding: '10px 24px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                Search
+              </button>
+            </div>
+
+            {/* Trust Badges */}
+            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+              {[
+                { icon: '🛡️', text: 'Verified Businesses' },
+                { icon: '📞', text: 'Direct Contact' },
+                { icon: '✅', text: '100% Trusted' },
+              ].map(b => (
+                <div key={b.text} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#475569', fontWeight: 500 }}>
+                  <span>{b.icon}</span><span>{b.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT SIDE - India Map + Floating Card */}
+          <div style={{ position: 'relative', height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            
+            {/* India Map SVG */}
+            {/* City Illustration */}
+            <svg viewBox="0 0 500 350" style={{ width: '95%', position: 'absolute', bottom: 0, opacity: 0.12 }} fill="#3b82f6" xmlns="http://www.w3.org/2000/svg">
+              {/* Taj Mahal */}
+              <rect x="200" y="200" width="100" height="80" rx="2"/>
+              <ellipse cx="250" cy="200" rx="30" ry="40"/>
+              <ellipse cx="210" cy="210" rx="15" ry="20"/>
+              <ellipse cx="290" cy="210" rx="15" ry="20"/>
+              <rect x="230" y="160" width="40" height="20"/>
+              <polygon points="250,140 240,160 260,160"/>
+              {/* Minaret Left */}
+              <rect x="175" y="195" width="12" height="60"/>
+              <ellipse cx="181" cy="193" rx="8" ry="12"/>
+              <polygon points="181,178 176,193 186,193"/>
+              {/* Minaret Right */}
+              <rect x="313" y="195" width="12" height="60"/>
+              <ellipse cx="319" cy="193" rx="8" ry="12"/>
+              <polygon points="319,178 314,193 324,193"/>
+              {/* Base platform */}
+              <rect x="160" y="278" width="180" height="10" rx="2"/>
+              <rect x="150" y="286" width="200" height="8" rx="2"/>
+
+              {/* Buildings Left */}
+              <rect x="30" y="180" width="35" height="110"/>
+              <rect x="38" y="170" width="20" height="15"/>
+              <rect x="44" y="160" width="8" height="12"/>
+              <rect x="20" y="210" width="25" height="80"/>
+              <rect x="70" y="220" width="30" height="70"/>
+              <rect x="75" y="205" width="20" height="18"/>
+
+              {/* Buildings Right */}
+              <rect x="390" y="190" width="40" height="100"/>
+              <rect x="398" y="178" width="24" height="15"/>
+              <rect x="404" y="165" width="10" height="16"/>
+              <rect x="435" y="215" width="30" height="75"/>
+              <rect x="440" y="200" width="20" height="18"/>
+              <rect x="355" y="225" width="32" height="65"/>
+
+              {/* Ground */}
+              <rect x="0" y="288" width="500" height="8" rx="2"/>
+
+              {/* Location pins */}
+              <circle cx="150" cy="150" r="8"/>
+              <polygon points="150,165 144,152 156,152"/>
+              <circle cx="350" cy="130" r="8"/>
+              <polygon points="350,145 344,132 356,132"/>
+              <circle cx="250" cy="100" r="8"/>
+              <polygon points="250,115 244,102 256,102"/>
+            </svg>
+
+            {/* Location Pins */}
+            {[
+              { top: '18%', left: '38%' },
+              { top: '28%', left: '62%' },
+              { top: '42%', left: '28%' },
+              { top: '52%', left: '55%' },
+              { top: '65%', left: '42%' },
+              { top: '38%', left: '48%' },
+            ].map((pos, i) => (
+              <div key={i} style={{ position: 'absolute', top: pos.top, left: pos.left, width: 12, height: 12, background: '#3b82f6', borderRadius: '50%', border: '2px solid white', boxShadow: '0 0 0 3px rgba(59,130,246,0.2)', zIndex: 2 }}></div>
             ))}
+
+            {/* Floating Business Card */}
+            <div style={{ position: 'absolute', top: 10, right: 0, background: 'white', borderRadius: 16, padding: '16px', width: 220, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', zIndex: 3 }}>
+              <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 10, background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🏠</div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: '#0f172a' }}>Dream Home Realty</div>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>Real Estate Consultant</div>
+                  <div style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <span>📍</span> Bangalore, Karnataka
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                <StarRating rating={4.8} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>4.8</span>
+                <span style={{ fontSize: 11, color: '#94a3b8' }}>(128)</span>
+                <span style={{ marginLeft: 'auto', background: '#dcfce7', color: '#16a34a', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 999 }}>✓ Verified</span>
+              </div>
+              <button style={{ width: '100%', padding: '8px', background: 'white', color: '#3b82f6', border: '1.5px solid #3b82f6', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                View Profile
+              </button>
+            </div>
+
           </div>
         </div>
       </section>
 
       {/* CATEGORIES */}
-      <section style={{ padding: '48px 24px', background: 'white' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 28, fontWeight: 700, color: '#0f172a', textAlign: 'center', marginBottom: 32 }}>Browse by Category</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16 }}>
+      <section style={{ padding: '32px 24px', background: 'white', borderBottom: '1px solid #f1f5f9' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0 }}>Browse by Categories</h2>
+            <a href="#" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all categories →</a>
+          </div>
+          <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 8 }}>
             {categories.map(cat => (
               <div key={cat.name} onClick={() => setSelectedCat(selectedCat === cat.name ? '' : cat.name)}
-                style={{ padding: '24px 16px', borderRadius: 16, border: `2px solid ${selectedCat === cat.name ? cat.color : '#f1f5f9'}`, background: selectedCat === cat.name ? `${cat.color}10` : '#f8fafc', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
-                <div style={{ fontSize: 32, marginBottom: 8 }}>{cat.icon}</div>
-                <div style={{ fontWeight: 600, color: '#0f172a', fontSize: 14 }}>{cat.name}</div>
-                <div style={{ fontSize: 12, color: cat.color, fontWeight: 500 }}>{cat.count} listed</div>
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, minWidth: 80, cursor: 'pointer', padding: '12px 8px', borderRadius: 12, background: selectedCat === cat.name ? '#eff6ff' : 'transparent', border: selectedCat === cat.name ? '1.5px solid #3b82f6' : '1.5px solid transparent', transition: 'all 0.2s' }}>
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: '#f0f4ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{cat.icon}</div>
+                <span style={{ fontSize: 12, fontWeight: 500, color: '#374151', textAlign: 'center', whiteSpace: 'nowrap' }}>{cat.name}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* BUSINESS LISTINGS */}
-      <section style={{ padding: '48px 24px', background: '#f8fafc' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0f172a', margin: 0 }}>
-              {filtered.length} Businesses Found
-            </h2>
-            <select onChange={e => setSelectedCity(e.target.value)} value={selectedCity}
-              style={{ padding: '10px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: 'white', fontSize: 14, outline: 'none', cursor: 'pointer' }}>
-              <option value="">All Cities</option>
-              {['Mumbai','Pune','Thane','Nashik','Nagpur','Aurangabad'].map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+      {/* FEATURED BUSINESSES */}
+      <section style={{ padding: '40px 24px', background: '#f8fafc' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0 }}>Featured Businesses</h2>
+            <a href="#" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all businesses →</a>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
             {filtered.map(biz => (
-              <div key={biz.name} style={{ background: 'white', borderRadius: 20, padding: '24px', border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)'}
+              <div key={biz.name} style={{ background: 'white', borderRadius: 16, padding: '20px', border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer' }}
+                onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'}
                 onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 16 }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 14, background: `${biz.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: biz.color, fontSize: 16, flexShrink: 0 }}>
+                
+                {/* Business Header */}
+                <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 12, background: `${biz.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: biz.color, fontSize: 18, flexShrink: 0 }}>
                     {biz.initials}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                      <span style={{ fontWeight: 700, color: '#0f172a', fontSize: 16 }}>{biz.name}</span>
-                      {biz.verified && <span style={{ background: '#dcfce7', color: '#16a34a', fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 999 }}>✓ Verified</span>}
+                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 14, marginBottom: 2 }}>{biz.name}</div>
+                    <div style={{ fontSize: 12, color: '#64748b' }}>{biz.category}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      📍 {biz.city}, {biz.state}
                     </div>
-                    <div style={{ fontSize: 13, color: '#64748b' }}>{biz.category} • 📍 {biz.city}</div>
                   </div>
+                  {biz.verified && (
+                    <span style={{ background: '#dcfce7', color: '#16a34a', fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 999, height: 'fit-content' }}>✓ Verified</span>
+                  )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
-                  {[1,2,3,4,5].map(i => (
-                    <svg key={i} width="14" height="14" viewBox="0 0 20 20" fill={i <= Math.floor(biz.rating) ? '#fbbf24' : '#e2e8f0'}><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                  ))}
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{biz.rating}</span>
+
+                {/* Rating */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: '8px 0', borderTop: '1px solid #f8fafc', borderBottom: '1px solid #f8fafc' }}>
+                  <StarRating rating={biz.rating} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{biz.rating}</span>
                   <span style={{ fontSize: 12, color: '#94a3b8' }}>({biz.reviews} reviews)</span>
                 </div>
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button style={{ flex: 1, padding: '10px', background: `${biz.color}15`, color: biz.color, border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>View Profile</button>
-                  <button style={{ flex: 1, padding: '10px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>WhatsApp</button>
+
+                {/* Buttons */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button style={{ flex: 1, padding: '9px', background: 'white', color: '#3b82f6', border: '1.5px solid #3b82f6', borderRadius: 9, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>View Profile</button>
+                  <button style={{ flex: 1, padding: '9px', background: '#22c55e', color: 'white', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.484 0C5.145 0 .026 5.119.026 11.458c0 2.016.531 3.914 1.455 5.566L0 23l6.154-1.614a11.426 11.426 0 005.33 1.317h.005C17.82 22.703 22.94 17.583 22.94 11.244 22.94 4.906 17.82 0 11.484 0z"/></svg>
+                    Call
+                  </button>
                 </div>
               </div>
             ))}
           </div>
-          {filtered.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '60px 24px', color: '#94a3b8' }}>
-              <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
-              <div style={{ fontSize: 18, fontWeight: 600 }}>No businesses found</div>
-              <div style={{ fontSize: 14 }}>Try a different search or category</div>
+        </div>
+      </section>
+
+      {/* STATS BAR */}
+      <section style={{ background: 'white', padding: '32px 24px', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 24, textAlign: 'center' }}>
+          {[
+            { icon: '🛡️', num: '25,000+', label: 'Verified Businesses' },
+            { icon: '🏙️', num: '500+', label: 'Cities Covered' },
+            { icon: '📋', num: '100+', label: 'Business Categories' },
+            { icon: '🔍', num: '1L+', label: 'Monthly Searches' },
+            { icon: '⭐', num: '4.7/5', label: 'Average Rating' },
+            { icon: '🎧', num: '24/7', label: 'Customer Support' },
+          ].map(s => (
+            <div key={s.label}>
+              <div style={{ fontSize: 24, marginBottom: 4 }}>{s.icon}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>{s.num}</div>
+              <div style={{ fontSize: 12, color: '#64748b' }}>{s.label}</div>
             </div>
-          )}
+          ))}
         </div>
       </section>
 
       {/* CTA */}
-      <section style={{ background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', padding: '60px 24px', textAlign: 'center' }}>
-        <h2 style={{ fontSize: 32, fontWeight: 800, color: 'white', marginBottom: 12 }}>List Your Business Free</h2>
-        <p style={{ color: '#94a3b8', marginBottom: 32, fontSize: 16 }}>Join 1000+ businesses already on SmartProfile</p>
-        <Link href="/register" style={{ display: 'inline-block', padding: '14px 36px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', borderRadius: 12, fontWeight: 700, fontSize: 16, textDecoration: 'none' }}>
-          Create Free Profile →
-        </Link>
+      <section style={{ background: 'linear-gradient(135deg, #1e40af, #3b82f6)', padding: '48px 24px' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <div style={{ fontSize: 48 }}>🏪</div>
+            <div>
+              <h3 style={{ color: 'white', fontWeight: 700, fontSize: 22, margin: '0 0 6px' }}>Are you a business owner?</h3>
+              <p style={{ color: '#bfdbfe', fontSize: 14, margin: 0 }}>Create your digital profile and get discovered by thousands of potential customers across India.</p>
+            </div>
+          </div>
+          <Link href="/register" style={{ display: 'inline-block', padding: '14px 32px', background: 'white', color: '#1e40af', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            List Your Business Free →
+          </Link>
+        </div>
       </section>
 
     </div>
   );
 }
+
+
+
