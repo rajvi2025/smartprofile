@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
   --background: #ffffff;
@@ -24,6 +24,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-.mobile-only { display: none; } @media (max-width: 768px) { .mobile-only { display: block !important; } .desktop-hero-only { display: none !important; } }
+ @media (max-width: 768px) {   }
 
-.mobile-only { display: none; } @media (max-width: 768px) { .mobile-only { display: block !important; } .desktop-hero-only { display: none !important; } }
+ @media (max-width: 768px) {   }
+
