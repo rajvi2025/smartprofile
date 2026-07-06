@@ -1,5 +1,7 @@
-﻿'use client';
-import { useState } from 'react';
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
 const categories = [
@@ -15,14 +17,6 @@ const categories = [
   { name: 'Automotive', icon: '🚗' },
 ];
 
-const businesses = [
-  { name: 'Dream Home Realty', category: 'Real Estate', city: 'Mumbai', state: 'Maharashtra', rating: 4.7, reviews: 96, verified: true, initials: 'DH', color: '#3b82f6', img: null },
-  { name: 'Cool Breeze AC Care', category: 'AC Repairing', city: 'Delhi', state: 'Delhi', rating: 4.6, reviews: 84, verified: true, initials: 'CB', color: '#06b6d4', img: null },
-  { name: 'Dr. Amit Sharma', category: 'General Physician', city: 'Pune', state: 'Maharashtra', rating: 4.8, reviews: 112, verified: true, initials: 'AS', color: '#10b981', img: null },
-  { name: 'Bright Smile Dental', category: 'Dentist', city: 'Chennai', state: 'Tamil Nadu', rating: 4.7, reviews: 68, verified: true, initials: 'BS', color: '#8b5cf6', img: null },
-  { name: 'Active Physio Care', category: 'Physiotherapy', city: 'Kolkata', state: 'West Bengal', rating: 4.6, reviews: 73, verified: true, initials: 'AP', color: '#f59e0b', img: null },
-  { name: 'Spice Garden', category: 'Restaurant', city: 'Jaipur', state: 'Rajasthan', rating: 4.5, reviews: 104, verified: false, initials: 'SG', color: '#ef4444', img: null },
-];
 
 function StarRating({ rating }) {
   return (
@@ -37,9 +31,37 @@ function StarRating({ rating }) {
 }
 
 export default function DirectoryPage() {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCat, setSelectedCat] = useState('');
+
+  const [businesses, setBusinesses] = useState([]);
+
+  useEffect(() => {
+    async function fetchProfiles() {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('is_active', true);
+      if (!error && data) {
+        setBusinesses(data.map(p => ({
+          name: p.business_name || p.full_name || p.username,
+          category: p.category || 'General',
+          city: p.city || '',
+          state: p.state || '',
+          rating: p.rating || 0,
+          reviews: p.reviews || 0,
+          verified: !!p.is_active,
+          initials: (p.business_name || p.full_name || '?').substring(0,2).toUpperCase(),
+          color: '#3b82f6',
+          img: p.logo_url || null,
+          username: p.username,
+        })));
+      }
+    }
+    fetchProfiles();
+  }, []);
 
   const filtered = businesses.filter(b => {
     const matchSearch = b.name.toLowerCase().includes(search.toLowerCase()) || b.category.toLowerCase().includes(search.toLowerCase());
@@ -261,7 +283,7 @@ export default function DirectoryPage() {
 
                 {/* Buttons */}
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button style={{ flex: 1, padding: '9px', background: 'white', color: '#3b82f6', border: '1.5px solid #3b82f6', borderRadius: 9, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>View Profile</button>
+                  <button onClick={() => router.push('/' + biz.username)} style={{ flex: 1, padding: '9px', background: 'white', color: '#3b82f6', border: '1.5px solid #3b82f6', borderRadius: 9, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>View Profile</button>
                   <button style={{ flex: 1, padding: '9px', background: '#22c55e', color: 'white', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.484 0C5.145 0 .026 5.119.026 11.458c0 2.016.531 3.914 1.455 5.566L0 23l6.154-1.614a11.426 11.426 0 005.33 1.317h.005C17.82 22.703 22.94 17.583 22.94 11.244 22.94 4.906 17.82 0 11.484 0z"/></svg>
                     Call

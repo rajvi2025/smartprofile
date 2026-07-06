@@ -60,7 +60,7 @@ export async function POST(request) {
 
     if (error) {
       console.error('Supabase error:', error);
-      return Response.json({ error: 'Failed to create profile' }, { status: 500 });
+      return Response.json({ error: 'Failed to create profile', details: error.message, fullError: error }, { status: 500 });
     }
 
     return Response.json({ success: true, profile: data }, { status: 201 });
