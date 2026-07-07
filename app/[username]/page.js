@@ -22,6 +22,41 @@ function QRSection({ username }) {
   );
 }
 
+function StarRating({ rating }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <svg key={i} className={`w-4 h-4 ${i <= (rating || 5) ? "text-yellow-400" : "text-gray-200"}`} fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.286 3.957c.3.922-.755 1.688-1.539 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.784.57-1.838-.196-1.538-1.118l1.285-3.957a1 1 0 00-.363-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.958z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+function TestimonialsSection({ testimonials }) {
+  if (!testimonials || testimonials.length === 0) return null;
+  return (
+    <div className="mb-4">
+      <p className="text-sm font-bold text-gray-800 mb-3 px-4">What Our Clients Say ({testimonials.length})</p>
+      <div className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: "none" }}>
+        {testimonials.map((t) => (
+          <div key={t.id} className="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex-shrink-0 w-[85%] snap-center">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-bold text-gray-800">{t.name}</span>
+              <StarRating rating={t.rating} />
+            </div>
+            <p className="text-sm text-gray-600 leading-relaxed">{t.review}</p>
+          </div>
+        ))}
+      </div>
+      {testimonials.length > 1 && (
+        <p className="text-center text-xs text-gray-400 mt-1">← Swipe to see more →</p>
+      )}
+    </div>
+  );
+}
+
 function BasicProfile({ profile }) {
   const saveContact = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
@@ -100,13 +135,18 @@ function BasicProfile({ profile }) {
   );
 }
 
-function BusinessProfile({ profile, products, socials }) {
+function BusinessProfile({ profile, products, socials, testimonials }) {
   const saveContact = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${profile.business_name}.vcf`; a.click();
   };
   const socialColors = { facebook:"#1877F2", instagram:"#E4405F", youtube:"#FF0000", linkedin:"#0A66C2", twitter:"#1DA1F2" };
+
+  const testimonialLimits = { business: 2, premium: 5, pro: 10, ultimate: 10 };
+  const limit = testimonialLimits[profile.plan] || 2;
+  const visibleTestimonials = (testimonials || []).slice(0, limit);
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-6 px-4">
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl overflow-hidden">
@@ -205,6 +245,7 @@ function BusinessProfile({ profile, products, socials }) {
             </div>
           </div>
         )}
+        <TestimonialsSection testimonials={visibleTestimonials} />
         <div className="mx-4 mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center gap-4">
           <QRSection username={profile.username} />
           <div className="flex-1">
@@ -232,6 +273,7 @@ export default function ProfilePage({ params }) {
   const [profile, setProfile] = useState(null);
   const [products, setProducts] = useState([]);
   const [socials, setSocials] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -243,6 +285,8 @@ export default function ProfilePage({ params }) {
       setProducts(pr || []);
       const { data: sl } = await supabase.from("social_links").select("*").eq("profile_id", p.id);
       setSocials(sl || []);
+      const { data: tm } = await supabase.from("testimonials").select("*").eq("profile_id", p.id).order("sort_order", { ascending: true });
+      setTestimonials(tm || []);
       setLoading(false);
     }
     fetchProfile();
@@ -263,8 +307,8 @@ export default function ProfilePage({ params }) {
     </div>
   );
 
-  if (profile.plan === "business" || profile.plan === "premium" || profile.plan === "ultimate") {
-    return <BusinessProfile profile={profile} products={products} socials={socials} />;
+  if (profile.plan === "business" || profile.plan === "premium" || profile.plan === "pro" || profile.plan === "ultimate") {
+    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} />;
   }
   return <BasicProfile profile={profile} />;
 }

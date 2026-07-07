@@ -44,21 +44,37 @@ export default function DirectoryPage() {
         .from('profiles')
         .select('*')
         .eq('is_active', true);
-      if (!error && data) {
-        setBusinesses(data.map(p => ({
+      if (error || !data) return;
+
+      const { data: allTestimonials } = await supabase
+        .from('testimonials')
+        .select('profile_id, rating');
+
+      const ratingMap = {};
+      (allTestimonials || []).forEach(t => {
+        if (!ratingMap[t.profile_id]) ratingMap[t.profile_id] = { sum: 0, count: 0 };
+        ratingMap[t.profile_id].sum += t.rating || 0;
+        ratingMap[t.profile_id].count += 1;
+      });
+
+      setBusinesses(data.map(p => {
+        const r = ratingMap[p.id];
+        const avgRating = r ? (r.sum / r.count) : 0;
+        const reviewCount = r ? r.count : 0;
+        return {
           name: p.business_name || p.full_name || p.username,
           category: p.category || 'General',
           city: p.city || '',
           state: p.state || '',
-          rating: p.rating || 0,
-          reviews: p.reviews || 0,
+          rating: avgRating,
+          reviews: reviewCount,
           verified: !!p.is_active,
           initials: (p.business_name || p.full_name || '?').substring(0,2).toUpperCase(),
           color: '#3b82f6',
           img: p.logo_url || null,
           username: p.username,
-        })));
-      }
+        };
+      }));
     }
     fetchProfiles();
   }, []);
@@ -276,9 +292,15 @@ export default function DirectoryPage() {
 
                 {/* Rating */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: '8px 0', borderTop: '1px solid #f8fafc', borderBottom: '1px solid #f8fafc' }}>
-                  <StarRating rating={biz.rating} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{biz.rating}</span>
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>({biz.reviews} reviews)</span>
+                  {biz.reviews > 0 ? (
+                    <>
+                      <StarRating rating={biz.rating} />
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{biz.rating.toFixed(1)}</span>
+                      <span style={{ fontSize: 12, color: '#94a3b8' }}>({biz.reviews} reviews)</span>
+                    </>
+                  ) : (
+                    <span style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>No reviews yet</span>
+                  )}
                 </div>
 
                 {/* Buttons */}
@@ -334,6 +356,3 @@ export default function DirectoryPage() {
     </div>
   );
 }
-
-
-
