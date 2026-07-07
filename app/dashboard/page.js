@@ -47,7 +47,13 @@ export default function DashboardPage() {
             <p className="font-semibold text-gray-800">My Plan</p>
             <p className="text-xs text-orange-500 mt-1 font-semibold">Basic ₹199</p>
           </div>
-        <div onClick={() => router.push('/dashboard/my-link')} className="bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer hover:shadow-md transition">
+        <div onClick={() => router.push('/dashboard/testimonials')} className="bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer hover:shadow-md transition">
+        <div className="text-3xl mb-2">⭐</div>
+        <p className="font-semibold text-gray-800">Testimonials</p>
+        <p className="text-xs text-gray-500 mt-1">Manage client reviews</p>
+      </div>
+
+      <div onClick={() => router.push('/dashboard/my-link')} className="bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer hover:shadow-md transition">
             <div className="text-3xl mb-2">🔗</div>
             <p className="font-semibold text-gray-800">My Link</p>
             <p className="text-xs text-gray-500 mt-1">Share profile</p>
@@ -57,3 +63,6 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+
+

@@ -34,24 +34,36 @@ function StarRating({ rating }) {
   );
 }
 
-function TestimonialsSection({ testimonials }) {
-  if (!testimonials || testimonials.length === 0) return null;
+function TestimonialsSection({ testimonials, username }) {
   return (
-    <div className="mb-4">
-      <p className="text-sm font-bold text-gray-800 mb-3 px-4">What Our Clients Say ({testimonials.length})</p>
-      <div className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: "none" }}>
-        {testimonials.map((t) => (
-          <div key={t.id} className="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex-shrink-0 w-[85%] snap-center">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-bold text-gray-800">{t.name}</span>
-              <StarRating rating={t.rating} />
-            </div>
-            <p className="text-sm text-gray-600 leading-relaxed">{t.review}</p>
-          </div>
-        ))}
+    <div className="mb-4 px-4">
+      <div className="flex justify-between items-center mb-3">
+        <p className="text-sm font-bold text-gray-800">
+          What Our Clients Say {testimonials && testimonials.length > 0 ? `(${testimonials.length})` : ""}
+        </p>
+        <a href={`/${username}/review`} className="text-xs text-blue-600 font-semibold whitespace-nowrap">
+          Write a Review →
+        </a>
       </div>
-      {testimonials.length > 1 && (
-        <p className="text-center text-xs text-gray-400 mt-1">← Swipe to see more →</p>
+      {testimonials && testimonials.length > 0 ? (
+        <>
+          <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: "none" }}>
+            {testimonials.map((t) => (
+              <div key={t.id} className="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex-shrink-0 w-[85%] snap-center">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-bold text-gray-800">{t.name}</span>
+                  <StarRating rating={t.rating} />
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">{t.review}</p>
+              </div>
+            ))}
+          </div>
+          {testimonials.length > 1 && (
+            <p className="text-center text-xs text-gray-400 mt-1">← Swipe to see more →</p>
+          )}
+        </>
+      ) : (
+        <p className="text-xs text-gray-400">No reviews yet. Be the first to share your experience!</p>
       )}
     </div>
   );
@@ -245,7 +257,7 @@ function BusinessProfile({ profile, products, socials, testimonials }) {
             </div>
           </div>
         )}
-        <TestimonialsSection testimonials={visibleTestimonials} />
+        <TestimonialsSection testimonials={visibleTestimonials} username={profile.username} />
         <div className="mx-4 mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center gap-4">
           <QRSection username={profile.username} />
           <div className="flex-1">
