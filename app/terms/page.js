@@ -3,7 +3,7 @@
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm p-8 md:p-12">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Terms of Service</h1>
-        <p className="text-gray-500 mb-8">Last updated: June 11, 2025</p>
+        <p className="text-gray-500 mb-8">Last updated: July 7, 2026</p>
 
         <section className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-3">1. Acceptance of Terms</h2>
@@ -70,3 +70,4 @@
     </div>
   );
 }
+
