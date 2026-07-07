@@ -51,7 +51,7 @@ export default function Footer() {
           {/* Company */}
           <div>
             <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 16, fontSize: 15 }}>Company</h4>
-            {[['Contact Us', '/contact'], ['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['Refund Policy', '/refund']].map(([label, href]) => (
+            {[['Contact Us', '/contact'], ['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['Refund Policy', '/refund'], ['Shipping Policy', '/shipping']].map(([label, href]) => (
               <div key={label} style={{ marginBottom: 10 }}>
                 <Link href={href} style={{ color: '#64748b', fontSize: 14, textDecoration: 'none' }}
                   onMouseEnter={e => e.currentTarget.style.color = 'white'}
@@ -78,7 +78,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <p style={{ fontSize: 13, color: '#475569', margin: 0 }}>© 2025 SmartProfile.in. All rights reserved.</p>
+          <p style={{ fontSize: 13, color: '#475569', margin: 0 }}>© 2026 SmartProfile.in. All rights reserved.</p>
           <p style={{ fontSize: 13, color: '#475569', margin: 0 }}>
             Made with <span style={{ color: '#ef4444' }}>❤️</span> in India
           </p>
@@ -88,3 +88,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+
