@@ -27,9 +27,11 @@ export default function FreeListingPage() {
     business_type: "Services",
     category: "",
     full_name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
     phone: "",
     whatsapp: "",
-    email: "",
     city: "",
     state: "",
     address: "",
@@ -38,6 +40,7 @@ export default function FreeListingPage() {
     business_id_type: "GST",
     business_id_number: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
@@ -52,19 +55,48 @@ export default function FreeListingPage() {
       setError("Please fill all required fields marked with *");
       return;
     }
+    if (!form.full_name || !form.email || !form.password) {
+      setError("Please fill your name, email and password to create your account.");
+      return;
+    }
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
 
     setSubmitting(true);
-    const username = slugify(form.business_name);
 
+    // Step 1: create the account, same as the paid registration flow
+    let userData = null;
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: form.full_name, email: form.email, password: form.password }),
+      });
+      userData = await res.json();
+      if (!res.ok) {
+        setError(userData.error || "Could not create your account. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+    } catch (err) {
+      setError("Something went wrong while creating your account.");
+      setSubmitting(false);
+      return;
+    }
+
+    // Step 2: create the free listing, linked to this account's email
+    const username = slugify(form.business_name);
     const { error: insertError } = await supabase.from("profiles").insert([{
       username,
       business_name: form.business_name,
       business_type: form.business_type,
       category: form.category,
-      full_name: form.full_name || null,
+      full_name: form.full_name,
       phone: form.phone,
       whatsapp: form.whatsapp || form.phone,
-      email: form.email || null,
+      email: form.email,
       city: form.city,
       state: form.state || null,
       address: form.address || null,
@@ -80,7 +112,7 @@ export default function FreeListingPage() {
     setSubmitting(false);
 
     if (insertError) {
-      setError("Something went wrong: " + insertError.message);
+      setError("Account created, but listing failed: " + insertError.message);
       return;
     }
 
@@ -94,7 +126,7 @@ export default function FreeListingPage() {
           <div className="text-5xl mb-4">✅</div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Listing Submitted!</h1>
           <p className="text-gray-500 text-sm mb-6">
-            Thanks! Your business has been submitted for review. Once approved by our team, it will appear live in the SmartProfile Business Directory — usually within 24 hours.
+            Your account has been created and your business has been submitted for review. Once approved by our team, it will appear live in the SmartProfile Business Directory — usually within 24 hours. You can log in anytime to check your listing status.
           </p>
 
           <div className="rounded-xl p-4 mb-4 text-white text-left" style={{ background: "linear-gradient(135deg, #1e40af, #3b82f6)" }}>
@@ -110,6 +142,9 @@ export default function FreeListingPage() {
           <a href="/directory" className="inline-block text-gray-500 text-sm font-medium">
             Or just browse the directory →
           </a>
+          <p className="text-xs text-gray-400 mt-3">
+            Want to log in later? <a href="/login" className="text-blue-600 font-semibold">Login here</a>
+          </p>
         </div>
       </div>
     );
@@ -141,6 +176,41 @@ export default function FreeListingPage() {
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-5">
 
+          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-4">
+            <p className="text-sm font-bold text-gray-800">Your Account</p>
+            <p className="text-xs text-gray-500 -mt-3">You'll use this to log in later and manage your listing.</p>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Your Full Name *</label>
+              <input value={form.full_name} onChange={(e) => update("full_name", e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white" placeholder="e.g. Rajesh Sharma" />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address *</label>
+              <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white" placeholder="you@example.com" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Password *</label>
+                <div className="relative">
+                  <input type={showPassword ? "text" : "password"} value={form.password} onChange={(e) => update("password", e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white" placeholder="Create a password" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Confirm Password *</label>
+                <input type={showPassword ? "text" : "password"} value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white" placeholder="Confirm password" />
+              </div>
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Business Name *</label>
             <input value={form.business_name} onChange={(e) => update("business_name", e.target.value)}
@@ -170,27 +240,14 @@ export default function FreeListingPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Contact Person</label>
-              <input value={form.full_name} onChange={(e) => update("full_name", e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Owner name" />
-            </div>
-            <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">Phone *</label>
               <input value={form.phone} onChange={(e) => update("phone", e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="10-digit mobile" />
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">WhatsApp</label>
               <input value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Same as phone if blank" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
-              <input value={form.email} onChange={(e) => update("email", e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="business@email.com" />
             </div>
           </div>
 
