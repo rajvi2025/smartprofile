@@ -17,7 +17,6 @@ const categories = [
   { name: 'Automotive', icon: '🚗' },
 ];
 
-
 function StarRating({ rating }) {
   return (
     <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -28,6 +27,15 @@ function StarRating({ rating }) {
       ))}
     </span>
   );
+}
+
+// Cleans a phone number and returns a wa.me / tel friendly digits-only string with country code
+function cleanPhone(raw) {
+  if (!raw) return '';
+  const digits = String(raw).replace(/\D/g, '');
+  if (digits.length === 10) return '91' + digits;
+  if (digits.length === 12 && digits.startsWith('91')) return digits;
+  return digits;
 }
 
 export default function DirectoryPage() {
@@ -46,6 +54,8 @@ export default function DirectoryPage() {
         .eq('is_active', true);
       if (error || !data) return;
 
+      const profileIds = data.map(p => p.id);
+
       const { data: allTestimonials } = await supabase
         .from('testimonials')
         .select('profile_id, rating');
@@ -57,15 +67,33 @@ export default function DirectoryPage() {
         ratingMap[t.profile_id].count += 1;
       });
 
+      // Try to fetch services/tags per profile — if the table or columns don't exist,
+      // this fails silently and cards just fall back to showing category only.
+      let servicesMap = {};
+      try {
+        const { data: allServices } = await supabase
+          .from('services')
+          .select('profile_id, name')
+          .in('profile_id', profileIds);
+        (allServices || []).forEach(s => {
+          if (!servicesMap[s.profile_id]) servicesMap[s.profile_id] = [];
+          if (s.name) servicesMap[s.profile_id].push(s.name);
+        });
+      } catch (e) {
+        servicesMap = {};
+      }
+
       setBusinesses(data.map(p => {
         const r = ratingMap[p.id];
         const avgRating = r ? (r.sum / r.count) : 0;
         const reviewCount = r ? r.count : 0;
         return {
+          id: p.id,
           name: p.business_name || p.full_name || p.username,
           category: p.category || 'General',
           city: p.city || '',
           state: p.state || '',
+          address: p.address || '',
           rating: avgRating,
           reviews: reviewCount,
           verified: !!p.is_active,
@@ -73,6 +101,10 @@ export default function DirectoryPage() {
           color: '#3b82f6',
           img: p.logo_url || null,
           username: p.username,
+          // NOTE: assuming column name is "phone" — tell me if it's actually
+          // "mobile" or "contact_number" and I'll fix this in one line.
+          phone: cleanPhone(p.phone),
+          tags: (servicesMap[p.id] || []).slice(0, 4),
         };
       }));
     }
@@ -151,48 +183,34 @@ export default function DirectoryPage() {
           {/* RIGHT SIDE - India Map + Floating Card */}
           <div style={{ position: 'relative', height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             
-            {/* India Map SVG */}
-            {/* City Illustration */}
             <svg viewBox="0 0 500 350" style={{ width: '95%', position: 'absolute', bottom: 0, opacity: 0.12 }} fill="#3b82f6" xmlns="http://www.w3.org/2000/svg">
-              {/* Taj Mahal */}
               <rect x="200" y="200" width="100" height="80" rx="2"/>
               <ellipse cx="250" cy="200" rx="30" ry="40"/>
               <ellipse cx="210" cy="210" rx="15" ry="20"/>
               <ellipse cx="290" cy="210" rx="15" ry="20"/>
               <rect x="230" y="160" width="40" height="20"/>
               <polygon points="250,140 240,160 260,160"/>
-              {/* Minaret Left */}
               <rect x="175" y="195" width="12" height="60"/>
               <ellipse cx="181" cy="193" rx="8" ry="12"/>
               <polygon points="181,178 176,193 186,193"/>
-              {/* Minaret Right */}
               <rect x="313" y="195" width="12" height="60"/>
               <ellipse cx="319" cy="193" rx="8" ry="12"/>
               <polygon points="319,178 314,193 324,193"/>
-              {/* Base platform */}
               <rect x="160" y="278" width="180" height="10" rx="2"/>
               <rect x="150" y="286" width="200" height="8" rx="2"/>
-
-              {/* Buildings Left */}
               <rect x="30" y="180" width="35" height="110"/>
               <rect x="38" y="170" width="20" height="15"/>
               <rect x="44" y="160" width="8" height="12"/>
               <rect x="20" y="210" width="25" height="80"/>
               <rect x="70" y="220" width="30" height="70"/>
               <rect x="75" y="205" width="20" height="18"/>
-
-              {/* Buildings Right */}
               <rect x="390" y="190" width="40" height="100"/>
               <rect x="398" y="178" width="24" height="15"/>
               <rect x="404" y="165" width="10" height="16"/>
               <rect x="435" y="215" width="30" height="75"/>
               <rect x="440" y="200" width="20" height="18"/>
               <rect x="355" y="225" width="32" height="65"/>
-
-              {/* Ground */}
               <rect x="0" y="288" width="500" height="8" rx="2"/>
-
-              {/* Location pins */}
               <circle cx="150" cy="150" r="8"/>
               <polygon points="150,165 144,152 156,152"/>
               <circle cx="350" cy="130" r="8"/>
@@ -201,7 +219,6 @@ export default function DirectoryPage() {
               <polygon points="250,115 244,102 256,102"/>
             </svg>
 
-            {/* Location Pins */}
             {[
               { top: '18%', left: '38%' },
               { top: '28%', left: '62%' },
@@ -213,7 +230,6 @@ export default function DirectoryPage() {
               <div key={i} style={{ position: 'absolute', top: pos.top, left: pos.left, width: 12, height: 12, background: '#3b82f6', borderRadius: '50%', border: '2px solid white', boxShadow: '0 0 0 3px rgba(59,130,246,0.2)', zIndex: 2 }}></div>
             ))}
 
-            {/* Floating Business Card */}
             <div style={{ position: 'absolute', top: 10, right: 0, background: 'white', borderRadius: 16, padding: '16px', width: 220, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', zIndex: 3 }}>
               <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
                 <div style={{ width: 48, height: 48, borderRadius: 10, background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🏠</div>
@@ -259,7 +275,7 @@ export default function DirectoryPage() {
         </div>
       </section>
 
-      {/* FEATURED BUSINESSES */}
+      {/* FEATURED BUSINESSES — JD-inspired rich cards, SmartProfile branding */}
       <section style={{ padding: '40px 24px', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -267,50 +283,75 @@ export default function DirectoryPage() {
             <a href="#" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all businesses →</a>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 18 }}>
             {filtered.map(biz => (
-              <div key={biz.name} style={{ background: 'white', borderRadius: 16, padding: '20px', border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer' }}
+              <div key={biz.username} onClick={() => router.push('/' + biz.username)}
+                style={{ background: 'white', borderRadius: 16, padding: '18px', border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer' }}
                 onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'}
                 onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'}>
-                
-                {/* Business Header */}
-                <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 12, background: `${biz.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: biz.color, fontSize: 18, flexShrink: 0 }}>
-                    {biz.initials}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 14, marginBottom: 2 }}>{biz.name}</div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>{biz.category}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 3 }}>
-                      📍 {biz.city}, {biz.state}
+
+                {/* Header: big photo + name + rating badge */}
+                <div style={{ display: 'flex', gap: 14, marginBottom: 12 }}>
+                  {biz.img ? (
+                    <img src={biz.img} alt={biz.name} style={{ width: 72, height: 72, borderRadius: 14, objectFit: 'cover', flexShrink: 0, border: '1px solid #f1f5f9' }} />
+                  ) : (
+                    <div style={{ width: 72, height: 72, borderRadius: 14, background: `${biz.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: biz.color, fontSize: 22, flexShrink: 0 }}>
+                      {biz.initials}
+                    </div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 15 }}>{biz.name}</div>
+                      {biz.verified && (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="#3b82f6"><path d="M12 2l2.4 2.4 3.4-.4.4 3.4L21 10l-2.8 2.6.4 3.4-3.4-.4L12 18l-2.4-2.4-3.4.4-.4-3.4L3 10l2.8-2.6-.4-3.4 3.4.4L12 2z"/><path d="M9.5 12l1.8 1.8 3.2-3.6" stroke="white" strokeWidth="1.5" fill="none"/></svg>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{biz.category}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      📍 {[biz.city, biz.state].filter(Boolean).join(', ') || 'India'}
                     </div>
                   </div>
-                  {biz.verified && (
-                    <span style={{ background: '#dcfce7', color: '#16a34a', fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 999, height: 'fit-content' }}>✓ Verified</span>
-                  )}
                 </div>
 
-                {/* Rating */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: '8px 0', borderTop: '1px solid #f8fafc', borderBottom: '1px solid #f8fafc' }}>
+                {/* Rating badge — JD-style green pill */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                   {biz.reviews > 0 ? (
                     <>
-                      <StarRating rating={biz.rating} />
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{biz.rating.toFixed(1)}</span>
-                      <span style={{ fontSize: 12, color: '#94a3b8' }}>({biz.reviews} reviews)</span>
+                      <span style={{ background: '#16a34a', color: 'white', fontSize: 12, fontWeight: 700, padding: '3px 8px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 3 }}>
+                        {biz.rating.toFixed(1)} ★
+                      </span>
+                      <span style={{ fontSize: 12, color: '#64748b' }}>{biz.reviews} Ratings</span>
                     </>
                   ) : (
                     <span style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>No reviews yet</span>
                   )}
                 </div>
 
-                {/* Buttons */}
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={() => router.push('/' + biz.username)} style={{ flex: 1, padding: '9px', background: 'white', color: '#3b82f6', border: '1.5px solid #3b82f6', borderRadius: 9, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>View Profile</button>
-                  <button style={{ flex: 1, padding: '9px', background: '#22c55e', color: 'white', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.484 0C5.145 0 .026 5.119.026 11.458c0 2.016.531 3.914 1.455 5.566L0 23l6.154-1.614a11.426 11.426 0 005.33 1.317h.005C17.82 22.703 22.94 17.583 22.94 11.244 22.94 4.906 17.82 0 11.484 0z"/></svg>
-                    Call
-                  </button>
+                {/* Service tags — JD-style chips */}
+                {biz.tags.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+                    {biz.tags.map((tag, i) => (
+                      <span key={i} style={{ fontSize: 11, color: '#334155', background: '#f1f5f9', padding: '4px 9px', borderRadius: 999, fontWeight: 500 }}>{tag}</span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Buttons: small Call + WhatsApp row, big View Full Profile below */}
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }} onClick={e => e.stopPropagation()}>
+                  {biz.phone && (
+                    <a href={`tel:+${biz.phone}`} style={{ flex: 1, padding: '9px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                      📞 Call
+                    </a>
+                  )}
+                  {biz.phone && (
+                    <a href={`https://wa.me/${biz.phone}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, padding: '9px', background: 'white', color: '#16a34a', border: '1.5px solid #16a34a', borderRadius: 9, fontSize: 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                      WhatsApp
+                    </a>
+                  )}
                 </div>
+                <button onClick={() => router.push('/' + biz.username)} style={{ width: '100%', padding: '10px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                  View Full Profile →
+                </button>
               </div>
             ))}
           </div>
