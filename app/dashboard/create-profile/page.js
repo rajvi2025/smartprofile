@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
 const PLANS = [
-  { id: 'basic', name: 'Basic', price: '₹199', color: 'bg-green-500', border: 'border-green-500', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about'] },
-  { id: 'business', name: 'Business', price: '₹399', color: 'bg-blue-600', border: 'border-blue-600', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social','products','services','testimonials'] },
-  { id: 'premium', name: 'Premium', price: '₹599', color: 'bg-orange-500', border: 'border-orange-500', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social','products','services','testimonials','gallery','brochure','biz_presence'] },
-  { id: 'pro', name: 'Pro', price: '₹999', color: 'bg-purple-600', border: 'border-purple-600', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social','products','services','testimonials','gallery','brochure','biz_presence','lead_form','verified','video','analytics'] },
+  { id: 'basic', name: 'Basic', price: '₹199', amount: 199, color: 'bg-green-500', border: 'border-green-500', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about'] },
+  { id: 'business', name: 'Business', price: '₹399', amount: 399, color: 'bg-blue-600', border: 'border-blue-600', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social','products','services','testimonials'] },
+  { id: 'premium', name: 'Premium', price: '₹599', amount: 599, color: 'bg-orange-500', border: 'border-orange-500', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social','products','services','testimonials','gallery','brochure','biz_presence'] },
+  { id: 'pro', name: 'Pro', price: '₹999', amount: 999, color: 'bg-purple-600', border: 'border-purple-600', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social','products','services','testimonials','gallery','brochure','biz_presence','lead_form','verified','video','analytics'] },
 ];
 
 const THEMES = [
@@ -147,6 +147,96 @@ export default function CreateProfilePage() {
     finally { setLoading(false); }
   };
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (typeof window !== 'undefined' && window.Razorpay) { resolve(true); return; }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handlePayment = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        setError('Payment gateway load nahi hua. Internet check karo aur dobara try karo.');
+        setLoading(false);
+        return;
+      }
+
+      const orderRes = await fetch('/api/razorpay/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: plan.amount, planId: plan.id, username: form.username }),
+      });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok || !orderData.order) {
+        setError('Payment start nahi ho paya. Dobara try karo.');
+        setLoading(false);
+        return;
+      }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: orderData.order.amount,
+        currency: 'INR',
+        name: 'SmartProfile.in',
+        description: `${plan.name} Plan — ${form.business_name}`,
+        order_id: orderData.order.id,
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch('/api/razorpay/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.verified) {
+              setShowCheckout(false);
+              handleSubmit();
+            } else {
+              setError('Payment verify nahi ho paya. Agar paisa kata hai toh support se contact karo.');
+              setLoading(false);
+            }
+          } catch {
+            setError('Payment verify karte waqt error aaya.');
+            setLoading(false);
+          }
+        },
+        prefill: {
+          name: form.full_name,
+          email: form.email,
+          contact: form.phone,
+        },
+        theme: { color: '#3b82f6' },
+        modal: {
+          ondismiss: function () {
+            setLoading(false);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        setError('Payment failed: ' + (response.error?.description || 'Try again.'));
+        setLoading(false);
+      });
+      rzp.open();
+    } catch {
+      setError('Kuch gadbad ho gayi. Dobara try karo.');
+      setLoading(false);
+    }
+  };
+
   const inp = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50';
   const lbl = 'block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide';
 
@@ -179,14 +269,15 @@ export default function CreateProfilePage() {
           <div className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> {form.business_name}</div>
           <div className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> All {plan.name} features · 1 Year</div>
         </div>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-5 text-center">
-          <p className="text-xs text-yellow-700 font-semibold">🧪 Test Mode — No real payment</p>
+        {error && <div className="bg-red-50 border border-red-300 text-red-600 rounded-xl p-3 mb-4 text-sm text-center">{error}</div>}
+        <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-5 text-center">
+          <p className="text-xs text-green-700 font-semibold">🔒 Secure payment powered by Razorpay</p>
         </div>
-        <button onClick={() => { setShowCheckout(false); handleSubmit(); }}
-          className={`w-full ${plan.color} text-white font-bold py-4 rounded-2xl text-lg hover:opacity-90 shadow-lg`}>
-          {loading ? '⏳ Creating...' : `✅ Pay ${plan.price} & Create Profile`}
+        <button onClick={handlePayment} disabled={loading}
+          className={`w-full ${plan.color} text-white font-bold py-4 rounded-2xl text-lg hover:opacity-90 shadow-lg disabled:opacity-60`}>
+          {loading ? '⏳ Processing...' : `✅ Pay ${plan.price} & Create Profile`}
         </button>
-        <button onClick={() => setShowCheckout(false)} className="w-full mt-3 text-gray-400 text-sm">← Back to Edit</button>
+        <button onClick={() => { setShowCheckout(false); setError(''); }} className="w-full mt-3 text-gray-400 text-sm">← Back to Edit</button>
       </div>
     </div>
   );
