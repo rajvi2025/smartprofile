@@ -44,8 +44,17 @@ export default function DirectoryPage() {
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCat, setSelectedCat] = useState('');
   const [nearbyCity, setNearbyCity] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
 
   const [businesses, setBusinesses] = useState([]);
+
+  // Track viewport width so key layouts can stack on small screens.
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Ask for browser location once on load. If denied or fails, everything
   // still works exactly as before — this only reorders results, never hides any.
@@ -155,7 +164,7 @@ export default function DirectoryPage() {
       {/* HERO SECTION */}
       <section style={{ background: 'linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 50%, #e8f4fd 100%)', padding: '48px 24px 40px', position: 'relative', overflow: 'hidden' }}>
         
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 40, alignItems: 'center' }}>
           
           {/* LEFT SIDE */}
           <div style={{ position: 'relative', zIndex: 2 }}>
@@ -319,10 +328,10 @@ export default function DirectoryPage() {
             <a href="#" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all businesses →</a>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 280px', gap: 24, alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1fr) 280px', gap: 24, alignItems: 'start' }}>
 
             {/* LEFT: business cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 18 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: 18 }}>
               {filtered.map(biz => (
                 <div key={biz.username} onClick={() => router.push('/' + biz.username)}
                   style={{ background: 'white', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer', overflow: 'hidden', display: 'flex', minHeight: 200 }}
@@ -399,7 +408,7 @@ export default function DirectoryPage() {
             </div>
 
             {/* RIGHT: advertise banner slots */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, position: 'sticky', top: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, position: isMobile ? 'static' : 'sticky', top: 20 }}>
               <div style={{ background: 'linear-gradient(160deg, #1e40af, #3b82f6)', borderRadius: 16, padding: '24px 18px', minHeight: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: 'white' }}>
                 <div style={{ fontSize: 34, marginBottom: 10 }}>📢</div>
                 <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>Advertise Here</div>
