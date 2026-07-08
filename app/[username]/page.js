@@ -470,7 +470,7 @@ export default function ProfilePage({ params }) {
     </div>
   );
 
-  if (profile.plan === "business" || profile.plan === "premium" || profile.plan === "pro" || profile.plan === "ultimate") {
+  if (profile.plan === "business" || profile.plan === "premium" || profile.plan === "pro" || profile.plan === "ultimate" || profile.plan === "free") {
     return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} gallery={gallery} related={related} />;
   }
   return <BasicProfile profile={profile} />;
