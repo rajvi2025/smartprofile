@@ -69,7 +69,7 @@ export default function FreeListingPage() {
     // Step 1: create the account, same as the paid registration flow
     let userData = null;
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: form.full_name, email: form.email, password: form.password }),
