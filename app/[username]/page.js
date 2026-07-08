@@ -34,41 +34,7 @@ function StarRating({ rating }) {
   );
 }
 
-function TestimonialsSection({ testimonials, username }) {
-  return (
-    <div className="mb-4 px-4">
-      <div className="flex justify-between items-center mb-3">
-        <p className="text-sm font-bold text-gray-800">
-          What Our Clients Say {testimonials && testimonials.length > 0 ? `(${testimonials.length})` : ""}
-        </p>
-        <a href={`/${username}/review`} className="text-xs text-blue-600 font-semibold whitespace-nowrap">
-          Write a Review →
-        </a>
-      </div>
-      {testimonials && testimonials.length > 0 ? (
-        <>
-          <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: "none" }}>
-            {testimonials.map((t) => (
-              <div key={t.id} className="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex-shrink-0 w-[85%] snap-center">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-bold text-gray-800">{t.name}</span>
-                  <StarRating rating={t.rating} />
-                </div>
-                <p className="text-sm text-gray-600 leading-relaxed">{t.review}</p>
-              </div>
-            ))}
-          </div>
-          {testimonials.length > 1 && (
-            <p className="text-center text-xs text-gray-400 mt-1">← Swipe to see more →</p>
-          )}
-        </>
-      ) : (
-        <p className="text-xs text-gray-400">No reviews yet. Be the first to share your experience!</p>
-      )}
-    </div>
-  );
-}
-
+// ---------- BASIC PLAN: unchanged narrow digital visiting card ----------
 function BasicProfile({ profile }) {
   const saveContact = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
@@ -147,132 +113,272 @@ function BasicProfile({ profile }) {
   );
 }
 
-function BusinessProfile({ profile, products, socials, testimonials }) {
+// ---------- REVIEWS TAB: full list + write review CTA ----------
+function ReviewsTab({ testimonials, username }) {
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-bold text-gray-800 text-base">Customer Reviews</h3>
+        <a href={`/${username}/review`} className="bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg whitespace-nowrap">
+          Write a Review
+        </a>
+      </div>
+      {testimonials && testimonials.length > 0 ? (
+        <div className="space-y-3">
+          {testimonials.map((t) => (
+            <div key={t.id} className="bg-white border border-gray-200 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-bold text-gray-800 text-sm">{t.name}</span>
+                <StarRating rating={t.rating} />
+              </div>
+              <p className="text-sm text-gray-600 leading-relaxed">{t.review}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white border border-dashed border-gray-200 rounded-xl p-8 text-center">
+          <p className="text-sm text-gray-400">No reviews yet. Be the first to share your experience!</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------- BUSINESS+ PLANS: full JustDial-style listing page ----------
+function BusinessProfile({ profile, products, socials, testimonials, gallery }) {
+  const [activeTab, setActiveTab] = useState("overview");
+
   const saveContact = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${profile.business_name}.vcf`; a.click();
   };
-  const socialColors = { facebook:"#1877F2", instagram:"#E4405F", youtube:"#FF0000", linkedin:"#0A66C2", twitter:"#1DA1F2" };
+
+  const socialColors = { facebook: "#1877F2", instagram: "#E4405F", youtube: "#FF0000", linkedin: "#0A66C2", twitter: "#1DA1F2" };
 
   const testimonialLimits = { business: 2, premium: 5, pro: 10, ultimate: 10 };
   const limit = testimonialLimits[profile.plan] || 2;
   const visibleTestimonials = (testimonials || []).slice(0, limit);
 
+  const reviewCount = testimonials ? testimonials.length : 0;
+  const avgRating = reviewCount > 0
+    ? testimonials.reduce((sum, t) => sum + (t.rating || 0), 0) / reviewCount
+    : 0;
+
+  const galleryImages = (gallery && gallery.length > 0)
+    ? gallery
+    : products.filter(p => p.image_url).map(p => ({ id: `p-${p.id}`, image_url: p.image_url, caption: p.name }));
+
+  const tabs = [
+    { id: "overview", label: "Overview" },
+    { id: "products", label: "Products & Services" },
+    { id: "gallery", label: "Gallery" },
+    { id: "reviews", label: `Reviews (${reviewCount})` },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-6 px-4">
-      <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl overflow-hidden">
-        <div className="h-40 relative">
-          {profile.banner_url ? <img src={profile.banner_url} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-r from-blue-600 to-blue-800" />}
-          <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
-            <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-              {profile.logo_url ? <img src={profile.logo_url} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-blue-700 flex items-center justify-center text-white text-3xl font-bold">{(profile.business_name || "?")[0]}</div>}
-            </div>
-          </div>
-        </div>
-        <div className="pt-16 pb-4 px-5 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">{profile.full_name || profile.business_name}</h1>
-          {profile.designation && <p className="text-blue-600 font-semibold text-sm mt-1">{profile.designation}</p>}
-          {profile.city && <p className="text-gray-500 text-sm mt-1">📍 {profile.city}{profile.state ? `, ${profile.state}` : ""}</p>}
-        </div>
-        <div className="grid grid-cols-4 gap-2 px-4 mb-4">
-          <a href={`tel:${profile.phone}`} className="flex flex-col items-center justify-center bg-green-500 text-white py-3 rounded-2xl text-xs font-semibold gap-1">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-            Call
-          </a>
-          <a href={`https://wa.me/${profile.whatsapp || profile.phone}`} className="flex flex-col items-center justify-center bg-green-400 text-white py-3 rounded-2xl text-xs font-semibold gap-1">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            WhatsApp
-          </a>
-          <button onClick={saveContact} className="flex flex-col items-center justify-center bg-blue-100 text-blue-700 py-3 rounded-2xl text-xs font-semibold gap-1">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            Save Contact
-          </button>
-          <a href={profile.maps_url || "#"} className="flex flex-col items-center justify-center bg-blue-100 text-blue-700 py-3 rounded-2xl text-xs font-semibold gap-1">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            Location
-          </a>
-        </div>
-        {profile.about && (
-          <div className="mx-4 mb-4 p-4 bg-blue-50 rounded-2xl">
-            <div className="flex items-center gap-2 mb-2">
-              <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-              <span className="font-bold text-blue-700 text-sm">About Us</span>
-            </div>
-            <p className="text-gray-600 text-sm leading-relaxed">{profile.about}</p>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Banner */}
+      <div className="h-44 md:h-64 relative">
+        {profile.banner_url ? (
+          <img src={profile.banner_url} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-r from-blue-600 to-blue-800" />
         )}
-        <div className="mx-4 mb-4 space-y-1">
-          {profile.phone && <a href={`tel:${profile.phone}`} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
-            <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-            <span className="text-sm text-gray-700 flex-1">+91 {profile.phone}</span>
-            <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-          </a>}
-          {profile.email && <a href={`mailto:${profile.email}`} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
-            <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            <span className="text-sm text-gray-700 flex-1">{profile.email}</span>
-            <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-          </a>}
-          {profile.website && <a href={profile.website} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
-            <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-            <span className="text-sm text-gray-700 flex-1">{profile.website}</span>
-            <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-          </a>}
-          {profile.address && <div className="flex items-start gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
-            <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <span className="text-sm text-gray-700 flex-1">{profile.address}</span>
-          </div>}
-          {profile.maps_url && <a href={profile.maps_url} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
-            <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#4285F4"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>
-            <span className="text-sm text-blue-600 font-medium flex-1">View on Google Maps</span>
-            <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-          </a>}
-        </div>
-        {socials.length > 0 && (
-          <div className="mx-4 mb-4">
-            <p className="text-sm font-bold text-gray-700 mb-3 text-center">Connect With Us</p>
-            <div className="flex justify-center gap-4">
-              {socials.slice(0, 2).map((s) => (
-                <a key={s.id} href={s.url} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold shadow" style={{backgroundColor: socialColors[s.platform?.toLowerCase()] || "#666"}}>{s.platform?.[0]?.toUpperCase()}</div>
-                  <span className="text-xs text-gray-500">{s.platform}</span>
-                </a>
-              ))}
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Header card, overlapping the banner */}
+        <div className="bg-white rounded-2xl shadow-md p-5 md:p-6 -mt-14 md:-mt-16 relative z-10 flex flex-col md:flex-row gap-5 md:items-end">
+          <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-white flex-shrink-0 -mt-8 md:mt-0">
+            {profile.logo_url ? (
+              <img src={profile.logo_url} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-blue-700 flex items-center justify-center text-white text-3xl font-bold">
+                {(profile.business_name || "?")[0]}
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">{profile.full_name || profile.business_name}</h1>
+              <svg className="w-5 h-5 text-blue-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 2.4 3.4-.4.4 3.4L21 10l-2.8 2.6.4 3.4-3.4-.4L12 18l-2.4-2.4-3.4.4-.4-3.4L3 10l2.8-2.6-.4-3.4 3.4.4L12 2z"/><path d="M9.5 12l1.8 1.8 3.2-3.6" stroke="white" strokeWidth="1.5" fill="none"/></svg>
+            </div>
+            {profile.designation && <p className="text-blue-600 font-semibold text-sm mt-1">{profile.designation}</p>}
+            {(profile.city || profile.address) && (
+              <p className="text-gray-500 text-sm mt-1">📍 {profile.address || `${profile.city}${profile.state ? `, ${profile.state}` : ""}`}</p>
+            )}
+            <div className="flex items-center gap-2 mt-2">
+              {reviewCount > 0 ? (
+                <>
+                  <span className="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">{avgRating.toFixed(1)} ★</span>
+                  <span className="text-xs text-gray-500">{reviewCount} Ratings</span>
+                </>
+              ) : (
+                <span className="text-xs text-gray-400 italic">No reviews yet</span>
+              )}
             </div>
           </div>
-        )}
-        {products.length > 0 && (
-          <div className="mx-4 mb-4">
-            <div className="flex justify-between items-center mb-3">
-              <p className="text-sm font-bold text-gray-800">Our Products / Services ({products.length})</p>
-              <span className="text-xs text-blue-600 font-medium">View All &gt;</span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {products.slice(0, 2).map((p) => (
-                <div key={p.id} className="rounded-2xl overflow-hidden border border-gray-200">
-                  {p.image_url ? <img src={p.image_url} className="w-full h-24 object-cover" /> : <div className="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
-                  <div className="p-2"><p className="text-xs font-bold text-gray-800">{p.name}</p><p className="text-xs text-gray-500">{p.description}</p></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        <TestimonialsSection testimonials={visibleTestimonials} username={profile.username} />
-        <div className="mx-4 mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center gap-4">
-          <QRSection username={profile.username} />
-          <div className="flex-1">
-            <p className="font-bold text-gray-800 text-sm">Share My Profile</p>
-            <p className="text-gray-500 text-xs mt-1">Scan QR code to save my details instantly.</p>
-            <button className="mt-2 bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-1">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-              Share Profile
+
+          <div className="flex gap-2 flex-wrap md:flex-nowrap">
+            <a href={`tel:${profile.phone}`} className="flex items-center justify-center gap-2 bg-green-500 text-white px-4 py-2.5 rounded-xl font-semibold text-sm">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+              Call
+            </a>
+            <a href={`https://wa.me/${profile.whatsapp || profile.phone}`} className="flex items-center justify-center gap-2 bg-white border-2 border-green-500 text-green-600 px-4 py-2.5 rounded-xl font-semibold text-sm">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp
+            </a>
+            <button onClick={saveContact} className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              Save Contact
             </button>
           </div>
         </div>
-        <div className="text-center py-4 border-t border-gray-100">
-          <p className="text-xs text-gray-400">Powered by</p>
-          <p className="font-bold text-gray-700 text-sm">Smart<span className="text-blue-600">Profile</span>.in</p>
-          <a href="/" className="text-xs text-blue-600">Create Your Own Smart Profile →</a>
+
+        {/* Tabs */}
+        <div className="flex gap-6 border-b border-gray-200 mt-6 overflow-x-auto">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`pb-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
+                activeTab === t.id ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Content grid: tab content + sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6">
+          <div className="lg:col-span-2">
+
+            {activeTab === "overview" && (
+              <div className="space-y-4">
+                {profile.about && (
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <h3 className="font-bold text-gray-800 text-base mb-2">About Us</h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">{profile.about}</p>
+                  </div>
+                )}
+                <div className="bg-white rounded-2xl border border-gray-200 grid grid-cols-3 divide-x divide-gray-200">
+                  {[["12+", "Years"], ["200+", "Deals"], ["500+", "Happy Clients"]].map(([n, l]) => (
+                    <div key={l} className="py-4 text-center">
+                      <div className="text-lg font-bold text-gray-800">{n}</div>
+                      <div className="text-xs text-gray-400">{l}</div>
+                    </div>
+                  ))}
+                </div>
+                {socials.length > 0 && (
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <h3 className="font-bold text-gray-800 text-base mb-3">Connect With Us</h3>
+                    <div className="flex gap-4">
+                      {socials.map((s) => (
+                        <a key={s.id} href={s.url} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
+                          <div className="w-11 h-11 rounded-full flex items-center justify-center text-white text-base font-bold shadow" style={{ backgroundColor: socialColors[s.platform?.toLowerCase()] || "#666" }}>
+                            {s.platform?.[0]?.toUpperCase()}
+                          </div>
+                          <span className="text-xs text-gray-500">{s.platform}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "products" && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                <h3 className="font-bold text-gray-800 text-base mb-4">Products & Services ({products.length})</h3>
+                {products.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {products.map((p) => (
+                      <div key={p.id} className="rounded-xl overflow-hidden border border-gray-200">
+                        {p.image_url ? <img src={p.image_url} className="w-full h-28 object-cover" /> : <div className="w-full h-28 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
+                        <div className="p-2">
+                          <p className="text-xs font-bold text-gray-800">{p.name}</p>
+                          {p.description && <p className="text-xs text-gray-500 line-clamp-2">{p.description}</p>}
+                          {p.price && <p className="text-xs text-blue-600 font-semibold mt-1">₹{p.price}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400">No products or services added yet.</p>
+                )}
+              </div>
+            )}
+
+            {activeTab === "gallery" && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                <h3 className="font-bold text-gray-800 text-base mb-4">Photos ({galleryImages.length})</h3>
+                {galleryImages.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {galleryImages.map((g) => (
+                      <img key={g.id} src={g.image_url} alt={g.caption || ""} className="w-full h-28 object-cover rounded-xl border border-gray-200" />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400">No photos uploaded yet.</p>
+                )}
+              </div>
+            )}
+
+            {activeTab === "reviews" && (
+              <ReviewsTab testimonials={visibleTestimonials} username={profile.username} />
+            )}
+
+          </div>
+
+          {/* SIDEBAR */}
+          <div className="lg:col-span-1 space-y-4">
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <h3 className="font-bold text-gray-800 text-base mb-3">Contact</h3>
+              <div className="space-y-2">
+                {profile.phone && <a href={`tel:${profile.phone}`} className="flex items-center gap-3 py-2.5 px-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                  <span className="text-sm text-gray-700">+91 {profile.phone}</span>
+                </a>}
+                {profile.email && <a href={`mailto:${profile.email}`} className="flex items-center gap-3 py-2.5 px-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                  <span className="text-sm text-gray-700">{profile.email}</span>
+                </a>}
+                {profile.website && <a href={profile.website} className="flex items-center gap-3 py-2.5 px-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                  <span className="text-sm text-gray-700 truncate">{profile.website}</span>
+                </a>}
+              </div>
+
+              {profile.address && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <h4 className="font-bold text-gray-800 text-sm mb-2">Address</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">{profile.address}</p>
+                  {profile.maps_url && (
+                    <a href={profile.maps_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-blue-600 text-sm font-semibold mt-2">
+                      Get Directions →
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 flex items-center gap-4">
+              <QRSection username={profile.username} />
+              <div className="flex-1">
+                <p className="font-bold text-gray-800 text-sm">Share My Profile</p>
+                <p className="text-gray-500 text-xs mt-1">Scan QR code to save details instantly.</p>
+              </div>
+            </div>
+
+            <div className="text-center py-3">
+              <p className="text-xs text-gray-400">Powered by</p>
+              <p className="font-bold text-gray-700 text-sm">Smart<span className="text-blue-600">Profile</span>.in</p>
+              <a href="/" className="text-xs text-blue-600">Create Your Own Smart Profile →</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -286,6 +392,7 @@ export default function ProfilePage({ params }) {
   const [products, setProducts] = useState([]);
   const [socials, setSocials] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
+  const [gallery, setGallery] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -299,6 +406,13 @@ export default function ProfilePage({ params }) {
       setSocials(sl || []);
       const { data: tm } = await supabase.from("testimonials").select("*").eq("profile_id", p.id).order("sort_order", { ascending: true });
       setTestimonials(tm || []);
+      // Gallery table is optional — fails silently if it doesn't exist with these columns.
+      try {
+        const { data: gl } = await supabase.from("gallery").select("*").eq("profile_id", p.id);
+        setGallery(gl || []);
+      } catch (e) {
+        setGallery([]);
+      }
       setLoading(false);
     }
     fetchProfile();
@@ -320,7 +434,7 @@ export default function ProfilePage({ params }) {
   );
 
   if (profile.plan === "business" || profile.plan === "premium" || profile.plan === "pro" || profile.plan === "ultimate") {
-    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} />;
+    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} gallery={gallery} />;
   }
   return <BasicProfile profile={profile} />;
 }
