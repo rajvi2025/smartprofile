@@ -293,10 +293,10 @@ export default function DirectoryPage() {
                 {/* Header: big photo + name + rating badge */}
                 <div style={{ display: 'flex', gap: 14, marginBottom: 12 }}>
                   {biz.img ? (
-                    <img src={biz.img} alt={biz.name} style={{ width: 72, height: 72, borderRadius: 14, objectFit: 'cover', flexShrink: 0, border: '1px solid #f1f5f9' }} />
+                    <img src={biz.img} alt={biz.name} style={{ width: 92, height: 92, borderRadius: 14, objectFit: 'cover', flexShrink: 0, border: '1px solid #f1f5f9' }} />
                   ) : (
-                    <div style={{ width: 72, height: 72, borderRadius: 14, background: `${biz.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: biz.color, fontSize: 22, flexShrink: 0 }}>
-                      {biz.initials}
+                    <div style={{ width: 92, height: 92, borderRadius: 14, background: `linear-gradient(135deg, ${biz.color}25, ${biz.color}10)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1px solid ${biz.color}20` }}>
+                      <span style={{ fontWeight: 800, color: biz.color, fontSize: 26 }}>{biz.initials}</span>
                     </div>
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -336,22 +336,23 @@ export default function DirectoryPage() {
                   </div>
                 )}
 
-                {/* Buttons: small Call + WhatsApp row, big View Full Profile below */}
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }} onClick={e => e.stopPropagation()}>
-                  {biz.phone && (
-                    <a href={`tel:+${biz.phone}`} style={{ flex: 1, padding: '9px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                      📞 Call
-                    </a>
-                  )}
-                  {biz.phone && (
-                    <a href={`https://wa.me/${biz.phone}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, padding: '9px', background: 'white', color: '#16a34a', border: '1.5px solid #16a34a', borderRadius: 9, fontSize: 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                      WhatsApp
-                    </a>
+                {/* Buttons: Call + WhatsApp — card itself is clickable for full profile, no separate button needed */}
+                <div style={{ display: 'flex', gap: 8 }} onClick={e => e.stopPropagation()}>
+                  {biz.phone ? (
+                    <>
+                      <a href={`tel:+${biz.phone}`} style={{ flex: 1, padding: '10px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                        📞 Call
+                      </a>
+                      <a href={`https://wa.me/${biz.phone}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, padding: '10px', background: 'white', color: '#16a34a', border: '1.5px solid #16a34a', borderRadius: 9, fontSize: 13, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                        WhatsApp
+                      </a>
+                    </>
+                  ) : (
+                    <button onClick={() => router.push('/' + biz.username)} style={{ width: '100%', padding: '10px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                      View Profile →
+                    </button>
                   )}
                 </div>
-                <button onClick={() => router.push('/' + biz.username)} style={{ width: '100%', padding: '10px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                  View Full Profile →
-                </button>
               </div>
             ))}
           </div>
