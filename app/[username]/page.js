@@ -145,7 +145,7 @@ function ReviewsTab({ testimonials, username }) {
 }
 
 // ---------- BUSINESS+ PLANS: full JustDial-style listing page ----------
-function BusinessProfile({ profile, products, socials, testimonials, gallery }) {
+function BusinessProfile({ profile, products, socials, testimonials, gallery, related }) {
   const [activeTab, setActiveTab] = useState("overview");
 
   const saveContact = () => {
@@ -373,6 +373,13 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery }) 
               </div>
             </div>
 
+            <div className="rounded-2xl p-5 text-center text-white" style={{ background: "linear-gradient(160deg, #1e40af, #3b82f6)" }}>
+              <div className="text-3xl mb-2">📢</div>
+              <p className="font-bold text-sm mb-1">Advertise Here</p>
+              <p className="text-xs text-blue-100 mb-3 leading-relaxed">Get your business seen by thousands of customers searching every day.</p>
+              <a href="/contact" className="inline-block bg-white text-blue-700 text-xs font-bold px-4 py-2 rounded-lg">Contact Us →</a>
+            </div>
+
             <div className="text-center py-3">
               <p className="text-xs text-gray-400">Powered by</p>
               <p className="font-bold text-gray-700 text-sm">Smart<span className="text-blue-600">Profile</span>.in</p>
@@ -380,6 +387,24 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery }) 
             </div>
           </div>
         </div>
+
+        {related && related.length > 0 && (
+          <div className="pb-10">
+            <h3 className="font-bold text-gray-800 text-lg mb-4">Related Businesses</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {related.map((r) => (
+                <a key={r.username} href={`/${r.username}`} className="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-lg mb-3 overflow-hidden">
+                    {r.logo_url ? <img src={r.logo_url} className="w-full h-full object-cover" /> : (r.business_name || r.full_name || "?")[0]}
+                  </div>
+                  <p className="text-sm font-bold text-gray-800 truncate">{r.business_name || r.full_name}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{r.category}</p>
+                  {r.city && <p className="text-xs text-gray-400 mt-0.5">📍 {r.city}</p>}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -393,6 +418,7 @@ export default function ProfilePage({ params }) {
   const [socials, setSocials] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [gallery, setGallery] = useState([]);
+  const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -412,6 +438,17 @@ export default function ProfilePage({ params }) {
         setGallery(gl || []);
       } catch (e) {
         setGallery([]);
+      }
+      // Related businesses: same category, excluding this profile
+      if (p.category) {
+        const { data: rel } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("category", p.category)
+          .eq("is_active", true)
+          .neq("username", username)
+          .limit(4);
+        setRelated(rel || []);
       }
       setLoading(false);
     }
@@ -434,7 +471,7 @@ export default function ProfilePage({ params }) {
   );
 
   if (profile.plan === "business" || profile.plan === "premium" || profile.plan === "pro" || profile.plan === "ultimate") {
-    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} gallery={gallery} />;
+    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} gallery={gallery} related={related} />;
   }
   return <BasicProfile profile={profile} />;
 }

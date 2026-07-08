@@ -43,8 +43,30 @@ export default function DirectoryPage() {
   const [search, setSearch] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCat, setSelectedCat] = useState('');
+  const [nearbyCity, setNearbyCity] = useState('');
 
   const [businesses, setBusinesses] = useState([]);
+
+  // Ask for browser location once on load. If denied or fails, everything
+  // still works exactly as before — this only reorders results, never hides any.
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+          const data = await res.json();
+          const city = data.city || data.locality || data.principalSubdivision || '';
+          if (city) setNearbyCity(city);
+        } catch (e) {
+          // silently ignore — falls back to showing everything unsorted
+        }
+      },
+      () => { /* permission denied — no problem, show everything as usual */ },
+      { timeout: 5000 }
+    );
+  }, []);
 
   useEffect(() => {
     async function fetchProfiles() {
@@ -111,12 +133,21 @@ export default function DirectoryPage() {
     fetchProfiles();
   }, []);
 
-  const filtered = businesses.filter(b => {
-    const matchSearch = b.name.toLowerCase().includes(search.toLowerCase()) || b.category.toLowerCase().includes(search.toLowerCase());
-    const matchCity = !selectedCity || b.city === selectedCity;
-    const matchCat = !selectedCat || b.category === selectedCat;
-    return matchSearch && matchCity && matchCat;
-  });
+  const filtered = businesses
+    .filter(b => {
+      const matchSearch = b.name.toLowerCase().includes(search.toLowerCase()) || b.category.toLowerCase().includes(search.toLowerCase());
+      const matchCity = !selectedCity || b.city === selectedCity;
+      const matchCat = !selectedCat || b.category === selectedCat;
+      return matchSearch && matchCity && matchCat;
+    })
+    .sort((a, b) => {
+      if (!nearbyCity) return 0;
+      const aNear = a.city?.toLowerCase() === nearbyCity.toLowerCase();
+      const bNear = b.city?.toLowerCase() === nearbyCity.toLowerCase();
+      if (aNear && !bNear) return -1;
+      if (!aNear && bNear) return 1;
+      return 0;
+    });
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", background: '#f0f4f8', minHeight: '100vh' }}>
@@ -278,8 +309,13 @@ export default function DirectoryPage() {
       {/* FEATURED BUSINESSES — JD-inspired rich cards, SmartProfile branding */}
       <section style={{ padding: '40px 24px', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0 }}>Featured Businesses</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 8 }}>
+            <div>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0 }}>Featured Businesses</h2>
+              {nearbyCity && (
+                <p style={{ fontSize: 12, color: '#3b82f6', margin: '4px 0 0', fontWeight: 500 }}>📍 Showing businesses near {nearbyCity} first</p>
+              )}
+            </div>
             <a href="#" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all businesses →</a>
           </div>
 
