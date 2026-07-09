@@ -15,7 +15,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { username, full_name, designation, phone, email, business_name, business_type, category, city, state, bio, theme } = body;
+    const { username, full_name, designation, phone, email, business_name, business_type, category, city, state, bio, theme, plan } = body;
 
     if (!username || username.length < 3) {
       return Response.json({ error: 'Username must be at least 3 characters' }, { status: 400 });
@@ -36,6 +36,9 @@ export async function POST(request) {
       return Response.json({ error: 'Username already taken' }, { status: 400 });
     }
 
+    const allowedPlans = ['basic', 'business', 'premium', 'pro'];
+    const finalPlan = allowedPlans.includes(plan) ? plan : 'basic';
+
     const { data, error } = await supabase
       .from('profiles')
       .insert([{
@@ -52,7 +55,7 @@ export async function POST(request) {
         state,
         bio,
         theme: theme || 'ocean',
-        plan: 'basic',
+        plan: finalPlan,
         is_active: true,
       }])
       .select()
