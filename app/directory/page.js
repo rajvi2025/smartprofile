@@ -17,6 +17,11 @@ const categories = [
   { name: 'Automotive', icon: '🚗' },
 ];
 
+// Converts a city name like "New Delhi" into a URL-safe slug like "new-delhi"
+function slugifyCity(city) {
+  return (city || "").toLowerCase().trim().replace(/\s+/g, "-");
+}
+
 function StarRating({ rating }) {
   return (
     <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -333,7 +338,7 @@ export default function DirectoryPage() {
             {/* LEFT: business cards */}
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: 18 }}>
               {filtered.map(biz => (
-                <div key={biz.username} onClick={() => router.push('/' + biz.username)}
+                <div key={biz.username} onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)}
                   style={{ background: 'white', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer', overflow: 'hidden', display: 'flex', minHeight: 200 }}
                   onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'}>
@@ -397,7 +402,7 @@ export default function DirectoryPage() {
                           </a>
                         </>
                       ) : (
-                        <button onClick={() => router.push('/' + biz.username)} style={{ width: '100%', padding: '9px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                        <button onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)} style={{ width: '100%', padding: '9px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                           View Profile →
                         </button>
                       )}
