@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -32,7 +32,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div onClick={() => router.push('/dashboard/create-profile')} className="bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer hover:shadow-md transition">
+          <div onClick={() => router.push('/dashboard/edit-profile')} className="bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer hover:shadow-md transition">
             <div className="text-3xl mb-2">👤</div>
             <p className="font-semibold text-gray-800">My Profile</p>
             <p className="text-xs text-gray-500 mt-1">Edit your profile</p>
@@ -63,6 +63,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-
-
