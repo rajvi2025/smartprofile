@@ -1,5 +1,5 @@
 ﻿'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
@@ -72,6 +72,38 @@ export default function CreateProfilePage() {
     facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '',
     video_url: '', brochure_url: '',
   });
+
+  const DRAFT_KEY = 'smartprofile_create_draft';
+
+  // Restore any saved draft once, on first load.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft = JSON.parse(saved);
+        if (draft.form) setForm(draft.form);
+        if (draft.planId) setPlanId(draft.planId);
+        if (draft.themeId) {
+          const t = THEMES.find(t => t.id === draft.themeId);
+          if (t) setTheme(t);
+        }
+      }
+    } catch (e) {
+      // corrupted draft — ignore and start fresh
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-save the draft (text fields only — images can't be persisted this
+  // way, so logo/banner still need re-uploading if a draft is restored)
+  // whenever the form, plan, or theme changes.
+  useEffect(() => {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ form, planId, themeId: theme.id }));
+    } catch (e) {
+      // storage full or unavailable — silently skip autosave
+    }
+  }, [form, planId, theme]);
 
   if (status === 'loading') return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!session) { router.push('/login'); return null; }
@@ -152,6 +184,7 @@ export default function CreateProfilePage() {
         });
       }
 
+      localStorage.removeItem(DRAFT_KEY);
       router.push(`/${form.username}`);
     } catch { setError('Network error.'); }
     finally { setLoading(false); }
@@ -296,7 +329,10 @@ export default function CreateProfilePage() {
     <div className="min-h-screen bg-gray-100">
       <div className="bg-white border-b px-4 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
         <h1 className="text-lg font-bold text-gray-800">✨ Create SmartProfile</h1>
-        <a href="/dashboard" className="text-sm text-blue-600">← Back</a>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-400 hidden sm:inline">💾 Progress saved automatically</span>
+          <a href="/dashboard" className="text-sm text-blue-600">← Back</a>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-3 py-4 flex flex-col md:flex-row gap-4 items-start">
