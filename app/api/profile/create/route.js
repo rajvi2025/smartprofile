@@ -18,10 +18,10 @@ export async function POST(request) {
     const {
       username, full_name, designation, phone, email, business_name,
       business_type, category, city, state, bio, theme, plan,
-      // Previously silently dropped fields — now captured:
       logo_url, banner_url, whatsapp, website, about, address, maps_url,
       tagline, video_url, brochure_url,
       facebook, instagram, youtube, linkedin, twitter,
+      amount_paid,
     } = body;
 
     if (!username || username.length < 3) {
@@ -46,6 +46,9 @@ export async function POST(request) {
     const allowedPlans = ['basic', 'business', 'premium', 'pro'];
     const finalPlan = allowedPlans.includes(plan) ? plan : 'basic';
 
+    const now = new Date();
+    const oneYearLater = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+
     const { data, error } = await supabase
       .from('profiles')
       .insert([{
@@ -64,7 +67,6 @@ export async function POST(request) {
         theme: theme || 'ocean',
         plan: finalPlan,
         is_active: true,
-        // Previously silently dropped — now saved:
         logo_url: logo_url || null,
         banner_url: banner_url || null,
         whatsapp: whatsapp || null,
@@ -75,6 +77,12 @@ export async function POST(request) {
         tagline: tagline || null,
         video_url: video_url || null,
         brochure_url: brochure_url || null,
+        // Billing cycle fields — amount_paid is the ACTUAL amount charged
+        // (important once coupons/discounts exist, so it's never assumed
+        // to equal the plan's list price).
+        amount_paid: amount_paid ?? 0,
+        plan_start_date: now.toISOString(),
+        plan_end_date: oneYearLater.toISOString(),
       }])
       .select()
       .single();
@@ -84,8 +92,6 @@ export async function POST(request) {
       return Response.json({ error: 'Failed to create profile', details: error.message, fullError: error }, { status: 500 });
     }
 
-    // Social links go into their own table (one row per platform), matching
-    // what the Digital Card / Directory pages actually read from.
     const socialEntries = [
       { platform: 'Facebook', url: facebook },
       { platform: 'Instagram', url: instagram },
@@ -104,7 +110,6 @@ export async function POST(request) {
         })));
       if (socialError) {
         console.error('Social links insert error:', socialError);
-        // Don't fail the whole signup over this — profile is already created.
       }
     }
 

@@ -120,7 +120,7 @@ export default function CreateProfilePage() {
 
       const res = await fetch('/api/profile/create', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, theme: theme.id, plan: planId, logo_url, banner_url }),
+        body: JSON.stringify({ ...form, theme: theme.id, plan: planId, logo_url, banner_url, amount_paid: plan.amount }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Error'); setLoading(false); return; }
