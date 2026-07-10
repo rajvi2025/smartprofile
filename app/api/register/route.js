@@ -1,60 +1,132 @@
-﻿import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { createClient } from "@supabase/supabase-js";
+﻿import { createClient } from '@supabase/supabase-js';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 const supabase = createClient(
-  "https://lekyzsyadanghxafpjmh.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 export async function POST(request) {
   try {
-    const { name, email, password } = await request.json();
-
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: "All fields required" }, { status: 400 });
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check for an existing account with this email first, so we can give
-    // a clear message instead of a raw database error.
+    const body = await request.json();
+    const {
+      username, full_name, designation, phone, email, business_name,
+      business_type, category, city, state, bio, theme, plan,
+      logo_url, banner_url, whatsapp, website, about, address, maps_url,
+      tagline, video_url, brochure_url, directory_image_url,
+      facebook, instagram, youtube, linkedin, twitter,
+      amount_paid,
+    } = body;
+
+    if (!username || username.length < 3) {
+      return Response.json({ error: 'Username must be at least 3 characters' }, { status: 400 });
+    }
+
+    const usernameRegex = /^[a-z0-9-]+$/;
+    if (!usernameRegex.test(username)) {
+      return Response.json({ error: 'Username can only contain lowercase letters, numbers, and hyphens' }, { status: 400 });
+    }
+
+    const RESERVED_USERNAMES = [
+      'directory', 'dashboard', 'admin', 'api', 'login', 'register', 'about',
+      'contact', 'pricing', 'free-listing', 'terms', 'privacy', 'refund',
+      'shipping', 'blog', 'home',
+    ];
+    if (RESERVED_USERNAMES.includes(username)) {
+      return Response.json({ error: 'This username is reserved. Please choose a different one.' }, { status: 400 });
+    }
+
     const { data: existing } = await supabase
-      .from("users")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
+      .from('profiles')
+      .select('username')
+      .eq('username', username)
+      .single();
 
     if (existing) {
-      return NextResponse.json(
-        { error: "An account with this email already exists. Please login instead." },
-        { status: 409 }
-      );
+      return Response.json({ error: 'Username already taken' }, { status: 400 });
     }
 
-    const cleanPassword = password.replace(/[^\x00-\x7F]/g, "");
-    const hashedPassword = await bcrypt.hash(cleanPassword, 10);
+    const allowedPlans = ['basic', 'business', 'premium', 'pro'];
+    const finalPlan = allowedPlans.includes(plan) ? plan : 'basic';
+
+    const now = new Date();
+    const oneYearLater = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
 
     const { data, error } = await supabase
-      .from("users")
-      .insert([{ name, email, password: hashedPassword }])
+      .from('profiles')
+      .insert([{
+        user_id: session.user.id,
+        username,
+        full_name,
+        designation,
+        phone,
+        email: email || session.user.email,
+        business_name,
+        business_type,
+        category,
+        city,
+        state,
+        bio,
+        theme: theme || 'ocean',
+        plan: finalPlan,
+        is_active: true,
+        logo_url: logo_url || null,
+        banner_url: banner_url || null,
+        whatsapp: whatsapp || null,
+        website: website || null,
+        about: about || null,
+        address: address || null,
+        maps_url: maps_url || null,
+        tagline: tagline || null,
+        video_url: video_url || null,
+        brochure_url: brochure_url || null,
+        directory_image_url: directory_image_url || null,
+        // Billing cycle fields — amount_paid is the ACTUAL amount charged
+        // (important once coupons/discounts exist, so it's never assumed
+        // to equal the plan's list price).
+        amount_paid: amount_paid ?? 0,
+        plan_start_date: now.toISOString(),
+        plan_end_date: oneYearLater.toISOString(),
+      }])
       .select()
       .single();
 
     if (error) {
-      console.error("Supabase error:", error);
-      // Postgres unique-constraint violation code, in case of a race condition
-      // between the check above and this insert.
-      if (error.code === "23505") {
-        return NextResponse.json(
-          { error: "An account with this email already exists. Please login instead." },
-          { status: 409 }
-        );
-      }
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('Supabase error:', error);
+      return Response.json({ error: 'Failed to create profile', details: error.message, fullError: error }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, user: { id: data.id, email: data.email } });
+    const socialEntries = [
+      { platform: 'Facebook', url: facebook },
+      { platform: 'Instagram', url: instagram },
+      { platform: 'YouTube', url: youtube },
+      { platform: 'LinkedIn', url: linkedin },
+      { platform: 'Twitter', url: twitter },
+    ].filter(s => s.url);
+
+    if (socialEntries.length > 0) {
+      const { error: socialError } = await supabase
+        .from('social_links')
+        .insert(socialEntries.map(s => ({
+          profile_id: data.id,
+          platform: s.platform,
+          url: s.url,
+        })));
+      if (socialError) {
+        console.error('Social links insert error:', socialError);
+      }
+    }
+
+    return Response.json({ success: true, profile: data }, { status: 201 });
+
   } catch (err) {
-    console.error("Server error:", err);
-    return NextResponse.json({ error: err.message || "Something went wrong" }, { status: 500 });
+    console.error('Server error:', err);
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
