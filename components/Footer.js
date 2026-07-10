@@ -1,7 +1,25 @@
 ﻿'use client';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+const RESERVED_TOP_LEVEL = [
+  '', 'admin', 'api', 'contact', 'dashboard', 'directory', 'free-listing',
+  'login', 'privacy', 'refund', 'register', 'shipping', 'terms', 'blog', 'pricing',
+];
+
+function isDigitalCardRoute(pathname) {
+  const parts = pathname.split('/').filter(Boolean);
+  if (parts.length === 0) return false;
+  if (RESERVED_TOP_LEVEL.includes(parts[0])) return false;
+  if (parts.length === 1) return true;
+  if (parts.length === 2 && parts[1] === 'review') return true;
+  return false;
+}
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (isDigitalCardRoute(pathname)) return null;
+
   return (
     <footer style={{ background: '#0f172a', color: '#94a3b8', padding: '60px 24px 24px' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>

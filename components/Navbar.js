@@ -2,10 +2,32 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+
+// Every real top-level route in the app. Anything NOT in this list is
+// treated as a Digital Card username (e.g. /rajesh-sharma), which should
+// render as a standalone card with no site chrome around it.
+const RESERVED_TOP_LEVEL = [
+  '', 'admin', 'api', 'contact', 'dashboard', 'directory', 'free-listing',
+  'login', 'privacy', 'refund', 'register', 'shipping', 'terms', 'blog', 'pricing',
+];
+
+function isDigitalCardRoute(pathname) {
+  const parts = pathname.split('/').filter(Boolean);
+  if (parts.length === 0) return false; // homepage
+  if (RESERVED_TOP_LEVEL.includes(parts[0])) return false;
+  // /username or /username/review both count as the Digital Card experience
+  if (parts.length === 1) return true;
+  if (parts.length === 2 && parts[1] === 'review') return true;
+  return false;
+}
 
 export default function Navbar() {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  if (isDigitalCardRoute(pathname)) return null;
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
