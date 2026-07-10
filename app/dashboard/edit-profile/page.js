@@ -39,6 +39,7 @@ export default function EditProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
+  const [mode, setMode] = useState('view'); // 'view' | 'edit'
   const [loadingData, setLoadingData] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -63,46 +64,48 @@ export default function EditProfilePage() {
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }));
 
+  const loadProfile = async () => {
+    const { data: p } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (!p) { setNotFound(true); setLoadingData(false); return; }
+
+    setUsername(p.username);
+    setPlan(p.plan || 'basic');
+    setEmail(p.email || session.user.email || '');
+    setLogoPreview(p.logo_url || null);
+    setBannerPreview(p.banner_url || null);
+
+    const { data: socialRows } = await supabase
+      .from('social_links')
+      .select('*')
+      .eq('profile_id', p.id);
+
+    const socialValues = {};
+    SOCIALS.forEach(s => {
+      const row = (socialRows || []).find(r => (r.platform || '').toLowerCase() === s.match);
+      socialValues[s.key] = row ? row.url : '';
+    });
+
+    setForm({
+      full_name: p.full_name || '', designation: p.designation || '', business_name: p.business_name || '',
+      tagline: p.tagline || '', category: p.category || '', city: p.city || '', state: p.state || '',
+      phone: p.phone || '', whatsapp: p.whatsapp || '', website: p.website || '', about: p.about || '',
+      address: p.address || '', maps_url: p.maps_url || '',
+      video_url: p.video_url || '', brochure_url: p.brochure_url || '',
+      ...socialValues,
+    });
+
+    setLoadingData(false);
+  };
+
   useEffect(() => {
     if (status !== 'authenticated') return;
-    async function loadProfile() {
-      const { data: p } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .single();
-
-      if (!p) { setNotFound(true); setLoadingData(false); return; }
-
-      setUsername(p.username);
-      setPlan(p.plan || 'basic');
-      setEmail(p.email || session.user.email || '');
-      setLogoPreview(p.logo_url || null);
-      setBannerPreview(p.banner_url || null);
-
-      const { data: socialRows } = await supabase
-        .from('social_links')
-        .select('*')
-        .eq('profile_id', p.id);
-
-      const socialValues = {};
-      SOCIALS.forEach(s => {
-        const row = (socialRows || []).find(r => (r.platform || '').toLowerCase() === s.match);
-        socialValues[s.key] = row ? row.url : '';
-      });
-
-      setForm({
-        full_name: p.full_name || '', designation: p.designation || '', business_name: p.business_name || '',
-        tagline: p.tagline || '', category: p.category || '', city: p.city || '', state: p.state || '',
-        phone: p.phone || '', whatsapp: p.whatsapp || '', website: p.website || '', about: p.about || '',
-        address: p.address || '', maps_url: p.maps_url || '',
-        video_url: p.video_url || '', brochure_url: p.brochure_url || '',
-        ...socialValues,
-      });
-
-      setLoadingData(false);
-    }
     loadProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session]);
 
   if (status === 'loading' || loadingData) return (
@@ -160,6 +163,7 @@ export default function EditProfilePage() {
 
       setSuccess(true);
       setLogoFile(null); setBannerFile(null);
+      setMode('view');
     } catch {
       setError('Network error. Try again.');
     } finally {
@@ -181,19 +185,102 @@ export default function EditProfilePage() {
     </div>
   );
 
+  // ---------- VIEW MODE ----------
+  if (mode === 'view') {
+    const Row = ({ label, value }) => value ? (
+      <div className="py-2 border-b border-gray-100 last:border-0">
+        <p className={lbl}>{label}</p>
+        <p className="text-sm text-gray-800">{value}</p>
+      </div>
+    ) : null;
+
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <div className="bg-white border-b px-4 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
+          <h1 className="text-lg font-bold text-gray-800">👤 My Profile</h1>
+          <a href="/dashboard" className="text-sm text-blue-600">← Back to Dashboard</a>
+        </div>
+
+        <div className="max-w-3xl mx-auto px-3 py-4 space-y-4">
+          {success && <div className="bg-green-50 border border-green-300 text-green-700 rounded-xl p-3 text-sm flex items-center justify-between">
+            <span>✅ Profile updated successfully!</span>
+            <a href={`/${username}`} className="text-green-800 font-semibold underline">View Live →</a>
+          </div>}
+
+          <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center gap-5 flex-wrap">
+            <div className="w-20 h-20 rounded-full border-2 border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+              {logoPreview ? <img src={logoPreview} className="w-full h-full object-cover"/> : <span className="text-3xl">🏢</span>}
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <h2 className="text-lg font-bold text-gray-900">{form.business_name || 'Your Business'}</h2>
+              <p className="text-sm text-gray-500">{form.full_name}{form.designation ? ` · ${form.designation}` : ''}</p>
+              <p className="text-sm text-blue-600 font-medium mt-1">smartprofile.in/{username}</p>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <span className="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">{PLAN_LABELS[plan] || plan}</span>
+              <button onClick={() => setMode('edit')} className="bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-blue-700">
+                ✏️ Edit Profile
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h3 className="font-bold text-gray-800 mb-2">📋 Basic Info</h3>
+            <Row label="Tagline" value={form.tagline} />
+            <Row label="Category" value={form.category} />
+            <Row label="City / State" value={[form.city, form.state].filter(Boolean).join(', ')} />
+          </div>
+
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h3 className="font-bold text-gray-800 mb-2">📞 Contact</h3>
+            <Row label="Phone" value={form.phone} />
+            <Row label="WhatsApp" value={form.whatsapp} />
+            <Row label="Email (contact support to change)" value={email} />
+            <Row label="Website" value={form.website} />
+          </div>
+
+          {has('about') && (form.about || form.address || bannerPreview) && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="font-bold text-gray-800 mb-2">📍 About & Address</h3>
+              {bannerPreview && <img src={bannerPreview} className="w-full h-28 object-cover rounded-xl mb-3" />}
+              <Row label="About Us" value={form.about} />
+              <Row label="Address" value={form.address} />
+              <Row label="Google Maps URL" value={form.maps_url} />
+            </div>
+          )}
+
+          {has('social') && SOCIALS.some(s => form[s.key]) && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="font-bold text-gray-800 mb-3">🔗 Social Media</h3>
+              <div className="flex gap-3 flex-wrap">
+                {SOCIALS.filter(s => form[s.key]).map(s => (
+                  <a key={s.key} href={form[s.key]} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: s.color }}>
+                      <SocialIcon platformKey={s.key} />
+                    </div>
+                    <span className="text-xs text-gray-500">{s.label}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="pb-8" />
+        </div>
+      </div>
+    );
+  }
+
+  // ---------- EDIT MODE ----------
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="bg-white border-b px-4 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
         <h1 className="text-lg font-bold text-gray-800">✏️ Edit My Profile</h1>
-        <a href="/dashboard" className="text-sm text-blue-600">← Back to Dashboard</a>
+        <button onClick={() => setMode('view')} className="text-sm text-blue-600">← Cancel / Back to View</button>
       </div>
 
       <div className="max-w-3xl mx-auto px-3 py-4 space-y-4">
         {error && <div className="bg-red-50 border border-red-300 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
-        {success && <div className="bg-green-50 border border-green-300 text-green-700 rounded-xl p-3 text-sm flex items-center justify-between">
-          <span>✅ Profile updated successfully!</span>
-          <a href={`/${username}`} className="text-green-800 font-semibold underline">View Live →</a>
-        </div>}
 
         {/* Locked info */}
         <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center justify-between flex-wrap gap-3">
