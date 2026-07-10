@@ -15,7 +15,14 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { username, full_name, designation, phone, email, business_name, business_type, category, city, state, bio, theme, plan } = body;
+    const {
+      username, full_name, designation, phone, email, business_name,
+      business_type, category, city, state, bio, theme, plan,
+      // Previously silently dropped fields — now captured:
+      logo_url, banner_url, whatsapp, website, about, address, maps_url,
+      tagline, video_url, brochure_url,
+      facebook, instagram, youtube, linkedin, twitter,
+    } = body;
 
     if (!username || username.length < 3) {
       return Response.json({ error: 'Username must be at least 3 characters' }, { status: 400 });
@@ -57,6 +64,17 @@ export async function POST(request) {
         theme: theme || 'ocean',
         plan: finalPlan,
         is_active: true,
+        // Previously silently dropped — now saved:
+        logo_url: logo_url || null,
+        banner_url: banner_url || null,
+        whatsapp: whatsapp || null,
+        website: website || null,
+        about: about || null,
+        address: address || null,
+        maps_url: maps_url || null,
+        tagline: tagline || null,
+        video_url: video_url || null,
+        brochure_url: brochure_url || null,
       }])
       .select()
       .single();
@@ -64,6 +82,30 @@ export async function POST(request) {
     if (error) {
       console.error('Supabase error:', error);
       return Response.json({ error: 'Failed to create profile', details: error.message, fullError: error }, { status: 500 });
+    }
+
+    // Social links go into their own table (one row per platform), matching
+    // what the Digital Card / Directory pages actually read from.
+    const socialEntries = [
+      { platform: 'Facebook', url: facebook },
+      { platform: 'Instagram', url: instagram },
+      { platform: 'YouTube', url: youtube },
+      { platform: 'LinkedIn', url: linkedin },
+      { platform: 'Twitter', url: twitter },
+    ].filter(s => s.url);
+
+    if (socialEntries.length > 0) {
+      const { error: socialError } = await supabase
+        .from('social_links')
+        .insert(socialEntries.map(s => ({
+          profile_id: data.id,
+          platform: s.platform,
+          url: s.url,
+        })));
+      if (socialError) {
+        console.error('Social links insert error:', socialError);
+        // Don't fail the whole signup over this — profile is already created.
+      }
     }
 
     return Response.json({ success: true, profile: data }, { status: 201 });
