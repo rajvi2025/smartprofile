@@ -9,13 +9,16 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
 
-const PLAN_LABELS = { basic: 'Basic ₹199', business: 'Business ₹399', premium: 'Premium ₹599', pro: 'Pro ₹999' };
+const PLAN_LABELS = { basic: 'Basic', business: 'Business', premium: 'Premium', pro: 'Pro' };
+const PLAN_PRICES = { basic: '₹199', business: '₹399', premium: '₹599', pro: '₹999' };
 const PLAN_FEATURES = {
   basic: ['logo','name','phone','whatsapp','email','website','vcf','qr','about'],
   business: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social'],
   premium: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social'],
   pro: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social'],
 };
+const GALLERY_LIMITS = { basic: 0, business: 0, premium: 10, pro: 20 };
+const PRODUCT_LIMITS = { basic: 0, business: 2, premium: 5, pro: 10 };
 
 const SOCIALS = [
   { key: 'facebook', label: 'Facebook', color: '#1877F2', match: 'facebook' },
@@ -35,11 +38,15 @@ function SocialIcon({ platformKey }) {
   return <span className="text-white text-xs font-bold">?</span>;
 }
 
+const inp = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50';
+const lbl = 'block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide';
+const sizeHint = 'text-[11px] text-gray-400 mt-2';
+
 export default function EditProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  const [mode, setMode] = useState('view'); // 'view' | 'edit'
+  const [mode, setMode] = useState('view');
   const [loadingData, setLoadingData] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -57,6 +64,13 @@ export default function EditProfilePage() {
   const [directoryImagePreview, setDirectoryImagePreview] = useState(null);
   const [directoryImageFile, setDirectoryImageFile] = useState(null);
 
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [galleryUploading, setGalleryUploading] = useState(false);
+
+  const [productItems, setProductItems] = useState([]);
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '' });
+  const [addingProduct, setAddingProduct] = useState(false);
+
   const [form, setForm] = useState({
     full_name: '', designation: '', business_name: '', tagline: '', category: '',
     city: '', state: '', phone: '', whatsapp: '', website: '', about: '', address: '', maps_url: '',
@@ -68,16 +82,14 @@ export default function EditProfilePage() {
 
   const DRAFT_KEY = 'smartprofile_edit_draft';
 
-  // Auto-save any in-progress (unsaved) edits to localStorage, so a
-  // discarded/reloaded browser tab doesn't wipe out what was typed.
   useEffect(() => {
-    if (loadingData) return; // don't overwrite draft while initial data is still loading
+    if (loadingData) return;
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(form));
-    } catch (e) {
-      // storage full/unavailable — silently skip
-    }
+    } catch (e) {}
   }, [form, loadingData]);
+
+  const [profileId, setProfileId] = useState(null);
 
   const loadProfile = async () => {
     const { data: p } = await supabase
@@ -88,6 +100,7 @@ export default function EditProfilePage() {
 
     if (!p) { setNotFound(true); setLoadingData(false); return; }
 
+    setProfileId(p.id);
     setUsername(p.username);
     setPlan(p.plan || 'basic');
     setEmail(p.email || session.user.email || '');
@@ -95,11 +108,7 @@ export default function EditProfilePage() {
     setBannerPreview(p.banner_url || null);
     setDirectoryImagePreview(p.directory_image_url || null);
 
-    const { data: socialRows } = await supabase
-      .from('social_links')
-      .select('*')
-      .eq('profile_id', p.id);
-
+    const { data: socialRows } = await supabase.from('social_links').select('*').eq('profile_id', p.id);
     const socialValues = {};
     SOCIALS.forEach(s => {
       const row = (socialRows || []).find(r => (r.platform || '').toLowerCase() === s.match);
@@ -114,20 +123,21 @@ export default function EditProfilePage() {
       video_url: p.video_url || '', brochure_url: p.brochure_url || '',
       ...socialValues,
     };
-
-    // If there's an unsaved draft sitting in localStorage (e.g. from a tab
-    // that got discarded mid-edit), prefer it over the freshly-loaded DB
-    // values — it represents more recent changes the customer was making.
     try {
       const savedDraft = localStorage.getItem(DRAFT_KEY);
-      if (savedDraft) {
-        restoredForm = { ...restoredForm, ...JSON.parse(savedDraft) };
-      }
-    } catch (e) {
-      // corrupted draft — ignore
-    }
-
+      if (savedDraft) restoredForm = { ...restoredForm, ...JSON.parse(savedDraft) };
+    } catch (e) {}
     setForm(restoredForm);
+
+    try {
+      const { data: galleryRows } = await supabase.from('gallery').select('*').eq('profile_id', p.id).order('created_at', { ascending: true });
+      setGalleryItems(galleryRows || []);
+    } catch (e) { setGalleryItems([]); }
+
+    try {
+      const { data: productRows } = await supabase.from('products').select('*').eq('profile_id', p.id).order('created_at', { ascending: true });
+      setProductItems(productRows || []);
+    } catch (e) { setProductItems([]); }
 
     setLoadingData(false);
   };
@@ -154,6 +164,8 @@ export default function EditProfilePage() {
   );
 
   const has = (f) => (PLAN_FEATURES[plan] || PLAN_FEATURES.basic).includes(f);
+  const maxGallery = GALLERY_LIMITS[plan] || 0;
+  const maxProducts = PRODUCT_LIMITS[plan] || 0;
 
   const handleImage = (e, type) => {
     const file = e.target.files[0];
@@ -195,7 +207,7 @@ export default function EditProfilePage() {
       if (!res.ok) { setError(data.error || 'Update failed'); setSaving(false); return; }
 
       setSuccess(true);
-      setLogoFile(null); setBannerFile(null);
+      setLogoFile(null); setBannerFile(null); setDirectoryImageFile(null);
       localStorage.removeItem(DRAFT_KEY);
       setMode('view');
     } catch {
@@ -205,13 +217,93 @@ export default function EditProfilePage() {
     }
   };
 
-  const inp = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50';
-  const lbl = 'block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide';
+  // ---- Gallery handlers ----
+  const handleGalleryUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (galleryItems.length >= maxGallery) { setError(`Gallery limit reached (${maxGallery} photos on your plan)`); return; }
+    setGalleryUploading(true); setError('');
+    try {
+      const image_url = await uploadImage(file, 'gallery');
+      const res = await fetch('/api/profile/gallery', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_url }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Upload failed'); setGalleryUploading(false); return; }
+      setGalleryItems(prev => [...prev, data.item]);
+    } catch {
+      setError('Gallery upload failed.');
+    } finally {
+      setGalleryUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleGalleryDelete = async (id) => {
+    try {
+      await fetch('/api/profile/gallery', {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      setGalleryItems(prev => prev.filter(g => g.id !== id));
+    } catch {
+      setError('Could not delete photo.');
+    }
+  };
+
+  // ---- Product handlers ----
+  const handleAddProduct = async () => {
+    if (!newProduct.name) { setError('Product name required.'); return; }
+    if (productItems.length >= maxProducts) { setError(`Product limit reached (${maxProducts} products on your plan)`); return; }
+    setAddingProduct(true); setError('');
+    try {
+      const res = await fetch('/api/profile/products', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProduct),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Could not add product'); setAddingProduct(false); return; }
+      setProductItems(prev => [...prev, data.item]);
+      setNewProduct({ name: '', price: '', description: '' });
+    } catch {
+      setError('Could not add product.');
+    } finally {
+      setAddingProduct(false);
+    }
+  };
+
+  const handleProductFieldChange = (id, field, value) => {
+    setProductItems(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  };
+
+  const handleProductSave = async (item) => {
+    try {
+      await fetch('/api/profile/products', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: item.id, name: item.name, price: item.price, description: item.description }),
+      });
+    } catch {
+      setError('Could not save product changes.');
+    }
+  };
+
+  const handleProductDelete = async (id) => {
+    try {
+      await fetch('/api/profile/products', {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      setProductItems(prev => prev.filter(p => p.id !== id));
+    } catch {
+      setError('Could not delete product.');
+    }
+  };
 
   const Lock = ({ need, children }) => (
     <div className="relative rounded-2xl overflow-hidden">
       <div className="blur-sm pointer-events-none select-none opacity-50">{children}</div>
-      <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 rounded-2xl">
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 rounded-2xl p-4 text-center">
         <div className="text-4xl mb-2">🔒</div>
         <p className="font-bold text-gray-800 text-sm">Upgrade to <span className="text-blue-600">{need}</span></p>
         <a href="/dashboard/upgrade-plan" className="mt-2 bg-blue-600 text-white text-xs px-4 py-1.5 rounded-full font-semibold">Upgrade Plan →</a>
@@ -219,7 +311,7 @@ export default function EditProfilePage() {
     </div>
   );
 
-  // ---------- VIEW MODE ----------
+  // ================= VIEW MODE =================
   if (mode === 'view') {
     const Row = ({ label, value }) => value ? (
       <div className="py-2 border-b border-gray-100 last:border-0">
@@ -245,11 +337,6 @@ export default function EditProfilePage() {
             <div className="w-20 h-20 rounded-full border-2 border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
               {logoPreview ? <img src={logoPreview} className="w-full h-full object-cover"/> : <span className="text-3xl">🏢</span>}
             </div>
-            {directoryImagePreview && (
-              <div className="w-20 h-14 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
-                <img src={directoryImagePreview} className="w-full h-full object-cover" title="Directory Main Image" />
-              </div>
-            )}
             <div className="flex-1 min-w-[200px]">
               <h2 className="text-lg font-bold text-gray-900">{form.business_name || 'Your Business'}</h2>
               <p className="text-sm text-gray-500">{form.full_name}{form.designation ? ` · ${form.designation}` : ''}</p>
@@ -288,6 +375,38 @@ export default function EditProfilePage() {
             </div>
           )}
 
+          {directoryImagePreview && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="font-bold text-gray-800 mb-2">📸 Directory Main Image</h3>
+              <img src={directoryImagePreview} className="w-full h-32 object-cover rounded-xl" />
+            </div>
+          )}
+
+          {galleryItems.length > 0 && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="font-bold text-gray-800 mb-3">🖼️ Gallery ({galleryItems.length})</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {galleryItems.map(g => (
+                  <img key={g.id} src={g.image_url} className="w-full h-20 object-cover rounded-lg" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {productItems.length > 0 && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="font-bold text-gray-800 mb-3">📦 Products ({productItems.length})</h3>
+              <div className="space-y-2">
+                {productItems.map(p => (
+                  <div key={p.id} className="flex justify-between text-sm border-b border-gray-100 last:border-0 py-1.5">
+                    <span className="text-gray-800">{p.name}</span>
+                    {p.price && <span className="text-blue-600 font-semibold">₹{p.price}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {has('social') && SOCIALS.some(s => form[s.key]) && (
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h3 className="font-bold text-gray-800 mb-3">🔗 Social Media</h3>
@@ -310,7 +429,7 @@ export default function EditProfilePage() {
     );
   }
 
-  // ---------- EDIT MODE ----------
+  // ================= EDIT MODE =================
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="bg-white border-b px-4 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
@@ -318,11 +437,10 @@ export default function EditProfilePage() {
         <button onClick={() => setMode('view')} className="text-sm text-blue-600">← Cancel / Back to View</button>
       </div>
 
-      <div className="max-w-3xl mx-auto px-3 py-4 space-y-4">
-        {error && <div className="bg-red-50 border border-red-300 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
+      <div className="max-w-6xl mx-auto px-3 py-4">
+        {error && <div className="bg-red-50 border border-red-300 text-red-600 rounded-xl p-3 text-sm mb-4">{error}</div>}
 
-        {/* Locked info */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center justify-between flex-wrap gap-3">
+        <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center justify-between flex-wrap gap-3 mb-4">
           <div>
             <p className={lbl}>Profile URL</p>
             <p className="text-sm font-semibold text-gray-800">smartprofile.in/{username}</p>
@@ -333,110 +451,182 @@ export default function EditProfilePage() {
           </div>
           <div>
             <p className={lbl}>Current Plan</p>
-            <span className="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">{PLAN_LABELS[plan] || plan}</span>
+            <span className="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">{PLAN_LABELS[plan] || plan} {PLAN_PRICES[plan] || ''}</span>
           </div>
         </div>
 
-        {/* Basic Info */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h2 className="font-bold text-gray-800 mb-4">📋 Basic Info</h2>
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div><label className={lbl}>Full Name *</label><input value={form.full_name} onChange={e=>update('full_name',e.target.value)} className={inp}/></div>
-              <div><label className={lbl}>Designation</label><input value={form.designation} onChange={e=>update('designation',e.target.value)} className={inp}/></div>
-            </div>
-            <div><label className={lbl}>Business Name *</label><input value={form.business_name} onChange={e=>update('business_name',e.target.value)} className={inp}/></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><label className={lbl}>Tagline</label><input value={form.tagline} onChange={e=>update('tagline',e.target.value)} className={inp}/></div>
-              <div><label className={lbl}>Category</label><input value={form.category} onChange={e=>update('category',e.target.value)} className={inp}/></div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><label className={lbl}>City</label><input value={form.city} onChange={e=>update('city',e.target.value)} className={inp}/></div>
-              <div><label className={lbl}>State</label><input value={form.state} onChange={e=>update('state',e.target.value)} className={inp}/></div>
-            </div>
-          </div>
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* LEFT COLUMN — existing fields, unchanged */}
+          <div className="lg:col-span-2 space-y-4">
 
-        {/* Logo */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h2 className="font-bold text-gray-800 mb-4">📷 Logo / Photo</h2>
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full border-4 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
-              {logoPreview ? <img src={logoPreview} className="w-full h-full object-cover"/> : <span className="text-3xl">🏢</span>}
-            </div>
-            <div>
-              <input type="file" accept="image/*" onChange={e=>handleImage(e,'logo')} className="hidden" id="logo-up"/>
-              <label htmlFor="logo-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {logoPreview ? 'Change Logo' : 'Upload Logo'}</label>
-            </div>
-          </div>
-        </div>
-
-        {/* Directory Main Image */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h2 className="font-bold text-gray-800 mb-1">🖼️ Directory Main Image</h2>
-          <p className="text-xs text-gray-400 mb-4">This is the photo customers see first on the Directory listing. Any size works — it auto-adjusts to fit.</p>
-          <div className="w-full h-28 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
-            {directoryImagePreview ? <img src={directoryImagePreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload directory image</span>}
-          </div>
-          <input type="file" accept="image/*" onChange={e=>handleImage(e,'directory')} className="hidden" id="directory-img-up"/>
-          <label htmlFor="directory-img-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {directoryImagePreview ? 'Change Image' : 'Upload Image'}</label>
-        </div>
-
-        {/* Contact */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h2 className="font-bold text-gray-800 mb-4">📞 Contact</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div><label className={lbl}>Phone *</label><input value={form.phone} onChange={e=>update('phone',e.target.value)} className={inp}/></div>
-            <div><label className={lbl}>WhatsApp</label><input value={form.whatsapp} onChange={e=>update('whatsapp',e.target.value)} className={inp}/></div>
-            <div><label className={lbl}>Website</label><input value={form.website} onChange={e=>update('website',e.target.value)} className={inp}/></div>
-          </div>
-        </div>
-
-        {/* Banner */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h2 className="font-bold text-gray-800 mb-4">🖼️ Cover Banner</h2>
-          {!has('banner') ? <Lock need="Business ₹399"><div className="h-28 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl"/></Lock> : (
-            <>
-              <div className="w-full h-28 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
-                {bannerPreview ? <img src={bannerPreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload banner image</span>}
-              </div>
-              <input type="file" accept="image/*" onChange={e=>handleImage(e,'banner')} className="hidden" id="banner-up"/>
-              <label htmlFor="banner-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {bannerPreview ? 'Change Banner' : 'Upload Banner'}</label>
-            </>
-          )}
-        </div>
-
-        {/* About & Address */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h2 className="font-bold text-gray-800 mb-4">📍 About & Address</h2>
-          {!has('about') ? <Lock need="Business ₹399"><div className="space-y-3"><div className="h-20 bg-gray-100 rounded-xl"/><div className="h-12 bg-gray-100 rounded-xl"/></div></Lock> : (
-            <div className="space-y-3">
-              <div><label className={lbl}>About Us</label><textarea value={form.about} onChange={e=>update('about',e.target.value)} rows={3} className={inp+' resize-none'}/></div>
-              <div><label className={lbl}>Address</label><input value={form.address} onChange={e=>update('address',e.target.value)} className={inp}/></div>
-              <div><label className={lbl}>Google Maps URL</label><input value={form.maps_url} onChange={e=>update('maps_url',e.target.value)} className={inp}/></div>
-            </div>
-          )}
-        </div>
-
-        {/* Social */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h2 className="font-bold text-gray-800 mb-4">🔗 Social Media</h2>
-          {!has('social') ? <Lock need="Business ₹399"><div className="space-y-2">{SOCIALS.map(s=><div key={s.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
-            <div className="space-y-3">
-              {SOCIALS.map(s=>(
-                <div key={s.key} className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{backgroundColor:s.color}}><SocialIcon platformKey={s.key} /></div>
-                  <input value={form[s.key]||''} onChange={e=>update(s.key,e.target.value)} placeholder={`${s.label} URL`} className={inp}/>
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-4">📋 Basic Info</h2>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className={lbl}>Full Name *</label><input value={form.full_name} onChange={e=>update('full_name',e.target.value)} className={inp}/></div>
+                  <div><label className={lbl}>Designation</label><input value={form.designation} onChange={e=>update('designation',e.target.value)} className={inp}/></div>
                 </div>
-              ))}
+                <div><label className={lbl}>Business Name *</label><input value={form.business_name} onChange={e=>update('business_name',e.target.value)} className={inp}/></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className={lbl}>Tagline</label><input value={form.tagline} onChange={e=>update('tagline',e.target.value)} className={inp}/></div>
+                  <div><label className={lbl}>Category</label><input value={form.category} onChange={e=>update('category',e.target.value)} className={inp}/></div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className={lbl}>City</label><input value={form.city} onChange={e=>update('city',e.target.value)} className={inp}/></div>
+                  <div><label className={lbl}>State</label><input value={form.state} onChange={e=>update('state',e.target.value)} className={inp}/></div>
+                </div>
+              </div>
             </div>
-          )}
-        </div>
 
-        <button onClick={handleSave} disabled={saving}
-          className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl text-lg hover:opacity-90 shadow-lg mb-8 disabled:opacity-60">
-          {saving ? '⏳ Saving...' : '💾 Save Changes'}
-        </button>
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-4">📷 Logo / Photo</h2>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full border-4 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {logoPreview ? <img src={logoPreview} className="w-full h-full object-cover"/> : <span className="text-3xl">🏢</span>}
+                </div>
+                <div>
+                  <input type="file" accept="image/*" onChange={e=>handleImage(e,'logo')} className="hidden" id="logo-up"/>
+                  <label htmlFor="logo-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {logoPreview ? 'Change Logo' : 'Upload Logo'}</label>
+                  <p className={sizeHint}>Recommended: 400×400px (square)</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-4">📞 Contact</h2>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className={lbl}>Phone *</label><input value={form.phone} onChange={e=>update('phone',e.target.value)} className={inp}/></div>
+                <div><label className={lbl}>WhatsApp</label><input value={form.whatsapp} onChange={e=>update('whatsapp',e.target.value)} className={inp}/></div>
+                <div><label className={lbl}>Website</label><input value={form.website} onChange={e=>update('website',e.target.value)} className={inp}/></div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-4">🖼️ Cover Banner</h2>
+              {!has('banner') ? <Lock need="Business ₹399"><div className="h-28 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl"/></Lock> : (
+                <>
+                  <div className="w-full h-28 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
+                    {bannerPreview ? <img src={bannerPreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload banner image</span>}
+                  </div>
+                  <input type="file" accept="image/*" onChange={e=>handleImage(e,'banner')} className="hidden" id="banner-up"/>
+                  <label htmlFor="banner-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {bannerPreview ? 'Change Banner' : 'Upload Banner'}</label>
+                  <p className={sizeHint}>Recommended: 1200×400px (wide)</p>
+                </>
+              )}
+            </div>
+
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-4">📍 About & Address</h2>
+              {!has('about') ? <Lock need="Business ₹399"><div className="space-y-3"><div className="h-20 bg-gray-100 rounded-xl"/><div className="h-12 bg-gray-100 rounded-xl"/></div></Lock> : (
+                <div className="space-y-3">
+                  <div><label className={lbl}>About Us</label><textarea value={form.about} onChange={e=>update('about',e.target.value)} rows={3} className={inp+' resize-none'}/></div>
+                  <div><label className={lbl}>Address</label><input value={form.address} onChange={e=>update('address',e.target.value)} className={inp}/></div>
+                  <div><label className={lbl}>Google Maps URL</label><input value={form.maps_url} onChange={e=>update('maps_url',e.target.value)} className={inp}/></div>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-4">🔗 Social Media</h2>
+              {!has('social') ? <Lock need="Business ₹399"><div className="space-y-2">{SOCIALS.map(s=><div key={s.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
+                <div className="space-y-3">
+                  {SOCIALS.map(s=>(
+                    <div key={s.key} className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{backgroundColor:s.color}}><SocialIcon platformKey={s.key} /></div>
+                      <input value={form[s.key]||''} onChange={e=>update(s.key,e.target.value)} placeholder={`${s.label} URL`} className={inp}/>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button onClick={handleSave} disabled={saving}
+              className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl text-lg hover:opacity-90 shadow-lg mb-8 disabled:opacity-60">
+              {saving ? '⏳ Saving...' : '💾 Save Changes'}
+            </button>
+          </div>
+
+          {/* RIGHT COLUMN — Directory Image, Gallery, Products */}
+          <div className="lg:col-span-1 space-y-4">
+
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-2">📸 Directory Main Image</h2>
+              <p className="text-xs text-gray-500 mb-3">This is the photo customers see first on the Directory listing. Any size works — it auto-adjusts to fit.</p>
+              <div className="w-full h-32 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
+                {directoryImagePreview ? <img src={directoryImagePreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload directory image</span>}
+              </div>
+              <input type="file" accept="image/*" onChange={e=>handleImage(e,'directory')} className="hidden" id="directory-img-up"/>
+              <label htmlFor="directory-img-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {directoryImagePreview ? 'Change Image' : 'Upload Image'}</label>
+              <p className={sizeHint}>Recommended: 800×600px</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-1">🖼️ Gallery <span className="text-xs text-gray-400 font-normal">({galleryItems.length}/{maxGallery})</span></h2>
+              {maxGallery === 0 ? (
+                <Lock need="Premium ₹599"><div className="grid grid-cols-3 gap-2 mt-3">{[1,2,3].map(i=><div key={i} className="aspect-square bg-gray-100 rounded-xl"/>)}</div></Lock>
+              ) : (
+                <>
+                  <p className="text-xs text-gray-500 mb-3">Up to {maxGallery} photos, any size (800×800px recommended)</p>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {galleryItems.map(g => (
+                      <div key={g.id} className="relative aspect-square rounded-lg overflow-hidden group">
+                        <img src={g.image_url} className="w-full h-full object-cover" />
+                        <button onClick={() => handleGalleryDelete(g.id)}
+                          className="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center opacity-90">✕</button>
+                      </div>
+                    ))}
+                  </div>
+                  {galleryItems.length < maxGallery && (
+                    <>
+                      <input type="file" accept="image/*" onChange={handleGalleryUpload} className="hidden" id="gallery-up"/>
+                      <label htmlFor="gallery-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">
+                        {galleryUploading ? '⏳ Uploading...' : '📤 Add Photo'}
+                      </label>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-1">📦 Products <span className="text-xs text-gray-400 font-normal">({productItems.length}/{maxProducts})</span></h2>
+              {maxProducts === 0 ? (
+                <Lock need="Business ₹399"><div className="space-y-2 mt-3"><div className="h-16 bg-gray-100 rounded-xl"/></div></Lock>
+              ) : (
+                <>
+                  <div className="space-y-2 mb-3">
+                    {productItems.map(p => (
+                      <div key={p.id} className="border border-gray-200 rounded-xl p-3 space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <input value={p.name || ''} onChange={e=>handleProductFieldChange(p.id,'name',e.target.value)} onBlur={()=>handleProductSave(p)} placeholder="Product name" className={inp}/>
+                          <input value={p.price || ''} onChange={e=>handleProductFieldChange(p.id,'price',e.target.value)} onBlur={()=>handleProductSave(p)} placeholder="Price (₹)" className={inp}/>
+                        </div>
+                        <div className="flex gap-2">
+                          <input value={p.description || ''} onChange={e=>handleProductFieldChange(p.id,'description',e.target.value)} onBlur={()=>handleProductSave(p)} placeholder="Description" className={inp}/>
+                          <button onClick={() => handleProductDelete(p.id)} className="text-red-500 text-xs px-2 flex-shrink-0">✕ Delete</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {productItems.length < maxProducts && (
+                    <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <input value={newProduct.name} onChange={e=>setNewProduct(p=>({...p,name:e.target.value}))} placeholder="Product name" className={inp}/>
+                        <input value={newProduct.price} onChange={e=>setNewProduct(p=>({...p,price:e.target.value}))} placeholder="Price (₹)" className={inp}/>
+                      </div>
+                      <input value={newProduct.description} onChange={e=>setNewProduct(p=>({...p,description:e.target.value}))} placeholder="Description" className={inp}/>
+                      <button onClick={handleAddProduct} disabled={addingProduct}
+                        className="w-full border-2 border-dashed border-blue-300 text-blue-600 rounded-xl py-2 text-sm font-semibold hover:bg-blue-50">
+                        {addingProduct ? '⏳ Adding...' : '+ Add Product'}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
   );
