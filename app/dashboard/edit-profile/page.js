@@ -180,7 +180,7 @@ export default function EditProfilePage() {
       <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 rounded-2xl">
         <div className="text-4xl mb-2">🔒</div>
         <p className="font-bold text-gray-800 text-sm">Upgrade to <span className="text-blue-600">{need}</span></p>
-        <a href="/pricing" className="mt-2 bg-blue-600 text-white text-xs px-4 py-1.5 rounded-full font-semibold">See Plans →</a>
+        <a href="/dashboard/upgrade-plan" className="mt-2 bg-blue-600 text-white text-xs px-4 py-1.5 rounded-full font-semibold">Upgrade Plan →</a>
       </div>
     </div>
   );
