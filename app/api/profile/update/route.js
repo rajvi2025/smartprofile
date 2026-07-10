@@ -20,6 +20,7 @@ export async function POST(request) {
       phone, whatsapp, website, about, address, maps_url,
       logo_url, banner_url, video_url, brochure_url, directory_image_url,
       facebook, instagram, youtube, linkedin, twitter,
+      google, indiamart, justdial, tradeindia, exportersindia, alibaba,
     } = body;
     // Note: email and plan are intentionally NOT accepted here — email changes
     // require an admin/support request, and plan changes go through a separate
@@ -83,6 +84,31 @@ export async function POST(request) {
         })));
       if (socialError) {
         console.error('Social links update error:', socialError);
+      }
+    }
+
+    // Business Presence: same delete-then-reinsert pattern as social links.
+    await supabase.from('business_presence').delete().eq('profile_id', existingProfile.id);
+
+    const bizEntries = [
+      { platform: 'Google Business', url: google },
+      { platform: 'IndiaMART', url: indiamart },
+      { platform: 'JustDial', url: justdial },
+      { platform: 'TradeIndia', url: tradeindia },
+      { platform: 'ExportersIndia', url: exportersindia },
+      { platform: 'Alibaba', url: alibaba },
+    ].filter(b => b.url);
+
+    if (bizEntries.length > 0) {
+      const { error: bizError } = await supabase
+        .from('business_presence')
+        .insert(bizEntries.map(b => ({
+          profile_id: existingProfile.id,
+          platform: b.platform,
+          url: b.url,
+        })));
+      if (bizError) {
+        console.error('Business presence update error:', bizError);
       }
     }
 

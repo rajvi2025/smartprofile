@@ -28,6 +28,15 @@ const SOCIALS = [
   { key: 'twitter', label: 'Twitter/X', color: '#000000', match: 'twitter' },
 ];
 
+const BIZ_PLATFORMS = [
+  { key: 'google', label: 'Google Business', color: '#4285F4', match: 'google business' },
+  { key: 'indiamart', label: 'IndiaMART', color: '#ef4444', match: 'indiamart' },
+  { key: 'justdial', label: 'JustDial', color: '#ff6600', match: 'justdial' },
+  { key: 'tradeindia', label: 'TradeIndia', color: '#0066cc', match: 'tradeindia' },
+  { key: 'exportersindia', label: 'ExportersIndia', color: '#009900', match: 'exportersindia' },
+  { key: 'alibaba', label: 'Alibaba', color: '#ff6a00', match: 'alibaba' },
+];
+
 function SocialIcon({ platformKey }) {
   const common = "w-5 h-5";
   if (platformKey === "facebook") return <svg className={common} viewBox="0 0 24 24" fill="white"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.891h-2.33v6.987C18.343 21.128 22 16.991 22 12z"/></svg>;
@@ -69,12 +78,15 @@ export default function EditProfilePage() {
 
   const [productItems, setProductItems] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '' });
+  const [newProductImageFile, setNewProductImageFile] = useState(null);
+  const [newProductImagePreview, setNewProductImagePreview] = useState(null);
   const [addingProduct, setAddingProduct] = useState(false);
 
   const [form, setForm] = useState({
     full_name: '', designation: '', business_name: '', tagline: '', category: '',
     city: '', state: '', phone: '', whatsapp: '', website: '', about: '', address: '', maps_url: '',
     facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '',
+    google: '', indiamart: '', justdial: '', tradeindia: '', exportersindia: '', alibaba: '',
     video_url: '', brochure_url: '',
   });
 
@@ -115,6 +127,17 @@ export default function EditProfilePage() {
       socialValues[s.key] = row ? row.url : '';
     });
 
+    let bizRows = [];
+    try {
+      const { data } = await supabase.from('business_presence').select('*').eq('profile_id', p.id);
+      bizRows = data || [];
+    } catch (e) { bizRows = []; }
+    const bizValues = {};
+    BIZ_PLATFORMS.forEach(b => {
+      const row = bizRows.find(r => (r.platform || '').toLowerCase() === b.match);
+      bizValues[b.key] = row ? row.url : '';
+    });
+
     let restoredForm = {
       full_name: p.full_name || '', designation: p.designation || '', business_name: p.business_name || '',
       tagline: p.tagline || '', category: p.category || '', city: p.city || '', state: p.state || '',
@@ -122,6 +145,7 @@ export default function EditProfilePage() {
       address: p.address || '', maps_url: p.maps_url || '',
       video_url: p.video_url || '', brochure_url: p.brochure_url || '',
       ...socialValues,
+      ...bizValues,
     };
     try {
       const savedDraft = localStorage.getItem(DRAFT_KEY);
@@ -258,18 +282,39 @@ export default function EditProfilePage() {
     if (productItems.length >= maxProducts) { setError(`Product limit reached (${maxProducts} products on your plan)`); return; }
     setAddingProduct(true); setError('');
     try {
+      let image_url = null;
+      if (newProductImageFile) image_url = await uploadImage(newProductImageFile, 'products');
+
       const res = await fetch('/api/profile/products', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newProduct),
+        body: JSON.stringify({ ...newProduct, image_url }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Could not add product'); setAddingProduct(false); return; }
       setProductItems(prev => [...prev, data.item]);
       setNewProduct({ name: '', price: '', description: '' });
+      setNewProductImageFile(null);
+      setNewProductImagePreview(null);
     } catch {
       setError('Could not add product.');
     } finally {
       setAddingProduct(false);
+    }
+  };
+
+  const handleProductImageChange = async (item, file) => {
+    if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    setProductItems(prev => prev.map(p => p.id === item.id ? { ...p, image_url: previewUrl } : p));
+    try {
+      const image_url = await uploadImage(file, 'products');
+      setProductItems(prev => prev.map(p => p.id === item.id ? { ...p, image_url } : p));
+      await fetch('/api/profile/products', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: item.id, name: item.name, price: item.price, description: item.description, image_url }),
+      });
+    } catch {
+      setError('Could not upload product image.');
     }
   };
 
@@ -281,7 +326,7 @@ export default function EditProfilePage() {
     try {
       await fetch('/api/profile/products', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: item.id, name: item.name, price: item.price, description: item.description }),
+        body: JSON.stringify({ id: item.id, name: item.name, price: item.price, description: item.description, image_url: item.image_url }),
       });
     } catch {
       setError('Could not save product changes.');
@@ -540,6 +585,21 @@ export default function EditProfilePage() {
               )}
             </div>
 
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-1">🏢 Business Presence</h2>
+              <p className="text-xs text-gray-500 mb-4">Link your listings on other platforms — IndiaMART, JustDial, TradeIndia etc.</p>
+              {!has('social') ? <Lock need="Business ₹399"><div className="space-y-2">{BIZ_PLATFORMS.map(b=><div key={b.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
+                <div className="space-y-3">
+                  {BIZ_PLATFORMS.map(b=>(
+                    <div key={b.key} className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-white text-xs font-bold" style={{backgroundColor:b.color}}>{b.label.slice(0,2)}</div>
+                      <input value={form[b.key]||''} onChange={e=>update(b.key,e.target.value)} placeholder={`${b.label} URL`} className={inp}/>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button onClick={handleSave} disabled={saving}
               className="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl text-lg hover:opacity-90 shadow-lg mb-8 disabled:opacity-60">
               {saving ? '⏳ Saving...' : '💾 Save Changes'}
@@ -597,6 +657,15 @@ export default function EditProfilePage() {
                   <div className="space-y-2 mb-3">
                     {productItems.map(p => (
                       <div key={p.id} className="border border-gray-200 rounded-xl p-3 space-y-2">
+                        <div className="flex gap-2">
+                          <div className="w-14 h-14 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            {p.image_url ? <img src={p.image_url} className="w-full h-full object-cover"/> : <span className="text-gray-300 text-xs">No img</span>}
+                          </div>
+                          <div className="flex-1">
+                            <input type="file" accept="image/*" onChange={e=>handleProductImageChange(p, e.target.files[0])} className="hidden" id={`product-img-${p.id}`}/>
+                            <label htmlFor={`product-img-${p.id}`} className="cursor-pointer text-xs text-blue-600 font-semibold">📤 {p.image_url ? 'Change photo' : 'Add photo'}</label>
+                          </div>
+                        </div>
                         <div className="grid grid-cols-2 gap-2">
                           <input value={p.name || ''} onChange={e=>handleProductFieldChange(p.id,'name',e.target.value)} onBlur={()=>handleProductSave(p)} placeholder="Product name" className={inp}/>
                           <input value={p.price || ''} onChange={e=>handleProductFieldChange(p.id,'price',e.target.value)} onBlur={()=>handleProductSave(p)} placeholder="Price (₹)" className={inp}/>
@@ -610,6 +679,15 @@ export default function EditProfilePage() {
                   </div>
                   {productItems.length < maxProducts && (
                     <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 space-y-2">
+                      <div className="flex gap-2 items-center">
+                        <div className="w-14 h-14 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                          {newProductImagePreview ? <img src={newProductImagePreview} className="w-full h-full object-cover"/> : <span className="text-gray-300 text-xs">No img</span>}
+                        </div>
+                        <div>
+                          <input type="file" accept="image/*" onChange={e=>{const f=e.target.files[0]; if(f){setNewProductImageFile(f); setNewProductImagePreview(URL.createObjectURL(f));}}} className="hidden" id="new-product-img"/>
+                          <label htmlFor="new-product-img" className="cursor-pointer text-xs text-blue-600 font-semibold">📤 {newProductImagePreview ? 'Change photo' : 'Add photo (optional)'}</label>
+                        </div>
+                      </div>
                       <div className="grid grid-cols-2 gap-2">
                         <input value={newProduct.name} onChange={e=>setNewProduct(p=>({...p,name:e.target.value}))} placeholder="Product name" className={inp}/>
                         <input value={newProduct.price} onChange={e=>setNewProduct(p=>({...p,price:e.target.value}))} placeholder="Price (₹)" className={inp}/>
