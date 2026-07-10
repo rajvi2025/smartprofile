@@ -54,6 +54,8 @@ export default function EditProfilePage() {
   const [bannerPreview, setBannerPreview] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
+  const [directoryImagePreview, setDirectoryImagePreview] = useState(null);
+  const [directoryImageFile, setDirectoryImageFile] = useState(null);
 
   const [form, setForm] = useState({
     full_name: '', designation: '', business_name: '', tagline: '', category: '',
@@ -91,6 +93,7 @@ export default function EditProfilePage() {
     setEmail(p.email || session.user.email || '');
     setLogoPreview(p.logo_url || null);
     setBannerPreview(p.banner_url || null);
+    setDirectoryImagePreview(p.directory_image_url || null);
 
     const { data: socialRows } = await supabase
       .from('social_links')
@@ -157,6 +160,7 @@ export default function EditProfilePage() {
     if (!file) return;
     const url = URL.createObjectURL(file);
     if (type === 'logo') { setLogoPreview(url); setLogoFile(file); }
+    else if (type === 'directory') { setDirectoryImagePreview(url); setDirectoryImageFile(file); }
     else { setBannerPreview(url); setBannerFile(file); }
   };
 
@@ -177,13 +181,15 @@ export default function EditProfilePage() {
     try {
       let logo_url = logoPreview && !logoFile ? logoPreview : null;
       let banner_url = bannerPreview && !bannerFile ? bannerPreview : null;
+      let directory_image_url = directoryImagePreview && !directoryImageFile ? directoryImagePreview : null;
       if (logoFile) logo_url = await uploadImage(logoFile, 'logos');
       if (bannerFile) banner_url = await uploadImage(bannerFile, 'banners');
+      if (directoryImageFile) directory_image_url = await uploadImage(directoryImageFile, 'directory');
 
       const res = await fetch('/api/profile/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, logo_url, banner_url }),
+        body: JSON.stringify({ ...form, logo_url, banner_url, directory_image_url }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Update failed'); setSaving(false); return; }
@@ -239,6 +245,11 @@ export default function EditProfilePage() {
             <div className="w-20 h-20 rounded-full border-2 border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
               {logoPreview ? <img src={logoPreview} className="w-full h-full object-cover"/> : <span className="text-3xl">🏢</span>}
             </div>
+            {directoryImagePreview && (
+              <div className="w-20 h-14 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                <img src={directoryImagePreview} className="w-full h-full object-cover" title="Directory Main Image" />
+              </div>
+            )}
             <div className="flex-1 min-w-[200px]">
               <h2 className="text-lg font-bold text-gray-900">{form.business_name || 'Your Business'}</h2>
               <p className="text-sm text-gray-500">{form.full_name}{form.designation ? ` · ${form.designation}` : ''}</p>
@@ -358,6 +369,17 @@ export default function EditProfilePage() {
               <label htmlFor="logo-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {logoPreview ? 'Change Logo' : 'Upload Logo'}</label>
             </div>
           </div>
+        </div>
+
+        {/* Directory Main Image */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm">
+          <h2 className="font-bold text-gray-800 mb-1">🖼️ Directory Main Image</h2>
+          <p className="text-xs text-gray-400 mb-4">This is the photo customers see first on the Directory listing. Any size works — it auto-adjusts to fit.</p>
+          <div className="w-full h-28 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
+            {directoryImagePreview ? <img src={directoryImagePreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload directory image</span>}
+          </div>
+          <input type="file" accept="image/*" onChange={e=>handleImage(e,'directory')} className="hidden" id="directory-img-up"/>
+          <label htmlFor="directory-img-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {directoryImagePreview ? 'Change Image' : 'Upload Image'}</label>
         </div>
 
         {/* Contact */}

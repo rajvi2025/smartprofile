@@ -18,7 +18,7 @@ export async function POST(request) {
     const {
       full_name, designation, business_name, tagline, category, city, state,
       phone, whatsapp, website, about, address, maps_url,
-      logo_url, banner_url, video_url, brochure_url,
+      logo_url, banner_url, video_url, brochure_url, directory_image_url,
       facebook, instagram, youtube, linkedin, twitter,
     } = body;
     // Note: email and plan are intentionally NOT accepted here — email changes
@@ -48,6 +48,7 @@ export async function POST(request) {
         maps_url: maps_url || null,
         logo_url: logo_url || null,
         banner_url: banner_url || null,
+        directory_image_url: directory_image_url || null,
         video_url: video_url || null,
         brochure_url: brochure_url || null,
       })
