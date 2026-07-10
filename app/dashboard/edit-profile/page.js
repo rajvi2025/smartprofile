@@ -64,6 +64,19 @@ export default function EditProfilePage() {
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }));
 
+  const DRAFT_KEY = 'smartprofile_edit_draft';
+
+  // Auto-save any in-progress (unsaved) edits to localStorage, so a
+  // discarded/reloaded browser tab doesn't wipe out what was typed.
+  useEffect(() => {
+    if (loadingData) return; // don't overwrite draft while initial data is still loading
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(form));
+    } catch (e) {
+      // storage full/unavailable — silently skip
+    }
+  }, [form, loadingData]);
+
   const loadProfile = async () => {
     const { data: p } = await supabase
       .from('profiles')
@@ -90,14 +103,28 @@ export default function EditProfilePage() {
       socialValues[s.key] = row ? row.url : '';
     });
 
-    setForm({
+    let restoredForm = {
       full_name: p.full_name || '', designation: p.designation || '', business_name: p.business_name || '',
       tagline: p.tagline || '', category: p.category || '', city: p.city || '', state: p.state || '',
       phone: p.phone || '', whatsapp: p.whatsapp || '', website: p.website || '', about: p.about || '',
       address: p.address || '', maps_url: p.maps_url || '',
       video_url: p.video_url || '', brochure_url: p.brochure_url || '',
       ...socialValues,
-    });
+    };
+
+    // If there's an unsaved draft sitting in localStorage (e.g. from a tab
+    // that got discarded mid-edit), prefer it over the freshly-loaded DB
+    // values — it represents more recent changes the customer was making.
+    try {
+      const savedDraft = localStorage.getItem(DRAFT_KEY);
+      if (savedDraft) {
+        restoredForm = { ...restoredForm, ...JSON.parse(savedDraft) };
+      }
+    } catch (e) {
+      // corrupted draft — ignore
+    }
+
+    setForm(restoredForm);
 
     setLoadingData(false);
   };
@@ -163,6 +190,7 @@ export default function EditProfilePage() {
 
       setSuccess(true);
       setLogoFile(null); setBannerFile(null);
+      localStorage.removeItem(DRAFT_KEY);
       setMode('view');
     } catch {
       setError('Network error. Try again.');
