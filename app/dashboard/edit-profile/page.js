@@ -361,18 +361,18 @@ export default function EditProfilePage() {
     const Row = ({ label, value }) => value ? (
       <div className="py-2 border-b border-gray-100 last:border-0">
         <p className={lbl}>{label}</p>
-        <p className="text-sm text-gray-800">{value}</p>
+        <p className="text-sm text-gray-800 break-words">{value}</p>
       </div>
     ) : null;
 
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 overflow-x-hidden">
         <div className="bg-white border-b px-4 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
           <h1 className="text-lg font-bold text-gray-800">👤 My Profile</h1>
           <a href="/dashboard" className="text-sm text-blue-600">← Back to Dashboard</a>
         </div>
 
-        <div className="max-w-3xl mx-auto px-3 py-4 space-y-4">
+        <div className="max-w-3xl mx-auto px-3 py-4 space-y-4 overflow-x-hidden">
           {success && <div className="bg-green-50 border border-green-300 text-green-700 rounded-xl p-3 text-sm flex items-center justify-between">
             <span>✅ Profile updated successfully!</span>
             <a href={`/${username}`} className="text-green-800 font-semibold underline">View Live →</a>
@@ -443,8 +443,11 @@ export default function EditProfilePage() {
               <h3 className="font-bold text-gray-800 mb-3">📦 Products ({productItems.length})</h3>
               <div className="space-y-2">
                 {productItems.map(p => (
-                  <div key={p.id} className="flex justify-between text-sm border-b border-gray-100 last:border-0 py-1.5">
-                    <span className="text-gray-800">{p.name}</span>
+                  <div key={p.id} className="flex items-center gap-3 text-sm border-b border-gray-100 last:border-0 py-1.5">
+                    <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                      {p.image_url && <img src={p.image_url} className="w-full h-full object-cover" />}
+                    </div>
+                    <span className="text-gray-800 flex-1">{p.name}</span>
                     {p.price && <span className="text-blue-600 font-semibold">₹{p.price}</span>}
                   </div>
                 ))}
@@ -462,6 +465,20 @@ export default function EditProfilePage() {
                       <SocialIcon platformKey={s.key} />
                     </div>
                     <span className="text-xs text-gray-500">{s.label}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {has('social') && BIZ_PLATFORMS.some(b => form[b.key]) && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="font-bold text-gray-800 mb-3">🏢 Business Presence</h3>
+              <div className="flex gap-3 flex-wrap">
+                {BIZ_PLATFORMS.filter(b => form[b.key]).map(b => (
+                  <a key={b.key} href={form[b.key]} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: b.color }}>{b.label.slice(0,2)}</div>
+                    <span className="text-xs text-gray-500">{b.label}</span>
                   </a>
                 ))}
               </div>
