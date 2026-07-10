@@ -8,6 +8,11 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
 
+// Converts a city name like "New Delhi" into a URL-safe slug like "new-delhi"
+function slugifyCity(city) {
+  return (city || "").toLowerCase().trim().replace(/\s+/g, "-");
+}
+
 function QRSection({ username }) {
   const [qrUrl, setQrUrl] = useState("");
   useEffect(() => {
@@ -281,6 +286,30 @@ function BusinessProfile({ profile, products, socials, testimonials }) {
   );
 }
 
+// ---------- Shown when profile exists but has no active Digital Card (e.g. free directory-only listing) ----------
+function NoDigitalCard({ profile }) {
+  const citySlug = slugifyCity(profile.city);
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="text-center max-w-sm bg-white rounded-3xl shadow-xl p-8">
+        <div className="text-5xl mb-4">📇</div>
+        <h1 className="text-xl font-bold text-gray-800 mb-2">Digital Card Not Available</h1>
+        <p className="text-gray-500 text-sm mb-6">{profile.business_name || profile.full_name} hasn't activated a Digital Business Card yet.</p>
+        <div className="flex flex-col gap-3">
+          {profile.directory_active && (
+            <a href={`/directory/${citySlug}/${profile.username}`} className="inline-block bg-gray-100 text-gray-700 font-semibold px-6 py-3 rounded-xl text-sm">
+              View Directory Listing →
+            </a>
+          )}
+          <a href="/pricing" className="inline-block bg-blue-600 text-white font-semibold px-6 py-3 rounded-xl text-sm">
+            🚀 Upgrade — Create Your Digital Card
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage({ params }) {
   const resolvedParams = use(params);
   const username = resolvedParams.username;
@@ -295,12 +324,16 @@ export default function ProfilePage({ params }) {
       const { data: p } = await supabase.from("profiles").select("*").eq("username", username).single();
       if (!p) { setLoading(false); return; }
       setProfile(p);
-      const { data: pr } = await supabase.from("products").select("*").eq("profile_id", p.id);
-      setProducts(pr || []);
-      const { data: sl } = await supabase.from("social_links").select("*").eq("profile_id", p.id);
-      setSocials(sl || []);
-      const { data: tm } = await supabase.from("testimonials").select("*").eq("profile_id", p.id).order("sort_order", { ascending: true });
-      setTestimonials(tm || []);
+
+      // Only fetch the extra sections if the Digital Card is actually active for this profile
+      if (p.digital_card_active) {
+        const { data: pr } = await supabase.from("products").select("*").eq("profile_id", p.id);
+        setProducts(pr || []);
+        const { data: sl } = await supabase.from("social_links").select("*").eq("profile_id", p.id);
+        setSocials(sl || []);
+        const { data: tm } = await supabase.from("testimonials").select("*").eq("profile_id", p.id).order("sort_order", { ascending: true });
+        setTestimonials(tm || []);
+      }
       setLoading(false);
     }
     fetchProfile();
@@ -320,6 +353,11 @@ export default function ProfilePage({ params }) {
       </div>
     </div>
   );
+
+  // Digital Card is a separate paid product — only show it if this flag is active.
+  if (!profile.digital_card_active) {
+    return <NoDigitalCard profile={profile} />;
+  }
 
   if (profile.plan === "business" || profile.plan === "premium" || profile.plan === "pro" || profile.plan === "ultimate") {
     return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} />;
