@@ -97,8 +97,8 @@ export default function UpgradePlanPage() {
     setCouponError('');
     setAppliedCoupon(null);
     const code = couponCode.trim().toUpperCase();
-    if (!code) { setCouponError('Coupon code daalo.'); return; }
-    if (!selectedPlan) { setCouponError('Pehle ek plan select karo.'); return; }
+    if (!code) { setCouponError('Please enter a coupon code.'); return; }
+    if (!selectedPlan) { setCouponError('Please select a plan first.'); return; }
 
     setCouponChecking(true);
     try {
@@ -108,29 +108,29 @@ export default function UpgradePlanPage() {
         .eq('code', code)
         .single();
 
-      if (fetchErr || !coupon) { setCouponError('Ye coupon code valid nahi hai.'); setCouponChecking(false); return; }
-      if (!coupon.is_active) { setCouponError('Ye coupon abhi active nahi hai.'); setCouponChecking(false); return; }
+      if (fetchErr || !coupon) { setCouponError('This coupon code is not valid.'); setCouponChecking(false); return; }
+      if (!coupon.is_active) { setCouponError('This coupon is not active.'); setCouponChecking(false); return; }
 
       const now = new Date();
-      if (coupon.valid_from && new Date(coupon.valid_from) > now) { setCouponError('Ye coupon abhi start nahi hua.'); setCouponChecking(false); return; }
-      if (coupon.valid_until && new Date(coupon.valid_until) < now) { setCouponError('Ye coupon expire ho chuka hai.'); setCouponChecking(false); return; }
+      if (coupon.valid_from && new Date(coupon.valid_from) > now) { setCouponError('This coupon is not active yet.'); setCouponChecking(false); return; }
+      if (coupon.valid_until && new Date(coupon.valid_until) < now) { setCouponError('This coupon has expired.'); setCouponChecking(false); return; }
 
       if (coupon.applicable_product && coupon.applicable_product !== 'all' && coupon.applicable_product !== 'digital_card') {
-        setCouponError('Ye coupon Digital Card plans pe apply nahi hota.'); setCouponChecking(false); return;
+        setCouponError('This coupon is not valid for Digital Card plans.'); setCouponChecking(false); return;
       }
       if (coupon.applicable_plans && coupon.applicable_plans.length > 0 && !coupon.applicable_plans.includes(selectedPlan)) {
-        setCouponError('Ye coupon is plan pe apply nahi hota.'); setCouponChecking(false); return;
+        setCouponError('This coupon is not valid for this plan.'); setCouponChecking(false); return;
       }
       if (coupon.min_order_value && upgradeCost < Number(coupon.min_order_value)) {
-        setCouponError(`Minimum ₹${coupon.min_order_value} ka order chahiye is coupon ke liye.`); setCouponChecking(false); return;
+        setCouponError(`A minimum order of ₹${coupon.min_order_value} is required for this coupon.`); setCouponChecking(false); return;
       }
 
       // Usage limit checks
       if (coupon.usage_type === 'single_use' && (coupon.used_count || 0) >= 1) {
-        setCouponError('Ye coupon already use ho chuka hai.'); setCouponChecking(false); return;
+        setCouponError('This coupon has already been fully used.'); setCouponChecking(false); return;
       }
       if (coupon.usage_type === 'limited' && coupon.max_uses && (coupon.used_count || 0) >= coupon.max_uses) {
-        setCouponError('Ye coupon ki usage limit khatam ho gayi hai.'); setCouponChecking(false); return;
+        setCouponError('This coupon has reached its usage limit.'); setCouponChecking(false); return;
       }
 
       // Per-user limit check
@@ -141,7 +141,7 @@ export default function UpgradePlanPage() {
         .eq('email', current.email);
 
       if (coupon.per_user_limit && (userUseCount || 0) >= coupon.per_user_limit) {
-        setCouponError('Tum ye coupon pehle hi use kar chuke ho.'); setCouponChecking(false); return;
+        setCouponError('You have already used this coupon.'); setCouponChecking(false); return;
       }
 
       // Calculate discount
@@ -156,7 +156,7 @@ export default function UpgradePlanPage() {
 
       setAppliedCoupon({ id: coupon.id, code: coupon.code, discountAmount: discount });
     } catch {
-      setCouponError('Kuch gadbad ho gayi, dobara try karo.');
+      setCouponError('Something went wrong. Please try again.');
     }
     setCouponChecking(false);
   }
@@ -183,7 +183,7 @@ export default function UpgradePlanPage() {
     setProcessing(true); setError('');
     try {
       const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) { setError('Payment gateway load nahi hua.'); setProcessing(false); return; }
+      if (!scriptLoaded) { setError('Payment gateway failed to load.'); setProcessing(false); return; }
 
       const orderRes = await fetch('/api/razorpay/create-order', {
         method: 'POST',
@@ -192,7 +192,7 @@ export default function UpgradePlanPage() {
       });
       const orderData = await orderRes.json();
       if (!orderRes.ok || !orderData.order) {
-        setError('Payment start nahi ho paya.'); setProcessing(false); return;
+        setError('Failed to start payment.'); setProcessing(false); return;
       }
 
       const options = {
@@ -240,11 +240,11 @@ export default function UpgradePlanPage() {
                 }
                 router.push('/dashboard');
               } else {
-                setError('Payment hui, lekin plan update nahi hua. Support se contact karo.');
+                setError('Payment succeeded, but the plan update failed. Please contact support.');
                 setProcessing(false);
               }
             } else {
-              setError('Payment verify nahi ho paya. Agar paisa kata hai toh support se contact karo.');
+              setError('Payment verification failed. If money was deducted, please contact support.');
               setProcessing(false);
             }
           } catch {
@@ -264,7 +264,7 @@ export default function UpgradePlanPage() {
       });
       rzp.open();
     } catch {
-      setError('Kuch gadbad ho gayi.');
+      setError('Something went wrong.');
       setProcessing(false);
     }
   };
