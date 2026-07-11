@@ -45,19 +45,36 @@ function cleanPhone(raw) {
 
 // Pulls a locality/area name (e.g. "Mira Road") out of a free-text address,
 // so cards can show "Area, City" instead of just "City". Falls back to
-// nothing if the address is empty or doesn't have a usable segment —
-// the city/state display always still works either way.
+// nothing if the address has no genuine locality segment — city/state
+// display always still works either way.
 function extractArea(address, city) {
   if (!address) return '';
   const parts = address.split(',').map(s => s.trim()).filter(Boolean);
+
+  const looksLikeBuildingInfo = (s) => {
+    if (!s) return true;
+    if (/^(shop|flat|office|floor|room|blk|block|plot|survey|gala|unit|building|bldg)\b/i.test(s)) return true;
+    if (/^no\.?\s*\d/i.test(s)) return true;
+    const digitCount = (s.match(/\d/g) || []).length;
+    if (digitCount > 2) return true;
+    if (s.length > 30) return true;
+    return false;
+  };
+
+  // Prefer the segment that sits immediately before the city in the address —
+  // that's the actual locality (e.g. "...Mira Road, Thane, Maharashtra").
+  if (city) {
+    const cityIdx = parts.findIndex(p => p.toLowerCase() === city.toLowerCase());
+    if (cityIdx > 0) {
+      const candidate = parts[cityIdx - 1];
+      return looksLikeBuildingInfo(candidate) ? '' : candidate;
+    }
+  }
+
+  // Fallback: first segment that isn't the city and isn't building/shop info
   for (const part of parts) {
-    if (!part) continue;
     if (city && part.toLowerCase() === city.toLowerCase()) continue;
-    // Skip segments that look like a house/shop/flat number heavy line
-    // (e.g. "Shop No 5" or "402, ABC Tower") rather than a locality name.
-    const digitCount = (part.match(/\d/g) || []).length;
-    if (digitCount > 3) continue;
-    if (part.length > 30) continue;
+    if (looksLikeBuildingInfo(part)) continue;
     return part;
   }
   return '';
