@@ -17,7 +17,7 @@ const PLAN_FEATURES = {
   premium: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social'],
   pro: ['logo','name','phone','whatsapp','email','website','vcf','qr','about','banner','address','maps','social'],
 };
-const GALLERY_LIMITS = { basic: 0, business: 0, premium: 10, pro: 20 };
+const GALLERY_LIMITS = { basic: 0, business: 0, premium: 10, pro: 10 };
 const PRODUCT_LIMITS = { basic: 0, business: 2, premium: 5, pro: 10 };
 
 const SOCIALS = [
@@ -685,12 +685,12 @@ export default function EditProfilePage() {
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h2 className="font-bold text-gray-800 mb-2">📸 Directory Main Image</h2>
               <p className="text-xs text-gray-500 mb-3">This is the photo customers see first on the Directory listing. Any size works — it auto-adjusts to fit.</p>
-              <div className="w-full h-32 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
+              <div className="w-full aspect-square rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
                 {directoryImagePreview ? <img src={directoryImagePreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload directory image</span>}
               </div>
               <input type="file" accept="image/*" onChange={e=>handleImage(e,'directory')} className="hidden" id="directory-img-up"/>
               <label htmlFor="directory-img-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {directoryImagePreview ? 'Change Image' : 'Upload Image'}</label>
-              <p className={sizeHint}>Recommended: 800×600px</p>
+              <p className={sizeHint}>Square photo works best (e.g. 800×800px) — it's shown as a square on the Directory. Non-square photos are auto-centred and cropped to fit.</p>
             </div>
 
             <div className="bg-white rounded-2xl p-5 shadow-sm">
@@ -727,6 +727,29 @@ export default function EditProfilePage() {
                 <Lock need="Business ₹399"><div className="space-y-2 mt-3"><div className="h-16 bg-gray-100 rounded-xl"/></div></Lock>
               ) : (
                 <>
+                  {productItems.length < maxProducts && (
+                    <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 space-y-2 mb-3">
+                      <p className="text-xs font-semibold text-blue-600 mb-1">+ Add New Product / Service</p>
+                      <div className="flex gap-2 items-center">
+                        <div className="w-14 h-14 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                          {newProductImagePreview ? <img src={newProductImagePreview} className="w-full h-full object-cover"/> : <span className="text-gray-300 text-xs">No img</span>}
+                        </div>
+                        <div>
+                          <input type="file" accept="image/*" onChange={e=>{const f=e.target.files[0]; if(f){setNewProductImageFile(f); setNewProductImagePreview(URL.createObjectURL(f));}}} className="hidden" id="new-product-img"/>
+                          <label htmlFor="new-product-img" className="cursor-pointer text-xs text-blue-600 font-semibold">📤 {newProductImagePreview ? 'Change photo' : 'Add photo (optional)'}</label>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input value={newProduct.name} onChange={e=>setNewProduct(p=>({...p,name:e.target.value}))} placeholder="Product name" className={inp}/>
+                        <input value={newProduct.price} onChange={e=>setNewProduct(p=>({...p,price:e.target.value}))} placeholder="Price (₹)" className={inp}/>
+                      </div>
+                      <input value={newProduct.description} onChange={e=>setNewProduct(p=>({...p,description:e.target.value}))} placeholder="Description" className={inp}/>
+                      <button onClick={handleAddProduct} disabled={addingProduct}
+                        className="w-full border-2 border-dashed border-blue-300 text-blue-600 rounded-xl py-2 text-sm font-semibold hover:bg-blue-50">
+                        {addingProduct ? '⏳ Adding...' : '+ Add Product'}
+                      </button>
+                    </div>
+                  )}
                   <div className="space-y-2 mb-3">
                     {productItems.map(p => (
                       <div key={p.id} className="border border-gray-200 rounded-xl p-3 space-y-2">
@@ -750,28 +773,6 @@ export default function EditProfilePage() {
                       </div>
                     ))}
                   </div>
-                  {productItems.length < maxProducts && (
-                    <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 space-y-2">
-                      <div className="flex gap-2 items-center">
-                        <div className="w-14 h-14 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                          {newProductImagePreview ? <img src={newProductImagePreview} className="w-full h-full object-cover"/> : <span className="text-gray-300 text-xs">No img</span>}
-                        </div>
-                        <div>
-                          <input type="file" accept="image/*" onChange={e=>{const f=e.target.files[0]; if(f){setNewProductImageFile(f); setNewProductImagePreview(URL.createObjectURL(f));}}} className="hidden" id="new-product-img"/>
-                          <label htmlFor="new-product-img" className="cursor-pointer text-xs text-blue-600 font-semibold">📤 {newProductImagePreview ? 'Change photo' : 'Add photo (optional)'}</label>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <input value={newProduct.name} onChange={e=>setNewProduct(p=>({...p,name:e.target.value}))} placeholder="Product name" className={inp}/>
-                        <input value={newProduct.price} onChange={e=>setNewProduct(p=>({...p,price:e.target.value}))} placeholder="Price (₹)" className={inp}/>
-                      </div>
-                      <input value={newProduct.description} onChange={e=>setNewProduct(p=>({...p,description:e.target.value}))} placeholder="Description" className={inp}/>
-                      <button onClick={handleAddProduct} disabled={addingProduct}
-                        className="w-full border-2 border-dashed border-blue-300 text-blue-600 rounded-xl py-2 text-sm font-semibold hover:bg-blue-50">
-                        {addingProduct ? '⏳ Adding...' : '+ Add Product'}
-                      </button>
-                    </div>
-                  )}
                 </>
               )}
             </div>
