@@ -84,13 +84,44 @@ export default function EditProfilePage() {
 
   const [form, setForm] = useState({
     full_name: '', designation: '', business_name: '', tagline: '', category: '',
-    area: '', city: '', state: '', phone: '', whatsapp: '', website: '', about: '', address: '', maps_url: '',
+    area: '', pincode: '', city: '', state: '', phone: '', whatsapp: '', website: '', about: '', address: '', maps_url: '',
     facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '',
     google: '', indiamart: '', justdial: '', tradeindia: '', exportersindia: '', alibaba: '',
     video_url: '', brochure_url: '',
   });
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }));
+
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [pincodeError, setPincodeError] = useState('');
+
+  // Looks up City/State from a 6-digit Indian PIN code using the free
+  // India Post API. Fires when the pincode field loses focus. City/State
+  // stay editable afterwards in case the lookup is wrong or incomplete.
+  const handlePincodeBlur = async () => {
+    const pin = (form.pincode || '').trim();
+    setPincodeError('');
+    if (!/^\d{6}$/.test(pin)) return;
+    setPincodeLoading(true);
+    try {
+      const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+      const data = await res.json();
+      const po = data?.[0]?.PostOffice?.[0];
+      if (data?.[0]?.Status === 'Success' && po) {
+        setForm(p => ({
+          ...p,
+          city: po.District || p.city,
+          state: po.State || p.state,
+        }));
+      } else {
+        setPincodeError('Pincode not found — please fill City/State manually.');
+      }
+    } catch {
+      setPincodeError('Could not look up pincode — please fill City/State manually.');
+    } finally {
+      setPincodeLoading(false);
+    }
+  };
 
   const DRAFT_KEY = 'smartprofile_edit_draft';
 
@@ -140,7 +171,7 @@ export default function EditProfilePage() {
 
     let restoredForm = {
       full_name: p.full_name || '', designation: p.designation || '', business_name: p.business_name || '',
-      tagline: p.tagline || '', category: p.category || '', area: p.area || '', city: p.city || '', state: p.state || '',
+      tagline: p.tagline || '', category: p.category || '', area: p.area || '', pincode: p.pincode || '', city: p.city || '', state: p.state || '',
       phone: p.phone || '', whatsapp: p.whatsapp || '', website: p.website || '', about: p.about || '',
       address: p.address || '', maps_url: p.maps_url || '',
       video_url: p.video_url || '', brochure_url: p.brochure_url || '',
@@ -399,7 +430,6 @@ export default function EditProfilePage() {
             <h3 className="font-bold text-gray-800 mb-2">📋 Basic Info</h3>
             <Row label="Tagline" value={form.tagline} />
             <Row label="Category" value={form.category} />
-            <Row label="Area / Locality" value={form.area} />
             <Row label="City / State" value={[form.city, form.state].filter(Boolean).join(', ')} />
           </div>
 
@@ -416,6 +446,7 @@ export default function EditProfilePage() {
               <h3 className="font-bold text-gray-800 mb-2">📍 About & Address</h3>
               {bannerPreview && <img src={bannerPreview} className="w-full h-28 object-cover rounded-xl mb-3" />}
               <Row label="About Us" value={form.about} />
+              <Row label="Area / Locality" value={form.area} />
               <Row label="Address" value={form.address} />
               <Row label="Google Maps URL" value={form.maps_url} />
             </div>
@@ -534,15 +565,6 @@ export default function EditProfilePage() {
                   <div><label className={lbl}>Tagline</label><input value={form.tagline} onChange={e=>update('tagline',e.target.value)} className={inp}/></div>
                   <div><label className={lbl}>Category</label><input value={form.category} onChange={e=>update('category',e.target.value)} className={inp}/></div>
                 </div>
-                <div>
-                  <label className={lbl}>Area / Locality</label>
-                  <input value={form.area} onChange={e=>update('area',e.target.value)} placeholder="e.g. Mira Road" className={inp}/>
-                  <p className={sizeHint}>Your neighbourhood/locality — shown before city on the Directory (e.g. "Mira Road, Thane")</p>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><label className={lbl}>City</label><input value={form.city} onChange={e=>update('city',e.target.value)} className={inp}/></div>
-                  <div><label className={lbl}>State</label><input value={form.state} onChange={e=>update('state',e.target.value)} className={inp}/></div>
-                </div>
               </div>
             </div>
 
@@ -588,7 +610,28 @@ export default function EditProfilePage() {
               {!has('about') ? <Lock need="Business ₹399"><div className="space-y-3"><div className="h-20 bg-gray-100 rounded-xl"/><div className="h-12 bg-gray-100 rounded-xl"/></div></Lock> : (
                 <div className="space-y-3">
                   <div><label className={lbl}>About Us</label><textarea value={form.about} onChange={e=>update('about',e.target.value)} rows={3} className={inp+' resize-none'}/></div>
+                  <div>
+                    <label className={lbl}>Area / Locality</label>
+                    <input value={form.area} onChange={e=>update('area',e.target.value)} placeholder="e.g. Mira Road" className={inp}/>
+                    <p className={sizeHint}>Your neighbourhood — shown before city on the Directory (e.g. "Mira Road, Thane")</p>
+                  </div>
                   <div><label className={lbl}>Address</label><input value={form.address} onChange={e=>update('address',e.target.value)} className={inp}/></div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className={lbl}>Pincode</label>
+                      <input value={form.pincode} onChange={e=>update('pincode',e.target.value.replace(/\D/g,'').slice(0,6))} onBlur={handlePincodeBlur} placeholder="e.g. 401107" maxLength={6} className={inp}/>
+                    </div>
+                    <div>
+                      <label className={lbl}>City</label>
+                      <input value={form.city} onChange={e=>update('city',e.target.value)} className={inp}/>
+                    </div>
+                    <div>
+                      <label className={lbl}>State</label>
+                      <input value={form.state} onChange={e=>update('state',e.target.value)} className={inp}/>
+                    </div>
+                  </div>
+                  {pincodeLoading && <p className="text-xs text-blue-500">Looking up pincode…</p>}
+                  {pincodeError && <p className="text-xs text-amber-600">{pincodeError}</p>}
                   <div><label className={lbl}>Google Maps URL</label><input value={form.maps_url} onChange={e=>update('maps_url',e.target.value)} className={inp}/></div>
                 </div>
               )}
