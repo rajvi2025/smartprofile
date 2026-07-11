@@ -16,7 +16,7 @@ export async function POST(request) {
 
     const body = await request.json();
     const {
-      full_name, designation, business_name, tagline, category, area, pincode, city, state,
+      full_name, designation, business_name, tagline, category, display_as, area, pincode, city, state,
       phone, whatsapp, website, about, address, maps_url,
       logo_url, banner_url, video_url, brochure_url, directory_image_url,
       facebook, instagram, youtube, linkedin, twitter,
@@ -41,6 +41,7 @@ export async function POST(request) {
       .from('profiles')
       .update({
         full_name, designation, business_name, tagline, category, city, state,
+        display_as: display_as || 'business',
         area: area || null,
         pincode: pincode || null,
         phone,

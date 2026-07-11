@@ -13,6 +13,21 @@ function slugifyCity(city) {
   return (city || "").toLowerCase().trim().replace(/\s+/g, "-");
 }
 
+// Digital Card lets the owner choose whether their personal name or their
+// business name is the big prominent heading (profile.display_as, set in
+// Edit Profile). Defaults to 'business' if not set. The Directory listing
+// is intentionally unaffected by this — it always shows the business name.
+function getCardIdentity(profile) {
+  const isPersonal = profile.display_as === 'personal';
+  const displayName = isPersonal
+    ? (profile.full_name || profile.business_name)
+    : (profile.business_name || profile.full_name);
+  const subtitle = isPersonal
+    ? [profile.designation, profile.business_name].filter(Boolean).join(' · ')
+    : [profile.full_name, profile.designation].filter(Boolean).join(' · ');
+  return { displayName, subtitle };
+}
+
 function QRSection({ username }) {
   const [qrUrl, setQrUrl] = useState("");
   useEffect(() => {
@@ -87,6 +102,7 @@ function TestimonialsSection({ testimonials, username }) {
 
 // ---------- BASIC PLAN: simple digital visiting card ----------
 function BasicProfile({ profile }) {
+  const { displayName, subtitle } = getCardIdentity(profile);
   const saveContact = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
@@ -103,8 +119,8 @@ function BasicProfile({ profile }) {
           </div>
         </div>
         <div className="pt-16 pb-4 px-5 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">{profile.full_name || profile.business_name}</h1>
-          {profile.designation && <p className="text-orange-500 font-semibold text-sm mt-1">{profile.designation}</p>}
+          <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
+          {subtitle && <p className="text-orange-500 font-semibold text-sm mt-1">{subtitle}</p>}
           {profile.city && <p className="text-gray-500 text-sm mt-1">📍 {profile.city}{profile.state ? `, ${profile.state}` : ""}</p>}
         </div>
         <div className="mx-4 mb-4 rounded-2xl border border-gray-200 grid grid-cols-3">
@@ -166,6 +182,7 @@ function BasicProfile({ profile }) {
 
 // ---------- BUSINESS+ PLANS: richer card-style with more sections ----------
 function BusinessProfile({ profile, products, socials, testimonials }) {
+  const { displayName, subtitle } = getCardIdentity(profile);
   const saveContact = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
@@ -189,8 +206,8 @@ function BusinessProfile({ profile, products, socials, testimonials }) {
           </div>
         </div>
         <div className="pt-16 pb-4 px-5 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">{profile.full_name || profile.business_name}</h1>
-          {profile.designation && <p className="text-blue-600 font-semibold text-sm mt-1">{profile.designation}</p>}
+          <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
+          {subtitle && <p className="text-blue-600 font-semibold text-sm mt-1">{subtitle}</p>}
           {profile.city && <p className="text-gray-500 text-sm mt-1">📍 {profile.city}{profile.state ? `, ${profile.state}` : ""}</p>}
         </div>
         <div className="grid grid-cols-4 gap-2 px-4 mb-4">

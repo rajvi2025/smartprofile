@@ -84,7 +84,7 @@ export default function EditProfilePage() {
 
   const [form, setForm] = useState({
     full_name: '', designation: '', business_name: '', tagline: '', category: '',
-    area: '', pincode: '', city: '', state: '', phone: '', whatsapp: '', website: '', about: '', address: '', maps_url: '',
+    display_as: 'business', area: '', pincode: '', city: '', state: '', phone: '', whatsapp: '', website: '', about: '', address: '', maps_url: '',
     facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '',
     google: '', indiamart: '', justdial: '', tradeindia: '', exportersindia: '', alibaba: '',
     video_url: '', brochure_url: '',
@@ -171,7 +171,7 @@ export default function EditProfilePage() {
 
     let restoredForm = {
       full_name: p.full_name || '', designation: p.designation || '', business_name: p.business_name || '',
-      tagline: p.tagline || '', category: p.category || '', area: p.area || '', pincode: p.pincode || '', city: p.city || '', state: p.state || '',
+      tagline: p.tagline || '', category: p.category || '', display_as: p.display_as || 'business', area: p.area || '', pincode: p.pincode || '', city: p.city || '', state: p.state || '',
       phone: p.phone || '', whatsapp: p.whatsapp || '', website: p.website || '', about: p.about || '',
       address: p.address || '', maps_url: p.maps_url || '',
       video_url: p.video_url || '', brochure_url: p.brochure_url || '',
@@ -438,6 +438,7 @@ export default function EditProfilePage() {
             <h3 className="font-bold text-gray-800 mb-2">📋 Basic Info</h3>
             <Row label="Tagline" value={form.tagline} />
             <Row label="Category" value={form.category} />
+            <Row label="Digital Card shows" value={form.display_as === 'personal' ? `Personal (${form.full_name})` : `Business (${form.business_name})`} />
             <Row label="City / State" value={[form.city, form.state].filter(Boolean).join(', ')} />
           </div>
 
@@ -572,6 +573,20 @@ export default function EditProfilePage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className={lbl}>Tagline</label><input value={form.tagline} onChange={e=>update('tagline',e.target.value)} className={inp}/></div>
                   <div><label className={lbl}>Category</label><input value={form.category} onChange={e=>update('category',e.target.value)} className={inp}/></div>
+                </div>
+                <div>
+                  <label className={lbl}>This Digital Card is for</label>
+                  <div className="flex gap-3">
+                    <label className={`flex-1 flex items-center gap-2 border-[1.5px] rounded-xl px-4 py-3 text-sm cursor-pointer ${form.display_as === 'personal' ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold' : 'border-gray-200 bg-gray-50 text-gray-600'}`}>
+                      <input type="checkbox" checked={form.display_as === 'personal'} onChange={()=>update('display_as','personal')} className="w-4 h-4 accent-blue-600"/>
+                      Personal ({form.full_name || 'Your Name'})
+                    </label>
+                    <label className={`flex-1 flex items-center gap-2 border-[1.5px] rounded-xl px-4 py-3 text-sm cursor-pointer ${form.display_as === 'business' ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold' : 'border-gray-200 bg-gray-50 text-gray-600'}`}>
+                      <input type="checkbox" checked={form.display_as === 'business'} onChange={()=>update('display_as','business')} className="w-4 h-4 accent-blue-600"/>
+                      Business ({form.business_name || 'Business Name'})
+                    </label>
+                  </div>
+                  <p className={sizeHint}>Which name shows prominently on your Digital Card. Directory listing always shows Business Name — this only affects the Digital Card.</p>
                 </div>
               </div>
             </div>
