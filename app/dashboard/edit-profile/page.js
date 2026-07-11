@@ -185,12 +185,20 @@ export default function EditProfilePage() {
     setForm(restoredForm);
 
     try {
-      const { data: galleryRows } = await supabase.from('gallery').select('*').eq('profile_id', p.id).order('created_at', { ascending: true });
+      const { data: galleryRows, error: galleryErr } = await supabase.from('gallery').select('*').eq('profile_id', p.id).order('sort_order', { ascending: true });
+      if (galleryErr) throw galleryErr;
       setGalleryItems(galleryRows || []);
-    } catch (e) { setGalleryItems([]); }
+    } catch (e) {
+      // Fallback: fetch without ordering in case the sort column doesn't exist
+      try {
+        const { data: galleryRows2 } = await supabase.from('gallery').select('*').eq('profile_id', p.id);
+        setGalleryItems(galleryRows2 || []);
+      } catch (e2) { setGalleryItems([]); }
+    }
 
     try {
-      const { data: productRows } = await supabase.from('products').select('*').eq('profile_id', p.id).order('created_at', { ascending: true });
+      const { data: productRows, error: productErr } = await supabase.from('products').select('*').eq('profile_id', p.id);
+      if (productErr) throw productErr;
       setProductItems(productRows || []);
     } catch (e) { setProductItems([]); }
 
