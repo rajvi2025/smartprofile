@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://www.smartprofile.in"),
   title: "SmartProfile.in",
   description: "One Link. Complete Business.",
 };
@@ -35,8 +36,6 @@ export default async function RootLayout({ children }) {
           gtag('config', 'G-CV49J65FXZ');
         `}
       </Script>
-      <head>
-      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning={true}>
         <SessionProvider session={session}>
           <Navbar />
