@@ -446,8 +446,8 @@ export default function EditProfilePage() {
               <h3 className="font-bold text-gray-800 mb-2">📍 About & Address</h3>
               {bannerPreview && <img src={bannerPreview} className="w-full h-28 object-cover rounded-xl mb-3" />}
               <Row label="About Us" value={form.about} />
-              <Row label="Area / Locality" value={form.area} />
               <Row label="Address" value={form.address} />
+              <Row label="Area / Locality" value={form.area} />
               <Row label="Google Maps URL" value={form.maps_url} />
             </div>
           )}
@@ -610,11 +610,11 @@ export default function EditProfilePage() {
               {!has('about') ? <Lock need="Business ₹399"><div className="space-y-3"><div className="h-20 bg-gray-100 rounded-xl"/><div className="h-12 bg-gray-100 rounded-xl"/></div></Lock> : (
                 <div className="space-y-3">
                   <div><label className={lbl}>About Us</label><textarea value={form.about} onChange={e=>update('about',e.target.value)} rows={3} className={inp+' resize-none'}/></div>
+                  <div><label className={lbl}>Address</label><input value={form.address} onChange={e=>update('address',e.target.value)} className={inp}/></div>
                   <div>
                     <label className={lbl}>Area / Locality</label>
                     <input value={form.area} onChange={e=>update('area',e.target.value)} placeholder="e.g. Mira Road" className={inp}/>
                   </div>
-                  <div><label className={lbl}>Address</label><input value={form.address} onChange={e=>update('address',e.target.value)} className={inp}/></div>
                   <div className="grid grid-cols-3 gap-3">
                     <div>
                       <label className={lbl}>Pincode</label>
