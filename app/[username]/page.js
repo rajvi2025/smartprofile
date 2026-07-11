@@ -104,6 +104,20 @@ function TestimonialsSection({ testimonials, username }) {
 // ---------- BASIC PLAN: simple digital visiting card ----------
 function BasicProfile({ profile }) {
   const { displayName, line2, line3 } = getCardIdentity(profile);
+  const shareProfile = async () => {
+    const url = `https://smartprofile.in/${profile.username}`;
+    const shareData = { title: profile.business_name || profile.full_name, text: `Check out ${profile.business_name || profile.full_name} on SmartProfile`, url };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch (e) { /* user cancelled — no problem */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        alert("Profile link copied to clipboard!");
+      } catch (e) {
+        window.prompt("Copy this link:", url);
+      }
+    }
+  };
   const saveContact = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
@@ -166,7 +180,7 @@ function BasicProfile({ profile }) {
           <div className="flex-1">
             <p className="font-bold text-gray-800 text-sm">Share My Profile</p>
             <p className="text-gray-500 text-xs mt-1">Scan QR code to save my details instantly.</p>
-            <button className="mt-2 bg-orange-500 text-white text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-1">
+            <button onClick={shareProfile} className="mt-2 bg-orange-500 text-white text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-1">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
               Share Profile
             </button>
@@ -185,6 +199,20 @@ function BasicProfile({ profile }) {
 // ---------- BUSINESS+ PLANS: richer card-style with more sections ----------
 function BusinessProfile({ profile, products, socials, testimonials, gallery }) {
   const { displayName, line2, line3 } = getCardIdentity(profile);
+  const shareProfile = async () => {
+    const url = `https://smartprofile.in/${profile.username}`;
+    const shareData = { title: profile.business_name || profile.full_name, text: `Check out ${profile.business_name || profile.full_name} on SmartProfile`, url };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch (e) { /* user cancelled — no problem */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        alert("Profile link copied to clipboard!");
+      } catch (e) {
+        window.prompt("Copy this link:", url);
+      }
+    }
+  };
   const saveContact = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
@@ -313,7 +341,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery }) 
           <div className="flex-1">
             <p className="font-bold text-gray-800 text-sm">Share My Profile</p>
             <p className="text-gray-500 text-xs mt-1">Scan QR code to save my details instantly.</p>
-            <button className="mt-2 bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-1">
+            <button onClick={shareProfile} className="mt-2 bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-1">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
               Share Profile
             </button>
