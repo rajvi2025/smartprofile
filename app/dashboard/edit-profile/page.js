@@ -84,7 +84,7 @@ export default function EditProfilePage() {
 
   const [form, setForm] = useState({
     full_name: '', designation: '', business_name: '', tagline: '', category: '',
-    city: '', state: '', phone: '', whatsapp: '', website: '', about: '', address: '', maps_url: '',
+    area: '', city: '', state: '', phone: '', whatsapp: '', website: '', about: '', address: '', maps_url: '',
     facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '',
     google: '', indiamart: '', justdial: '', tradeindia: '', exportersindia: '', alibaba: '',
     video_url: '', brochure_url: '',
@@ -140,7 +140,7 @@ export default function EditProfilePage() {
 
     let restoredForm = {
       full_name: p.full_name || '', designation: p.designation || '', business_name: p.business_name || '',
-      tagline: p.tagline || '', category: p.category || '', city: p.city || '', state: p.state || '',
+      tagline: p.tagline || '', category: p.category || '', area: p.area || '', city: p.city || '', state: p.state || '',
       phone: p.phone || '', whatsapp: p.whatsapp || '', website: p.website || '', about: p.about || '',
       address: p.address || '', maps_url: p.maps_url || '',
       video_url: p.video_url || '', brochure_url: p.brochure_url || '',
@@ -399,6 +399,7 @@ export default function EditProfilePage() {
             <h3 className="font-bold text-gray-800 mb-2">📋 Basic Info</h3>
             <Row label="Tagline" value={form.tagline} />
             <Row label="Category" value={form.category} />
+            <Row label="Area / Locality" value={form.area} />
             <Row label="City / State" value={[form.city, form.state].filter(Boolean).join(', ')} />
           </div>
 
@@ -532,6 +533,11 @@ export default function EditProfilePage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className={lbl}>Tagline</label><input value={form.tagline} onChange={e=>update('tagline',e.target.value)} className={inp}/></div>
                   <div><label className={lbl}>Category</label><input value={form.category} onChange={e=>update('category',e.target.value)} className={inp}/></div>
+                </div>
+                <div>
+                  <label className={lbl}>Area / Locality</label>
+                  <input value={form.area} onChange={e=>update('area',e.target.value)} placeholder="e.g. Mira Road" className={inp}/>
+                  <p className={sizeHint}>Your neighbourhood/locality — shown before city on the Directory (e.g. "Mira Road, Thane")</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className={lbl}>City</label><input value={form.city} onChange={e=>update('city',e.target.value)} className={inp}/></div>
