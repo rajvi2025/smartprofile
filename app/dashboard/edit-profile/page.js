@@ -613,7 +613,6 @@ export default function EditProfilePage() {
                   <div>
                     <label className={lbl}>Area / Locality</label>
                     <input value={form.area} onChange={e=>update('area',e.target.value)} placeholder="e.g. Mira Road" className={inp}/>
-                    <p className={sizeHint}>Your neighbourhood — shown before city on the Directory (e.g. "Mira Road, Thane")</p>
                   </div>
                   <div><label className={lbl}>Address</label><input value={form.address} onChange={e=>update('address',e.target.value)} className={inp}/></div>
                   <div className="grid grid-cols-3 gap-3">
