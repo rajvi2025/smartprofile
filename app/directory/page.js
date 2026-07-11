@@ -43,41 +43,18 @@ function cleanPhone(raw) {
   return digits;
 }
 
-// Pulls a locality/area name (e.g. "Mira Road") out of a free-text address,
-// so cards can show "Area, City" instead of just "City". Falls back to
-// nothing if the address has no genuine locality segment — city/state
-// display always still works either way.
-function extractArea(address, city) {
-  if (!address) return '';
+// Takes the last 3 comma-separated segments of a free-text address —
+// in Indian addresses this reliably lands on Area, City/District, State
+// (e.g. "...Kanakia Road, Mira Road East, Thane, Maharashtra" → "Mira Road
+// East, Thane, Maharashtra"), regardless of how much shop/building/road
+// detail comes before it. Falls back to city/state if address is empty.
+function extractLocation(address, city, state) {
+  const cityState = [city, state].filter(Boolean).join(', ');
+  if (!address) return cityState || 'India';
   const parts = address.split(',').map(s => s.trim()).filter(Boolean);
-
-  const looksLikeBuildingInfo = (s) => {
-    if (!s) return true;
-    if (/^(shop|flat|office|floor|room|blk|block|plot|survey|gala|unit|building|bldg)\b/i.test(s)) return true;
-    if (/^no\.?\s*\d/i.test(s)) return true;
-    const digitCount = (s.match(/\d/g) || []).length;
-    if (digitCount > 2) return true;
-    if (s.length > 30) return true;
-    return false;
-  };
-
-  // Prefer the segment that sits immediately before the city in the address —
-  // that's the actual locality (e.g. "...Mira Road, Thane, Maharashtra").
-  if (city) {
-    const cityIdx = parts.findIndex(p => p.toLowerCase() === city.toLowerCase());
-    if (cityIdx > 0) {
-      const candidate = parts[cityIdx - 1];
-      return looksLikeBuildingInfo(candidate) ? '' : candidate;
-    }
-  }
-
-  // Fallback: first segment that isn't the city and isn't building/shop info
-  for (const part of parts) {
-    if (city && part.toLowerCase() === city.toLowerCase()) continue;
-    if (looksLikeBuildingInfo(part)) continue;
-    return part;
-  }
-  return '';
+  if (parts.length === 0) return cityState || 'India';
+  const lastThree = parts.slice(-3).join(', ');
+  return lastThree || cityState || 'India';
 }
 
 export default function DirectoryPage() {
@@ -167,7 +144,7 @@ export default function DirectoryPage() {
           city: p.city || '',
           state: p.state || '',
           address: p.address || '',
-          area: extractArea(p.address, p.city),
+          location: extractLocation(p.address, p.city, p.state),
           rating: avgRating,
           reviews: reviewCount,
           verified: !!p.is_active,
@@ -443,7 +420,7 @@ export default function DirectoryPage() {
                       </div>
                       <div style={{ fontSize: 12, color: '#64748b', marginTop: 3 }}>{biz.category}</div>
                       <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
-                        📍 {[biz.area, biz.city, biz.state].filter(Boolean).join(', ') || 'India'}
+                        📍 {biz.location}
                       </div>
 
                       {/* Rating row shown here only on desktop (mobile shows it under the image instead) */}
