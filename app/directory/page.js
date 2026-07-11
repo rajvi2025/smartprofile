@@ -382,8 +382,8 @@ export default function DirectoryPage() {
                   onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'}>
 
                   {/* LEFT COLUMN: image + rating badge below it */}
-                  <div style={{ width: isMobile ? '44%' : '42%', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: isMobile ? '14px 0 14px 14px' : 0, position: isMobile ? 'static' : 'relative' }}>
-                    <div style={{ width: '100%', aspectRatio: isMobile ? '1 / 1' : 'auto', height: isMobile ? 'auto' : '100%', position: isMobile ? 'static' : 'absolute', inset: isMobile ? 'auto' : 0, borderRadius: isMobile ? 12 : 0, overflow: 'hidden' }}>
+                  <div style={{ width: isMobile ? '44%' : '42%', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: isMobile ? '14px 0 14px 14px' : '14px', alignItems: isMobile ? 'stretch' : 'center', justifyContent: isMobile ? 'flex-start' : 'center' }}>
+                    <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 12, overflow: 'hidden' }}>
                       {biz.img ? (
                         <img src={biz.img} alt={biz.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
