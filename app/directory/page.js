@@ -245,7 +245,8 @@ export default function DirectoryPage() {
             </div>
           </div>
 
-          {/* RIGHT SIDE - India Map + Floating Card */}
+          {/* RIGHT SIDE - India Map + Floating Card (desktop only) */}
+          {!isMobile && (
           <div style={{ position: 'relative', height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             
             <svg viewBox="0 0 500 350" style={{ width: '95%', position: 'absolute', bottom: 0, opacity: 0.12 }} fill="#3b82f6" xmlns="http://www.w3.org/2000/svg">
@@ -318,6 +319,7 @@ export default function DirectoryPage() {
             </div>
 
           </div>
+          )}
         </div>
       </section>
 
@@ -363,25 +365,37 @@ export default function DirectoryPage() {
                   onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'}>
 
-                  {/* IMAGE: small square (~28%) on mobile, 42% height-filling column on desktop */}
-                  <div style={{
-                    width: isMobile ? '28%' : '42%',
-                    aspectRatio: isMobile ? '1 / 1' : 'auto',
-                    flexShrink: 0,
-                    position: 'relative',
-                    alignSelf: isMobile ? 'flex-start' : 'auto'
-                  }}>
-                    {biz.img ? (
-                      <img src={biz.img} alt={biz.name} style={{ width: '100%', height: '100%', objectFit: 'cover', position: isMobile ? 'static' : 'absolute', inset: 0, borderRadius: isMobile ? 12 : 0 }} />
-                    ) : (
-                      <div style={{ width: '100%', height: '100%', position: isMobile ? 'static' : 'absolute', inset: 0, background: `linear-gradient(135deg, ${biz.color}25, ${biz.color}10)`, display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: isMobile ? '1 / 1' : 'auto', borderRadius: isMobile ? 12 : 0 }}>
-                        <span style={{ fontWeight: 800, color: biz.color, fontSize: isMobile ? 18 : 30 }}>{biz.initials}</span>
+                  {/* LEFT COLUMN: image (bigger now on mobile) + rating badge below it */}
+                  <div style={{ width: isMobile ? '36%' : '42%', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: isMobile ? '10px 0 10px 10px' : 0, position: isMobile ? 'static' : 'relative' }}>
+                    <div style={{ width: '100%', aspectRatio: isMobile ? '1 / 1' : 'auto', height: isMobile ? 'auto' : '100%', position: isMobile ? 'static' : 'absolute', inset: isMobile ? 'auto' : 0, borderRadius: isMobile ? 12 : 0, overflow: 'hidden' }}>
+                      {biz.img ? (
+                        <img src={biz.img} alt={biz.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${biz.color}25, ${biz.color}10)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontWeight: 800, color: biz.color, fontSize: isMobile ? 22 : 30 }}>{biz.initials}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Rating badge under the image — mobile only */}
+                    {isMobile && (
+                      <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                        {biz.reviews > 0 ? (
+                          <>
+                            <span style={{ background: '#16a34a', color: 'white', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6 }}>
+                              {biz.rating.toFixed(1)} ★
+                            </span>
+                            <span style={{ fontSize: 10, color: '#64748b' }}>{biz.reviews} Ratings</span>
+                          </>
+                        ) : (
+                          <span style={{ fontSize: 10, color: '#94a3b8', fontStyle: 'italic' }}>No reviews</span>
+                        )}
                       </div>
                     )}
                   </div>
 
                   {/* RIGHT: details, buttons pinned to bottom */}
-                  <div style={{ width: isMobile ? '72%' : '58%', padding: isMobile ? '10px 12px' : '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div style={{ width: isMobile ? '64%' : '58%', padding: isMobile ? '10px 12px' : '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                         <div style={{ fontWeight: 700, color: '#0f172a', fontSize: isMobile ? 13 : 15 }}>{biz.name}</div>
@@ -394,18 +408,21 @@ export default function DirectoryPage() {
                         📍 {[biz.city, biz.state].filter(Boolean).join(', ') || 'India'}
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                        {biz.reviews > 0 ? (
-                          <>
-                            <span style={{ background: '#16a34a', color: 'white', fontSize: 11, fontWeight: 700, padding: '3px 7px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 3 }}>
-                              {biz.rating.toFixed(1)} ★
-                            </span>
-                            <span style={{ fontSize: 11, color: '#64748b' }}>{biz.reviews} Ratings</span>
-                          </>
-                        ) : (
-                          <span style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic' }}>No reviews yet</span>
-                        )}
-                      </div>
+                      {/* Rating row shown here only on desktop (mobile shows it under the image instead) */}
+                      {!isMobile && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                          {biz.reviews > 0 ? (
+                            <>
+                              <span style={{ background: '#16a34a', color: 'white', fontSize: 12, fontWeight: 700, padding: '3px 8px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 3 }}>
+                                {biz.rating.toFixed(1)} ★
+                              </span>
+                              <span style={{ fontSize: 12, color: '#64748b' }}>{biz.reviews} Ratings</span>
+                            </>
+                          ) : (
+                            <span style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>No reviews yet</span>
+                          )}
+                        </div>
+                      )}
 
                       {biz.tags.length > 0 && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
@@ -416,19 +433,19 @@ export default function DirectoryPage() {
                       )}
                     </div>
 
-                    {/* Buttons: always pinned to bottom of card via flex column + space-between above */}
-                    <div style={{ display: 'flex', gap: isMobile ? 6 : 8, marginTop: isMobile ? 10 : 14, flexWrap: isMobile ? 'wrap' : 'nowrap' }} onClick={e => e.stopPropagation()}>
+                    {/* Buttons: side by side always, pinned to bottom of card */}
+                    <div style={{ display: 'flex', gap: isMobile ? 6 : 8, marginTop: isMobile ? 10 : 14 }} onClick={e => e.stopPropagation()}>
                       {biz.phone ? (
                         <>
-                          <a href={`tel:+${biz.phone}`} style={{ flex: isMobile ? '1 1 100%' : 1, padding: isMobile ? '7px' : '9px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 9, fontSize: 11, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                          <a href={`tel:+${biz.phone}`} style={{ flex: 1, padding: isMobile ? '7px 4px' : '9px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 9, fontSize: isMobile ? 10 : 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                             📞 Call
                           </a>
-                          <a href={`https://wa.me/${biz.phone}`} target="_blank" rel="noopener noreferrer" style={{ flex: isMobile ? '1 1 100%' : 1, padding: isMobile ? '7px' : '9px', background: 'white', color: '#16a34a', border: '1.5px solid #16a34a', borderRadius: 9, fontSize: 11, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                          <a href={`https://wa.me/${biz.phone}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, padding: isMobile ? '7px 4px' : '9px', background: 'white', color: '#16a34a', border: '1.5px solid #16a34a', borderRadius: 9, fontSize: isMobile ? 10 : 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                             WhatsApp
                           </a>
                         </>
                       ) : (
-                        <button onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)} style={{ width: '100%', padding: isMobile ? '7px' : '9px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                        <button onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)} style={{ width: '100%', padding: isMobile ? '7px' : '9px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: isMobile ? 11 : 12, fontWeight: 700, cursor: 'pointer' }}>
                           View Profile →
                         </button>
                       )}
@@ -460,7 +477,7 @@ export default function DirectoryPage() {
 
       {/* STATS BAR */}
       <section style={{ background: 'white', padding: '32px 24px', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 24, textAlign: 'center' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(150px, 1fr))', gap: isMobile ? 16 : 24, textAlign: 'center' }}>
           {[
             { icon: '🛡️', num: '25,000+', label: 'Verified Businesses' },
             { icon: '🏙️', num: '500+', label: 'Cities Covered' },
