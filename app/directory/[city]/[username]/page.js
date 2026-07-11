@@ -115,6 +115,12 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
     { id: "reviews", label: `Reviews (${reviewCount})` },
   ];
 
+  // Directory listings always lead with the Business Name — the person's
+  // name/designation shown smaller underneath. Unlike the Digital Card,
+  // there's no personal/business toggle here on purpose.
+  const displayName = profile.business_name || profile.full_name;
+  const subtitleParts = [profile.full_name, profile.designation].filter(Boolean);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Banner */}
@@ -141,10 +147,12 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">{profile.full_name || profile.business_name}</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">{displayName}</h1>
               <svg className="w-5 h-5 text-blue-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 2.4 3.4-.4.4 3.4L21 10l-2.8 2.6.4 3.4-3.4-.4L12 18l-2.4-2.4-3.4.4-.4-3.4L3 10l2.8-2.6-.4-3.4 3.4.4L12 2z"/><path d="M9.5 12l1.8 1.8 3.2-3.6" stroke="white" strokeWidth="1.5" fill="none"/></svg>
             </div>
-            {profile.designation && <p className="text-blue-600 font-semibold text-sm mt-1">{profile.designation}</p>}
+            {subtitleParts.length > 0 && (
+              <p className="text-gray-500 font-medium text-sm mt-1">{subtitleParts.join(" · ")}</p>
+            )}
             {(profile.city || profile.address) && (
               <p className="text-gray-500 text-sm mt-1">📍 {profile.address || `${profile.city}${profile.state ? `, ${profile.state}` : ""}`}</p>
             )}
