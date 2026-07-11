@@ -43,6 +43,26 @@ function cleanPhone(raw) {
   return digits;
 }
 
+// Pulls a locality/area name (e.g. "Mira Road") out of a free-text address,
+// so cards can show "Area, City" instead of just "City". Falls back to
+// nothing if the address is empty or doesn't have a usable segment —
+// the city/state display always still works either way.
+function extractArea(address, city) {
+  if (!address) return '';
+  const parts = address.split(',').map(s => s.trim()).filter(Boolean);
+  for (const part of parts) {
+    if (!part) continue;
+    if (city && part.toLowerCase() === city.toLowerCase()) continue;
+    // Skip segments that look like a house/shop/flat number heavy line
+    // (e.g. "Shop No 5" or "402, ABC Tower") rather than a locality name.
+    const digitCount = (part.match(/\d/g) || []).length;
+    if (digitCount > 3) continue;
+    if (part.length > 30) continue;
+    return part;
+  }
+  return '';
+}
+
 export default function DirectoryPage() {
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -130,6 +150,7 @@ export default function DirectoryPage() {
           city: p.city || '',
           state: p.state || '',
           address: p.address || '',
+          area: extractArea(p.address, p.city),
           rating: avgRating,
           reviews: reviewCount,
           verified: !!p.is_active,
@@ -405,7 +426,7 @@ export default function DirectoryPage() {
                       </div>
                       <div style={{ fontSize: 12, color: '#64748b', marginTop: 3 }}>{biz.category}</div>
                       <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
-                        📍 {[biz.city, biz.state].filter(Boolean).join(', ') || 'India'}
+                        📍 {[biz.area, biz.city, biz.state].filter(Boolean).join(', ') || 'India'}
                       </div>
 
                       {/* Rating row shown here only on desktop (mobile shows it under the image instead) */}
