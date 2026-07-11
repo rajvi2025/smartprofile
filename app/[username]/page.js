@@ -15,17 +15,18 @@ function slugifyCity(city) {
 
 // Digital Card lets the owner choose whether their personal name or their
 // business name is the big prominent heading (profile.display_as, set in
-// Edit Profile). Defaults to 'business' if not set. The Directory listing
-// is intentionally unaffected by this — it always shows the business name.
+// Edit Profile). Defaults to 'business' if not set. Below the big name,
+// the other two details (company name and designation) stack as separate
+// lines. The Directory listing is intentionally unaffected by this — it
+// always shows the business name.
 function getCardIdentity(profile) {
   const isPersonal = profile.display_as === 'personal';
   const displayName = isPersonal
     ? (profile.full_name || profile.business_name)
     : (profile.business_name || profile.full_name);
-  const subtitle = isPersonal
-    ? [profile.designation, profile.business_name].filter(Boolean).join(' · ')
-    : [profile.full_name, profile.designation].filter(Boolean).join(' · ');
-  return { displayName, subtitle };
+  const line2 = isPersonal ? profile.business_name : profile.full_name;
+  const line3 = profile.designation;
+  return { displayName, line2, line3 };
 }
 
 function QRSection({ username }) {
@@ -102,7 +103,7 @@ function TestimonialsSection({ testimonials, username }) {
 
 // ---------- BASIC PLAN: simple digital visiting card ----------
 function BasicProfile({ profile }) {
-  const { displayName, subtitle } = getCardIdentity(profile);
+  const { displayName, line2, line3 } = getCardIdentity(profile);
   const saveContact = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
@@ -120,7 +121,8 @@ function BasicProfile({ profile }) {
         </div>
         <div className="pt-16 pb-4 px-5 text-center">
           <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
-          {subtitle && <p className="text-orange-500 font-semibold text-sm mt-1">{subtitle}</p>}
+          {line2 && <p className="text-gray-700 font-semibold text-sm mt-1">{line2}</p>}
+          {line3 && <p className="text-orange-500 font-medium text-xs mt-0.5">{line3}</p>}
           {profile.city && <p className="text-gray-500 text-sm mt-1">📍 {profile.city}{profile.state ? `, ${profile.state}` : ""}</p>}
         </div>
         <div className="mx-4 mb-4 rounded-2xl border border-gray-200 grid grid-cols-3">
@@ -181,8 +183,8 @@ function BasicProfile({ profile }) {
 }
 
 // ---------- BUSINESS+ PLANS: richer card-style with more sections ----------
-function BusinessProfile({ profile, products, socials, testimonials }) {
-  const { displayName, subtitle } = getCardIdentity(profile);
+function BusinessProfile({ profile, products, socials, testimonials, gallery }) {
+  const { displayName, line2, line3 } = getCardIdentity(profile);
   const saveContact = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
@@ -207,7 +209,8 @@ function BusinessProfile({ profile, products, socials, testimonials }) {
         </div>
         <div className="pt-16 pb-4 px-5 text-center">
           <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
-          {subtitle && <p className="text-blue-600 font-semibold text-sm mt-1">{subtitle}</p>}
+          {line2 && <p className="text-gray-700 font-semibold text-sm mt-1">{line2}</p>}
+          {line3 && <p className="text-blue-600 font-medium text-xs mt-0.5">{line3}</p>}
           {profile.city && <p className="text-gray-500 text-sm mt-1">📍 {profile.city}{profile.state ? `, ${profile.state}` : ""}</p>}
         </div>
         <div className="grid grid-cols-4 gap-2 px-4 mb-4">
@@ -285,9 +288,21 @@ function BusinessProfile({ profile, products, socials, testimonials }) {
             <div className="grid grid-cols-2 gap-3">
               {products.slice(0, 2).map((p) => (
                 <div key={p.id} className="rounded-2xl overflow-hidden border border-gray-200">
-                  {p.image_url ? <img src={p.image_url} className="w-full h-24 object-cover" /> : <div className="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
+                  {p.image_url ? <div className="w-full h-24 bg-gray-50 flex items-center justify-center"><img src={p.image_url} className="w-full h-full object-contain" /></div> : <div className="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
                   <div className="p-2"><p className="text-xs font-bold text-gray-800">{p.name}</p><p className="text-xs text-gray-500">{p.description}</p></div>
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {gallery && gallery.length > 0 && (
+          <div className="mx-4 mb-4">
+            <div className="flex justify-between items-center mb-3">
+              <p className="text-sm font-bold text-gray-800">Gallery ({gallery.length})</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {gallery.map((g) => (
+                <img key={g.id} src={g.image_url} alt={g.caption || ""} className="w-full h-20 object-cover rounded-xl border border-gray-200" />
               ))}
             </div>
           </div>
@@ -345,6 +360,7 @@ export default function ProfilePage({ params }) {
   const [products, setProducts] = useState([]);
   const [socials, setSocials] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
+  const [gallery, setGallery] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -361,6 +377,12 @@ export default function ProfilePage({ params }) {
         setSocials(sl || []);
         const { data: tm } = await supabase.from("testimonials").select("*").eq("profile_id", p.id).order("sort_order", { ascending: true });
         setTestimonials(tm || []);
+        try {
+          const { data: gl } = await supabase.from("gallery").select("*").eq("profile_id", p.id).order("sort_order", { ascending: true });
+          setGallery(gl || []);
+        } catch (e) {
+          setGallery([]);
+        }
       }
       setLoading(false);
     }
@@ -388,7 +410,7 @@ export default function ProfilePage({ params }) {
   }
 
   if (profile.plan === "business" || profile.plan === "premium" || profile.plan === "pro" || profile.plan === "ultimate") {
-    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} />;
+    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} gallery={gallery} />;
   }
   return <BasicProfile profile={profile} />;
 }
