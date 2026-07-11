@@ -166,6 +166,26 @@ export default function DirectoryPage() {
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", background: '#f0f4f8', minHeight: '100vh' }}>
 
+      {/* FIXED RIGHT-EDGE VERTICAL TABS (JustDial-style) */}
+      {!isMobile && (
+        <div style={{ position: 'fixed', right: 0, top: '45%', zIndex: 100, display: 'flex', flexDirection: 'column' }}>
+          <Link href="/contact" style={{
+            writingMode: 'vertical-rl', textOrientation: 'mixed', background: '#f97316', color: 'white',
+            fontWeight: 700, fontSize: 13, letterSpacing: 0.5, padding: '14px 8px', borderRadius: '8px 0 0 8px',
+            textDecoration: 'none', boxShadow: '-2px 2px 8px rgba(0,0,0,0.15)', marginBottom: 4
+          }}>
+            Advertise
+          </Link>
+          <Link href="/free-listing" style={{
+            writingMode: 'vertical-rl', textOrientation: 'mixed', background: '#2563eb', color: 'white',
+            fontWeight: 700, fontSize: 13, letterSpacing: 0.5, padding: '14px 8px', borderRadius: '8px 0 0 8px',
+            textDecoration: 'none', boxShadow: '-2px 2px 8px rgba(0,0,0,0.15)'
+          }}>
+            Free Listing
+          </Link>
+        </div>
+      )}
+
       {/* HERO SECTION */}
       <section style={{ background: 'linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 50%, #e8f4fd 100%)', padding: '48px 24px 40px', position: 'relative', overflow: 'hidden' }}>
         
@@ -339,23 +359,29 @@ export default function DirectoryPage() {
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: 18 }}>
               {filtered.map(biz => (
                 <div key={biz.username} onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)}
-                  style={{ background: 'white', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer', overflow: 'hidden', display: 'flex', minHeight: 200 }}
+                  style={{ background: 'white', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: isMobile ? 'auto' : 200 }}
                   onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'}>
 
-                  {/* LEFT HALF: image fills the whole height */}
-                  <div style={{ width: '42%', flexShrink: 0, position: 'relative' }}>
+                  {/* IMAGE: full-width square on mobile (top), 42% height-filling column on desktop (left) */}
+                  <div style={{
+                    width: isMobile ? '100%' : '42%',
+                    aspectRatio: isMobile ? '1 / 1' : 'auto',
+                    height: isMobile ? 'auto' : 'auto',
+                    flexShrink: 0,
+                    position: 'relative'
+                  }}>
                     {biz.img ? (
-                      <img src={biz.img} alt={biz.name} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+                      <img src={biz.img} alt={biz.name} style={{ width: '100%', height: '100%', objectFit: 'cover', position: isMobile ? 'static' : 'absolute', inset: 0 }} />
                     ) : (
-                      <div style={{ width: '100%', height: '100%', position: 'absolute', inset: 0, background: `linear-gradient(135deg, ${biz.color}25, ${biz.color}10)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: '100%', height: isMobile ? '100%' : '100%', position: isMobile ? 'static' : 'absolute', inset: 0, background: `linear-gradient(135deg, ${biz.color}25, ${biz.color}10)`, display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: isMobile ? '1 / 1' : 'auto' }}>
                         <span style={{ fontWeight: 800, color: biz.color, fontSize: 30 }}>{biz.initials}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* RIGHT HALF: details, buttons pinned to bottom */}
-                  <div style={{ width: '58%', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  {/* RIGHT/BOTTOM: details, buttons pinned to bottom */}
+                  <div style={{ width: isMobile ? '100%' : '58%', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                         <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 15 }}>{biz.name}</div>
@@ -454,15 +480,15 @@ export default function DirectoryPage() {
 
       {/* CTA */}
       <section style={{ background: 'linear-gradient(135deg, #1e40af, #3b82f6)', padding: '48px 24px' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center', justifyContent: 'space-between', textAlign: isMobile ? 'center' : 'left', gap: 24 }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center', gap: 20 }}>
             <div style={{ fontSize: 48 }}>🏪</div>
             <div>
               <h3 style={{ color: 'white', fontWeight: 700, fontSize: 22, margin: '0 0 6px' }}>Are you a business owner?</h3>
               <p style={{ color: '#bfdbfe', fontSize: 14, margin: 0 }}>Create your digital profile and get discovered by thousands of potential customers across India.</p>
             </div>
           </div>
-          <Link href="/register" style={{ display: 'inline-block', padding: '14px 32px', background: 'white', color: '#1e40af', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+          <Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '14px 32px', background: 'white', color: '#1e40af', borderRadius: 12, fontWeight: 700, fontSize: 15, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
             List Your Business Free →
           </Link>
         </div>
