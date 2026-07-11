@@ -434,18 +434,18 @@ export default function DirectoryPage() {
                     </div>
 
                     {/* Buttons: side by side always, pinned to bottom of card */}
-                    <div style={{ display: 'flex', gap: isMobile ? 8 : 8, marginTop: isMobile ? 12 : 14 }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: 'grid', gridTemplateColumns: biz.phone ? '1fr 1fr' : '1fr', gap: isMobile ? 8 : 8, marginTop: isMobile ? 12 : 14 }} onClick={e => e.stopPropagation()}>
                       {biz.phone ? (
                         <>
-                          <a href={`tel:+${biz.phone}`} style={{ flex: 1, padding: isMobile ? '11px 8px' : '9px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 9, fontSize: isMobile ? 12 : 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                          <a href={`tel:+${biz.phone}`} style={{ width: '100%', boxSizing: 'border-box', padding: isMobile ? '11px 4px' : '9px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 9, fontSize: isMobile ? 12 : 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                             📞 Call
                           </a>
-                          <a href={`https://wa.me/${biz.phone}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, padding: isMobile ? '11px 8px' : '9px', background: 'white', color: '#16a34a', border: '1.5px solid #16a34a', borderRadius: 9, fontSize: isMobile ? 12 : 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                          <a href={`https://wa.me/${biz.phone}`} target="_blank" rel="noopener noreferrer" style={{ width: '100%', boxSizing: 'border-box', padding: isMobile ? '11px 4px' : '9px', background: 'white', color: '#16a34a', border: '1.5px solid #16a34a', borderRadius: 9, fontSize: isMobile ? 12 : 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                             WhatsApp
                           </a>
                         </>
                       ) : (
-                        <button onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)} style={{ width: '100%', padding: isMobile ? '11px' : '9px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: isMobile ? 12 : 12, fontWeight: 700, cursor: 'pointer' }}>
+                        <button onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)} style={{ width: '100%', boxSizing: 'border-box', padding: isMobile ? '11px' : '9px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: isMobile ? 12 : 12, fontWeight: 700, cursor: 'pointer' }}>
                           View Profile →
                         </button>
                       )}
