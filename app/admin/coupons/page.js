@@ -108,8 +108,13 @@ export default function AdminCouponsPage() {
       usage_type: form.usage_type,
       max_uses: form.usage_type === 'limited' ? Number(form.max_uses) : null,
       per_user_limit: Number(form.per_user_limit) || 1,
-      valid_from: form.valid_from ? new Date(form.valid_from).toISOString() : new Date().toISOString(),
-      valid_until: form.valid_until ? new Date(form.valid_until).toISOString() : null,
+      // Dates picked in the form are IST calendar dates. Appending the IST offset
+      // (+05:30) instead of letting JS default to UTC midnight avoids a ~5.5 hour
+      // window right after midnight IST where a "today" coupon would incorrectly
+      // show as not-yet-started.
+      valid_from: form.valid_from ? new Date(`${form.valid_from}T00:00:00+05:30`).toISOString() : new Date().toISOString(),
+      // Valid Until is inclusive of the whole selected day (23:59:59 IST), not its start.
+      valid_until: form.valid_until ? new Date(`${form.valid_until}T23:59:59+05:30`).toISOString() : null,
       is_active: true,
     };
 
