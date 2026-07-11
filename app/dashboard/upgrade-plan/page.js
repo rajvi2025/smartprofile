@@ -32,6 +32,12 @@ export default function UpgradePlanPage() {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
 
+  // ---- Coupon state ----
+  const [couponCode, setCouponCode] = useState('');
+  const [couponChecking, setCouponChecking] = useState(false);
+  const [couponError, setCouponError] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null); // { id, code, discountAmount }
+
   useEffect(() => {
     if (status !== 'authenticated') return;
     async function load() {
@@ -75,6 +81,92 @@ export default function UpgradePlanPage() {
   const newPlanPrice = selectedPlan ? PLANS.find(p => p.id === selectedPlan)?.price || 0 : 0;
   const upgradeCost = Math.max(0, Math.round((newPlanPrice - balance) * 100) / 100);
 
+  // Final payable amount after coupon discount (never below ₹1, Razorpay doesn't allow ₹0 orders)
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const finalAmount = Math.max(1, Math.round((upgradeCost - discountAmount) * 100) / 100);
+
+  // Reset any applied coupon if the selected plan changes — discount rules depend on plan
+  function selectPlan(planId) {
+    setSelectedPlan(planId);
+    setAppliedCoupon(null);
+    setCouponError('');
+    setCouponCode('');
+  }
+
+  async function handleApplyCoupon() {
+    setCouponError('');
+    setAppliedCoupon(null);
+    const code = couponCode.trim().toUpperCase();
+    if (!code) { setCouponError('Coupon code daalo.'); return; }
+    if (!selectedPlan) { setCouponError('Pehle ek plan select karo.'); return; }
+
+    setCouponChecking(true);
+    try {
+      const { data: coupon, error: fetchErr } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('code', code)
+        .single();
+
+      if (fetchErr || !coupon) { setCouponError('Ye coupon code valid nahi hai.'); setCouponChecking(false); return; }
+      if (!coupon.is_active) { setCouponError('Ye coupon abhi active nahi hai.'); setCouponChecking(false); return; }
+
+      const now = new Date();
+      if (coupon.valid_from && new Date(coupon.valid_from) > now) { setCouponError('Ye coupon abhi start nahi hua.'); setCouponChecking(false); return; }
+      if (coupon.valid_until && new Date(coupon.valid_until) < now) { setCouponError('Ye coupon expire ho chuka hai.'); setCouponChecking(false); return; }
+
+      if (coupon.applicable_product && coupon.applicable_product !== 'all' && coupon.applicable_product !== 'digital_card') {
+        setCouponError('Ye coupon Digital Card plans pe apply nahi hota.'); setCouponChecking(false); return;
+      }
+      if (coupon.applicable_plans && coupon.applicable_plans.length > 0 && !coupon.applicable_plans.includes(selectedPlan)) {
+        setCouponError('Ye coupon is plan pe apply nahi hota.'); setCouponChecking(false); return;
+      }
+      if (coupon.min_order_value && upgradeCost < Number(coupon.min_order_value)) {
+        setCouponError(`Minimum ₹${coupon.min_order_value} ka order chahiye is coupon ke liye.`); setCouponChecking(false); return;
+      }
+
+      // Usage limit checks
+      if (coupon.usage_type === 'single_use' && (coupon.used_count || 0) >= 1) {
+        setCouponError('Ye coupon already use ho chuka hai.'); setCouponChecking(false); return;
+      }
+      if (coupon.usage_type === 'limited' && coupon.max_uses && (coupon.used_count || 0) >= coupon.max_uses) {
+        setCouponError('Ye coupon ki usage limit khatam ho gayi hai.'); setCouponChecking(false); return;
+      }
+
+      // Per-user limit check
+      const { count: userUseCount } = await supabase
+        .from('coupon_redemptions')
+        .select('id', { count: 'exact', head: true })
+        .eq('coupon_id', coupon.id)
+        .eq('email', current.email);
+
+      if (coupon.per_user_limit && (userUseCount || 0) >= coupon.per_user_limit) {
+        setCouponError('Tum ye coupon pehle hi use kar chuke ho.'); setCouponChecking(false); return;
+      }
+
+      // Calculate discount
+      let discount = coupon.type === 'percentage'
+        ? (Number(coupon.value) / 100) * upgradeCost
+        : Number(coupon.value);
+      if (coupon.max_discount_cap && discount > Number(coupon.max_discount_cap)) {
+        discount = Number(coupon.max_discount_cap);
+      }
+      discount = Math.min(discount, upgradeCost); // never discount more than the order itself
+      discount = Math.round(discount * 100) / 100;
+
+      setAppliedCoupon({ id: coupon.id, code: coupon.code, discountAmount: discount });
+    } catch {
+      setCouponError('Kuch gadbad ho gayi, dobara try karo.');
+    }
+    setCouponChecking(false);
+  }
+
+  function removeCoupon() {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError('');
+  }
+
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
       if (typeof window !== 'undefined' && window.Razorpay) { resolve(true); return; }
@@ -96,7 +188,7 @@ export default function UpgradePlanPage() {
       const orderRes = await fetch('/api/razorpay/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: upgradeCost, planId: selectedPlan, username: current.username }),
+        body: JSON.stringify({ amount: finalAmount, planId: selectedPlan, username: current.username }),
       });
       const orderData = await orderRes.json();
       if (!orderRes.ok || !orderData.order) {
@@ -129,6 +221,23 @@ export default function UpgradePlanPage() {
                 body: JSON.stringify({ newPlan: selectedPlan }),
               });
               if (upgradeRes.ok) {
+                // Record coupon redemption + bump used_count — only after payment + upgrade succeeded
+                if (appliedCoupon) {
+                  try {
+                    await supabase.from('coupon_redemptions').insert([{
+                      coupon_id: appliedCoupon.id,
+                      profile_id: current.id || null,
+                      email: current.email,
+                      order_amount: upgradeCost,
+                      discount_amount: appliedCoupon.discountAmount,
+                      final_amount: finalAmount,
+                      razorpay_order_id: response.razorpay_order_id,
+                    }]);
+                    await supabase.rpc('increment_coupon_usage', { coupon_id_input: appliedCoupon.id });
+                  } catch {
+                    // Non-critical — payment already succeeded, don't block the user for this
+                  }
+                }
                 router.push('/dashboard');
               } else {
                 setError('Payment hui, lekin plan update nahi hua. Support se contact karo.');
@@ -192,7 +301,7 @@ export default function UpgradePlanPage() {
               <h2 className="font-bold text-gray-800 mb-4">Choose New Plan</h2>
               <div className="grid grid-cols-2 gap-3">
                 {upgradablePlans.map(p => (
-                  <button key={p.id} onClick={() => setSelectedPlan(p.id)}
+                  <button key={p.id} onClick={() => selectPlan(p.id)}
                     className={`rounded-xl p-3 border-2 transition-all text-center ${selectedPlan === p.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200'}`}>
                     <div className={`${p.color} text-white text-xs font-bold px-2 py-1 rounded-lg mb-2`}>{p.name}</div>
                     <div className="font-bold text-gray-800">₹{p.price}</div>
@@ -201,6 +310,42 @@ export default function UpgradePlanPage() {
                 ))}
               </div>
             </div>
+
+            {/* Coupon code */}
+            {selectedPlan && (
+              <div className="bg-white rounded-2xl p-5 shadow-sm">
+                <h2 className="font-bold text-gray-800 mb-3">🏷️ Have a Coupon?</h2>
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                    <div>
+                      <span className="text-green-700 font-bold text-sm">{appliedCoupon.code}</span>
+                      <span className="text-green-600 text-xs ml-2">applied — you saved ₹{appliedCoupon.discountAmount.toFixed(2)}</span>
+                    </div>
+                    <button onClick={removeCoupon} className="text-red-500 text-xs font-semibold">Remove</button>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={e => setCouponCode(e.target.value)}
+                        placeholder="Enter coupon code"
+                        className="flex-1 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 uppercase"
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={couponChecking}
+                        className="bg-gray-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl disabled:opacity-60"
+                      >
+                        {couponChecking ? '...' : 'Apply'}
+                      </button>
+                    </div>
+                    {couponError && <p className="text-red-500 text-xs mt-2">{couponError}</p>}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Proration breakdown */}
             {selectedPlan && (
@@ -216,15 +361,20 @@ export default function UpgradePlanPage() {
                   <div className="flex justify-between text-gray-600">
                     <span>Unused balance (credit)</span><span>− ₹{balance.toFixed(2)}</span>
                   </div>
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Coupon ({appliedCoupon.code})</span><span>− ₹{appliedCoupon.discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="border-t pt-2 flex justify-between font-bold text-gray-900">
-                    <span>You Pay</span><span>₹{upgradeCost.toFixed(2)}</span>
+                    <span>You Pay</span><span>₹{finalAmount.toFixed(2)}</span>
                   </div>
                 </div>
                 <p className="text-xs text-gray-400 mt-3">Upgrading resets your billing cycle — a fresh 365-day period starts today at the new plan's full price.</p>
 
                 <button onClick={handleUpgrade} disabled={processing}
                   className="w-full mt-4 bg-blue-600 text-white font-bold py-3 rounded-2xl hover:opacity-90 shadow-lg disabled:opacity-60">
-                  {processing ? '⏳ Processing...' : `✅ Pay ₹${upgradeCost.toFixed(2)} & Upgrade`}
+                  {processing ? '⏳ Processing...' : `✅ Pay ₹${finalAmount.toFixed(2)} & Upgrade`}
                 </button>
               </div>
             )}
