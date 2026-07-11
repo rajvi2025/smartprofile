@@ -150,7 +150,8 @@ export default function DirectoryPage() {
           verified: !!p.is_active,
           initials: (p.business_name || p.full_name || '?').substring(0,2).toUpperCase(),
           color: '#3b82f6',
-          img: p.banner_url || p.logo_url || null,
+          // Priority: Directory Main Image → Banner → Logo → initials fallback
+          img: p.directory_image_url || p.banner_url || p.logo_url || null,
           username: p.username,
           // NOTE: assuming column name is "phone" — tell me if it's actually
           // "mobile" or "contact_number" and I'll fix this in one line.
