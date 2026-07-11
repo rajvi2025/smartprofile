@@ -170,15 +170,15 @@ export default function DirectoryPage() {
       {!isMobile && (
         <div style={{ position: 'fixed', right: 0, top: '45%', zIndex: 100, display: 'flex', flexDirection: 'column' }}>
           <Link href="/contact" style={{
-            writingMode: 'vertical-rl', textOrientation: 'mixed', background: '#f97316', color: 'white',
-            fontWeight: 700, fontSize: 13, letterSpacing: 0.5, padding: '14px 8px', borderRadius: '8px 0 0 8px',
+            writingMode: 'vertical-rl', textOrientation: 'mixed', transform: 'rotate(180deg)', background: '#f97316', color: 'white',
+            fontWeight: 700, fontSize: 11, letterSpacing: 0.5, padding: '10px 6px', borderRadius: '8px 0 0 8px',
             textDecoration: 'none', boxShadow: '-2px 2px 8px rgba(0,0,0,0.15)', marginBottom: 4
           }}>
             Advertise
           </Link>
           <Link href="/free-listing" style={{
-            writingMode: 'vertical-rl', textOrientation: 'mixed', background: '#2563eb', color: 'white',
-            fontWeight: 700, fontSize: 13, letterSpacing: 0.5, padding: '14px 8px', borderRadius: '8px 0 0 8px',
+            writingMode: 'vertical-rl', textOrientation: 'mixed', transform: 'rotate(180deg)', background: '#2563eb', color: 'white',
+            fontWeight: 700, fontSize: 11, letterSpacing: 0.5, padding: '10px 6px', borderRadius: '8px 0 0 8px',
             textDecoration: 'none', boxShadow: '-2px 2px 8px rgba(0,0,0,0.15)'
           }}>
             Free Listing
@@ -359,76 +359,76 @@ export default function DirectoryPage() {
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: 18 }}>
               {filtered.map(biz => (
                 <div key={biz.username} onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)}
-                  style={{ background: 'white', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: isMobile ? 'auto' : 200 }}
+                  style={{ background: 'white', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'row', minHeight: isMobile ? 'auto' : 200 }}
                   onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'}>
 
-                  {/* IMAGE: full-width square on mobile (top), 42% height-filling column on desktop (left) */}
+                  {/* IMAGE: small square (~28%) on mobile, 42% height-filling column on desktop */}
                   <div style={{
-                    width: isMobile ? '100%' : '42%',
+                    width: isMobile ? '28%' : '42%',
                     aspectRatio: isMobile ? '1 / 1' : 'auto',
-                    height: isMobile ? 'auto' : 'auto',
                     flexShrink: 0,
-                    position: 'relative'
+                    position: 'relative',
+                    alignSelf: isMobile ? 'flex-start' : 'auto'
                   }}>
                     {biz.img ? (
-                      <img src={biz.img} alt={biz.name} style={{ width: '100%', height: '100%', objectFit: 'cover', position: isMobile ? 'static' : 'absolute', inset: 0 }} />
+                      <img src={biz.img} alt={biz.name} style={{ width: '100%', height: '100%', objectFit: 'cover', position: isMobile ? 'static' : 'absolute', inset: 0, borderRadius: isMobile ? 12 : 0 }} />
                     ) : (
-                      <div style={{ width: '100%', height: isMobile ? '100%' : '100%', position: isMobile ? 'static' : 'absolute', inset: 0, background: `linear-gradient(135deg, ${biz.color}25, ${biz.color}10)`, display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: isMobile ? '1 / 1' : 'auto' }}>
-                        <span style={{ fontWeight: 800, color: biz.color, fontSize: 30 }}>{biz.initials}</span>
+                      <div style={{ width: '100%', height: '100%', position: isMobile ? 'static' : 'absolute', inset: 0, background: `linear-gradient(135deg, ${biz.color}25, ${biz.color}10)`, display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: isMobile ? '1 / 1' : 'auto', borderRadius: isMobile ? 12 : 0 }}>
+                        <span style={{ fontWeight: 800, color: biz.color, fontSize: isMobile ? 18 : 30 }}>{biz.initials}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* RIGHT/BOTTOM: details, buttons pinned to bottom */}
-                  <div style={{ width: isMobile ? '100%' : '58%', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  {/* RIGHT: details, buttons pinned to bottom */}
+                  <div style={{ width: isMobile ? '72%' : '58%', padding: isMobile ? '10px 12px' : '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 15 }}>{biz.name}</div>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: isMobile ? 13 : 15 }}>{biz.name}</div>
                         {biz.verified && (
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="#3b82f6" style={{ flexShrink: 0 }}><path d="M12 2l2.4 2.4 3.4-.4.4 3.4L21 10l-2.8 2.6.4 3.4-3.4-.4L12 18l-2.4-2.4-3.4.4-.4-3.4L3 10l2.8-2.6-.4-3.4 3.4.4L12 2z"/><path d="M9.5 12l1.8 1.8 3.2-3.6" stroke="white" strokeWidth="1.5" fill="none"/></svg>
                         )}
                       </div>
-                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{biz.category}</div>
-                      <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{biz.category}</div>
+                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
                         📍 {[biz.city, biz.state].filter(Boolean).join(', ') || 'India'}
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
                         {biz.reviews > 0 ? (
                           <>
-                            <span style={{ background: '#16a34a', color: 'white', fontSize: 12, fontWeight: 700, padding: '3px 8px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 3 }}>
+                            <span style={{ background: '#16a34a', color: 'white', fontSize: 11, fontWeight: 700, padding: '3px 7px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 3 }}>
                               {biz.rating.toFixed(1)} ★
                             </span>
-                            <span style={{ fontSize: 12, color: '#64748b' }}>{biz.reviews} Ratings</span>
+                            <span style={{ fontSize: 11, color: '#64748b' }}>{biz.reviews} Ratings</span>
                           </>
                         ) : (
-                          <span style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>No reviews yet</span>
+                          <span style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic' }}>No reviews yet</span>
                         )}
                       </div>
 
                       {biz.tags.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
                           {biz.tags.slice(0, 2).map((tag, i) => (
-                            <span key={i} style={{ fontSize: 11, color: '#334155', background: '#f1f5f9', padding: '4px 9px', borderRadius: 999, fontWeight: 500 }}>{tag}</span>
+                            <span key={i} style={{ fontSize: 10, color: '#334155', background: '#f1f5f9', padding: '3px 8px', borderRadius: 999, fontWeight: 500 }}>{tag}</span>
                           ))}
                         </div>
                       )}
                     </div>
 
                     {/* Buttons: always pinned to bottom of card via flex column + space-between above */}
-                    <div style={{ display: 'flex', gap: 8, marginTop: 14 }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: 'flex', gap: isMobile ? 6 : 8, marginTop: isMobile ? 10 : 14, flexWrap: isMobile ? 'wrap' : 'nowrap' }} onClick={e => e.stopPropagation()}>
                       {biz.phone ? (
                         <>
-                          <a href={`tel:+${biz.phone}`} style={{ flex: 1, padding: '9px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                          <a href={`tel:+${biz.phone}`} style={{ flex: isMobile ? '1 1 100%' : 1, padding: isMobile ? '7px' : '9px', background: '#16a34a', color: 'white', border: 'none', borderRadius: 9, fontSize: 11, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                             📞 Call
                           </a>
-                          <a href={`https://wa.me/${biz.phone}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, padding: '9px', background: 'white', color: '#16a34a', border: '1.5px solid #16a34a', borderRadius: 9, fontSize: 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                          <a href={`https://wa.me/${biz.phone}`} target="_blank" rel="noopener noreferrer" style={{ flex: isMobile ? '1 1 100%' : 1, padding: isMobile ? '7px' : '9px', background: 'white', color: '#16a34a', border: '1.5px solid #16a34a', borderRadius: 9, fontSize: 11, fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                             WhatsApp
                           </a>
                         </>
                       ) : (
-                        <button onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)} style={{ width: '100%', padding: '9px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                        <button onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)} style={{ width: '100%', padding: isMobile ? '7px' : '9px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
                           View Profile →
                         </button>
                       )}

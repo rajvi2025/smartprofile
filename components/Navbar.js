@@ -49,6 +49,18 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          {/* Attractive "List Your Business Free" badge */}
+          <Link
+            href="/free-listing"
+            className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full text-white shadow-sm hover:shadow-md transition-shadow"
+            style={{ background: "linear-gradient(135deg, #f97316, #ef4444)" }}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            List Your Business Free
+          </Link>
+
           {session ? (
             <>
               <Link href="/dashboard" className="text-gray-600 hover:text-blue-600 text-sm font-medium">Dashboard</Link>
@@ -69,6 +81,10 @@ export default function Navbar() {
 
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 flex flex-col gap-3">
+          <Link href="/free-listing" className="flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-2.5 rounded-lg text-white" style={{ background: "linear-gradient(135deg, #f97316, #ef4444)" }} onClick={closeMenu}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+            List Your Business Free
+          </Link>
           <Link href="/" className="text-gray-600 text-sm font-medium" onClick={closeMenu}>Home</Link>
           <Link href="/#features" className="text-gray-600 text-sm font-medium" onClick={closeMenu}>Features</Link>
           <Link href="/#nfc" className="text-gray-600 text-sm font-medium" onClick={closeMenu}>NFC Cards</Link>
