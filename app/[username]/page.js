@@ -29,7 +29,6 @@ export async function generateMetadata({ params }) {
   const description =
     profile.tagline ||
     (profile.about ? profile.about.slice(0, 150) : "View my Digital Business Card on SmartProfile.");
-  const image = profile.directory_image_url || profile.banner_url || profile.logo_url;
 
   return {
     title: `${name} | SmartProfile`,
@@ -39,14 +38,12 @@ export async function generateMetadata({ params }) {
       description,
       url: `https://smartprofile.in/${username}`,
       siteName: "SmartProfile.in",
-      images: image ? [{ url: image, width: 800, height: 600, alt: name }] : undefined,
       type: "profile",
     },
     twitter: {
       card: "summary_large_image",
       title: name,
       description,
-      images: image ? [image] : undefined,
     },
   };
 }
