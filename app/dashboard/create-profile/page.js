@@ -140,7 +140,7 @@ export default function CreateProfilePage() {
     return data.url;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (paymentDetails) => {
     if (!form.username || !form.business_name || !form.phone) {
       setError('Username, Business Name aur Phone required!'); return;
     }
@@ -152,7 +152,11 @@ export default function CreateProfilePage() {
 
       const res = await fetch('/api/profile/create', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, theme: theme.id, plan: planId, logo_url, banner_url, amount_paid: plan.amount }),
+        body: JSON.stringify({
+          ...form, theme: theme.id, plan: planId, logo_url, banner_url, amount_paid: plan.amount,
+          razorpay_order_id: paymentDetails?.razorpay_order_id || null,
+          razorpay_payment_id: paymentDetails?.razorpay_payment_id || null,
+        }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Error'); setLoading(false); return; }
@@ -245,7 +249,10 @@ export default function CreateProfilePage() {
             const verifyData = await verifyRes.json();
             if (verifyData.verified) {
               setShowCheckout(false);
-              handleSubmit();
+              handleSubmit({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+              });
             } else {
               setError('Payment verify nahi ho paya. Agar paisa kata hai toh support se contact karo.');
               setLoading(false);

@@ -22,6 +22,7 @@ export async function POST(request) {
       tagline, video_url, brochure_url,
       facebook, instagram, youtube, linkedin, twitter,
       amount_paid,
+      razorpay_order_id, razorpay_payment_id,
     } = body;
 
     if (!username || username.length < 3) {
@@ -90,6 +91,30 @@ export async function POST(request) {
     if (error) {
       console.error('Supabase error:', error);
       return Response.json({ error: 'Failed to create profile', details: error.message, fullError: error }, { status: 500 });
+    }
+
+    // Record this transaction permanently — this is what powers accurate
+    // revenue reporting, independent of whatever profiles.amount_paid says later.
+    // Mirrors the same insert done on upgrade (app/api/profile/upgrade/route.js)
+    // so that both signups and upgrades show up in "This Month Revenue" and
+    // the future Reports section.
+    const { error: paymentError } = await supabase
+      .from('payments')
+      .insert([{
+        profile_id: data.id,
+        user_id: session.user.id,
+        type: 'signup',
+        plan: finalPlan,
+        amount: amount_paid ?? 0,
+        razorpay_order_id: razorpay_order_id || null,
+        razorpay_payment_id: razorpay_payment_id || null,
+        coupon_code: null,
+      }]);
+
+    if (paymentError) {
+      // Don't fail the whole request over this — the profile itself already
+      // got created and the customer shouldn't be blocked. Just log it for follow-up.
+      console.error('Payment record insert error:', paymentError);
     }
 
     const socialEntries = [
