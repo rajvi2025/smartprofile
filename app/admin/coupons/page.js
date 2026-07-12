@@ -1,7 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
 const PLAN_OPTIONS = ['basic', 'business', 'premium', 'pro'];
@@ -24,11 +22,6 @@ function emptyForm() {
 }
 
 export default function AdminCouponsPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [checking, setChecking] = useState(true);
-
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -38,31 +31,8 @@ export default function AdminCouponsPage() {
   const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => {
-    async function checkAdmin() {
-      if (status === 'loading') return;
-      if (!session?.user?.email) {
-        router.push('/login');
-        return;
-      }
-      const { data, error } = await supabase
-        .from('users')
-        .select('role')
-        .eq('email', session.user.email)
-        .single();
-
-      if (error || data?.role !== 'admin') {
-        router.push('/');
-        return;
-      }
-      setIsAdmin(true);
-      setChecking(false);
-    }
-    checkAdmin();
-  }, [session, status, router]);
-
-  useEffect(() => {
-    if (isAdmin) fetchCoupons();
-  }, [isAdmin]);
+    fetchCoupons();
+  }, []);
 
   async function fetchCoupons() {
     setLoading(true);
@@ -143,10 +113,6 @@ export default function AdminCouponsPage() {
     setActionLoading(null);
   }
 
-  if (checking) {
-    return <div style={{ padding: 60, textAlign: 'center', color: '#64748b' }}>Checking access...</div>;
-  }
-
   const inputStyle = {
     width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #cbd5e1',
     fontSize: 14, color: '#0f172a', outline: 'none', boxSizing: 'border-box',
@@ -154,28 +120,23 @@ export default function AdminCouponsPage() {
   const labelStyle = { fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '40px 24px' }}>
+    <div style={{ padding: '40px 24px' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 12 }}>
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: 0 }}>
-              Admin — Coupons
+              Coupons
             </h1>
             <p style={{ color: '#64748b', margin: '8px 0 0' }}>
               Create and manage discount coupon codes for checkout.
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <a href="/admin" style={{ padding: '10px 16px', borderRadius: 8, background: '#e2e8f0', color: '#334155', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
-              ← Profile Approvals
-            </a>
-            <button
-              onClick={() => { setShowForm(s => !s); setFormError(''); }}
-              style={{ padding: '10px 16px', borderRadius: 8, background: '#3b82f6', color: 'white', border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
-            >
-              {showForm ? 'Cancel' : '+ New Coupon'}
-            </button>
-          </div>
+          <button
+            onClick={() => { setShowForm(s => !s); setFormError(''); }}
+            style={{ padding: '10px 16px', borderRadius: 8, background: '#3b82f6', color: 'white', border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+          >
+            {showForm ? 'Cancel' : '+ New Coupon'}
+          </button>
         </div>
 
         {showForm && (
