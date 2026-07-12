@@ -61,9 +61,14 @@ export default function AdminDashboard() {
       .from('profiles')
       .select('business_name, full_name, plan, amount_paid, city, created_at, plan_start_date, plan_end_date');
 
-    const monthRevenue = (allProfiles || [])
-      .filter(p => p.plan_start_date && new Date(p.plan_start_date) >= startOfMonth)
-      .reduce((sum, p) => sum + (Number(p.amount_paid) || 0), 0);
+    // Revenue is sourced from the payments table (permanent, per-transaction record of
+    // what Razorpay actually collected) rather than profiles.amount_paid, which only
+    // reflects the CURRENT cycle and can be stale/overwritten by later upgrades.
+    const { data: monthPayments } = await supabase
+      .from('payments')
+      .select('amount')
+      .gte('created_at', startOfMonth.toISOString());
+    const monthRevenue = (monthPayments || []).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
 
     setStats({ total: total || 0, pending: pending || 0, activeCoupons: activeCoupons || 0, monthRevenue });
 
