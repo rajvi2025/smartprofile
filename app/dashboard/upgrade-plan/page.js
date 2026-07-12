@@ -218,7 +218,16 @@ export default function UpgradePlanPage() {
               const upgradeRes = await fetch('/api/profile/upgrade', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ newPlan: selectedPlan }),
+                body: JSON.stringify({
+                  newPlan: selectedPlan,
+                  // The ACTUAL amount charged (after any coupon discount) — this is what
+                  // gets saved as profiles.amount_paid and recorded in the payments table,
+                  // instead of just assuming the plan's full list price.
+                  amountPaid: finalAmount,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  couponCode: appliedCoupon ? appliedCoupon.code : null,
+                }),
               });
               if (upgradeRes.ok) {
                 // Record coupon redemption + bump used_count — only after payment + upgrade succeeded
@@ -248,7 +257,7 @@ export default function UpgradePlanPage() {
               setProcessing(false);
             }
           } catch {
-            setError('Payment verify karte waqt error aaya.');
+            setError('An error occurred while verifying payment.');
             setProcessing(false);
           }
         },

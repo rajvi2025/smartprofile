@@ -18,11 +18,18 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { newPlan } = body;
+    const { newPlan, amountPaid, razorpay_order_id, razorpay_payment_id, couponCode } = body;
 
     if (!ALLOWED_PLANS.includes(newPlan)) {
       return Response.json({ error: 'Invalid plan' }, { status: 400 });
     }
+
+    // amountPaid is the ACTUAL amount the customer was charged (after any coupon
+    // discount). If it's missing or invalid for some reason, fall back to the plan's
+    // full list price rather than silently recording ₹0 — but this should be sent
+    // by the client on every real upgrade.
+    const chargedAmount = Number(amountPaid);
+    const finalAmount = (!isNaN(chargedAmount) && chargedAmount > 0) ? chargedAmount : PLAN_PRICES[newPlan];
 
     const { data: existingProfile, error: findError } = await supabase
       .from('profiles')
@@ -44,7 +51,7 @@ export async function POST(request) {
       .from('profiles')
       .update({
         plan: newPlan,
-        amount_paid: PLAN_PRICES[newPlan],
+        amount_paid: finalAmount,
         plan_start_date: now.toISOString(),
         plan_end_date: oneYearLater.toISOString(),
       })
@@ -55,6 +62,27 @@ export async function POST(request) {
     if (error) {
       console.error('Upgrade update error:', error);
       return Response.json({ error: 'Failed to upgrade plan', details: error.message }, { status: 500 });
+    }
+
+    // Record this transaction permanently — this is what powers accurate
+    // revenue reporting, independent of whatever profiles.amount_paid says later.
+    const { error: paymentError } = await supabase
+      .from('payments')
+      .insert([{
+        profile_id: existingProfile.id,
+        user_id: session.user.id,
+        type: 'upgrade',
+        plan: newPlan,
+        amount: finalAmount,
+        razorpay_order_id: razorpay_order_id || null,
+        razorpay_payment_id: razorpay_payment_id || null,
+        coupon_code: couponCode || null,
+      }]);
+
+    if (paymentError) {
+      // Don't fail the whole request over this — the plan upgrade itself already
+      // succeeded and the customer shouldn't be blocked. Just log it for follow-up.
+      console.error('Payment record insert error:', paymentError);
     }
 
     return Response.json({ success: true, profile: data }, { status: 200 });
