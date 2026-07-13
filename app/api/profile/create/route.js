@@ -23,6 +23,7 @@ export async function POST(request) {
       facebook, instagram, youtube, linkedin, twitter,
       amount_paid,
       razorpay_order_id, razorpay_payment_id, coupon_code,
+      directory_active, business_id_type, business_id_number,
     } = body;
 
     if (!username || username.length < 3) {
@@ -32,6 +33,10 @@ export async function POST(request) {
     const usernameRegex = /^[a-z0-9-]+$/;
     if (!usernameRegex.test(username)) {
       return Response.json({ error: 'Username can only contain lowercase letters, numbers, and hyphens' }, { status: 400 });
+    }
+
+    if (directory_active && !business_id_number) {
+      return Response.json({ error: 'Business Identification Number is required to submit to the Directory' }, { status: 400 });
     }
 
     const { data: existing } = await supabase
@@ -67,6 +72,9 @@ export async function POST(request) {
         area: area || null,
         pincode: pincode || null,
         display_as: display_as || 'business',
+        directory_active: directory_active ?? true,
+        business_id_type: business_id_type || null,
+        business_id_number: business_id_number || null,
         bio,
         theme: theme || 'ocean',
         plan: finalPlan,
