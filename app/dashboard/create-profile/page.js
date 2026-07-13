@@ -80,7 +80,7 @@ export default function CreateProfilePage() {
   const [form, setForm] = useState({
     username: '', full_name: '', designation: '', business_name: '',
     tagline: '', category: '', phone: '', whatsapp: '', email: '',
-    website: '', address: '', city: '', about: '', maps_url: '',
+    website: '', address: '', area: '', pincode: '', city: '', state: '', about: '', maps_url: '',
     facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '',
     video_url: '', brochure_url: '',
   });
@@ -105,6 +105,48 @@ export default function CreateProfilePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [pincodeError, setPincodeError] = useState('');
+
+  // Looks up City/State from a 6-digit Indian PIN code using the free
+  // India Post API. Fires when the pincode field loses focus. City/State
+  // stay editable afterwards in case the lookup is wrong or incomplete.
+  const handlePincodeBlur = async () => {
+    const pin = (form.pincode || '').trim();
+    setPincodeError('');
+    if (!/^\d{6}$/.test(pin)) return;
+    setPincodeLoading(true);
+    try {
+      const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+      const data = await res.json();
+      const po = data?.[0]?.PostOffice?.[0];
+      if (data?.[0]?.Status === 'Success' && po) {
+        setForm(p => ({
+          ...p,
+          city: po.District || p.city,
+          state: po.State || p.state,
+        }));
+      } else {
+        setPincodeError('Pincode not found — please fill City/State manually.');
+      }
+    } catch {
+      setPincodeError('Could not look up pincode — please fill City/State manually.');
+    } finally {
+      setPincodeLoading(false);
+    }
+  };
+
+  // Email is always the account's own registered email — never something
+  // typed in or restored from a stale draft. This runs whenever the session
+  // becomes available and forces form.email to match, so a customer can
+  // never create a profile under an email different from the one they
+  // registered/logged in with.
+  useEffect(() => {
+    if (session?.user?.email) {
+      setForm(p => ({ ...p, email: session.user.email }));
+    }
+  }, [session]);
 
   // Auto-save the draft (text fields only — images can't be persisted this
   // way, so logo/banner still need re-uploading if a draft is restored)
@@ -537,7 +579,26 @@ export default function CreateProfilePage() {
                 <div><label className={lbl}>Tagline</label><input value={form.tagline} onChange={e=>update('tagline',e.target.value)} placeholder="Your tagline..." className={inp}/></div>
                 <div><label className={lbl}>Category</label><input value={form.category} onChange={e=>update('category',e.target.value)} placeholder="Real Estate" className={inp}/></div>
               </div>
-              <div><label className={lbl}>City</label><input value={form.city} onChange={e=>update('city',e.target.value)} placeholder="Mumbai, Maharashtra" className={inp}/></div>
+              <div>
+                <label className={lbl}>Area / Locality</label>
+                <input value={form.area} onChange={e=>update('area',e.target.value)} placeholder="e.g. Mira Road" className={inp}/>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className={lbl}>Pincode</label>
+                  <input value={form.pincode} onChange={e=>update('pincode',e.target.value.replace(/\D/g,'').slice(0,6))} onBlur={handlePincodeBlur} placeholder="e.g. 401107" maxLength={6} className={inp}/>
+                </div>
+                <div>
+                  <label className={lbl}>City *</label>
+                  <input value={form.city} onChange={e=>update('city',e.target.value)} className={inp}/>
+                </div>
+                <div>
+                  <label className={lbl}>State</label>
+                  <input value={form.state} onChange={e=>update('state',e.target.value)} className={inp}/>
+                </div>
+              </div>
+              {pincodeLoading && <p className="text-xs text-blue-500">Looking up pincode…</p>}
+              {pincodeError && <p className="text-xs text-amber-600">{pincodeError}</p>}
             </div>
           </div>
 
@@ -562,7 +623,11 @@ export default function CreateProfilePage() {
             <div className="grid grid-cols-2 gap-3">
               <div><label className={lbl}>Phone *</label><input value={form.phone} onChange={e=>update('phone',e.target.value)} placeholder="+91 98765 43210" className={inp}/></div>
               <div><label className={lbl}>WhatsApp</label><input value={form.whatsapp} onChange={e=>update('whatsapp',e.target.value)} placeholder="919876543210" className={inp}/></div>
-              <div><label className={lbl}>Email</label><input value={form.email} onChange={e=>update('email',e.target.value)} placeholder="you@email.com" className={inp}/></div>
+              <div>
+                <label className={lbl}>Email</label>
+                <input value={form.email} disabled readOnly placeholder="you@email.com" className={inp + ' bg-gray-100 text-gray-500 cursor-not-allowed'}/>
+                <p className="text-[11px] text-gray-400 mt-1">This is your account email — it can't be changed here. Contact support to update it.</p>
+              </div>
               <div><label className={lbl}>Website</label><input value={form.website} onChange={e=>update('website',e.target.value)} placeholder="https://yoursite.com" className={inp}/></div>
             </div>
           </div>

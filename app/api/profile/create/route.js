@@ -17,7 +17,7 @@ export async function POST(request) {
     const body = await request.json();
     const {
       username, full_name, designation, phone, email, business_name,
-      business_type, category, city, state, bio, theme, plan,
+      business_type, category, city, state, area, pincode, bio, theme, plan,
       logo_url, banner_url, whatsapp, website, about, address, maps_url,
       tagline, video_url, brochure_url,
       facebook, instagram, youtube, linkedin, twitter,
@@ -64,6 +64,8 @@ export async function POST(request) {
         category,
         city,
         state,
+        area: area || null,
+        pincode: pincode || null,
         bio,
         theme: theme || 'ocean',
         plan: finalPlan,
