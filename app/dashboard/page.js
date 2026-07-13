@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [planInfo, setPlanInfo] = useState(null);
+  const [customerId, setCustomerId] = useState(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -39,7 +40,16 @@ export default function DashboardPage() {
         .single();
       if (data) setPlanInfo(data);
     }
+    async function loadCustomerId() {
+      const { data } = await supabase
+        .from('users')
+        .select('customer_id')
+        .eq('id', session.user.id)
+        .single();
+      if (data?.customer_id) setCustomerId(data.customer_id);
+    }
     loadPlan();
+    loadCustomerId();
   }, [status, session]);
 
   if (status === "loading") {
@@ -55,11 +65,19 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-100">
             <div className="max-w-2xl mx-auto p-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm mb-4">
-          <h2 className="text-lg font-bold text-gray-800">
-            Welcome, {session?.user?.name}! 👋
-          </h2>
-          <p className="text-gray-500 text-sm mt-1">{session?.user?.email}</p>
+        <div className="bg-white rounded-2xl p-6 shadow-sm mb-4 flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-gray-800">
+              Welcome, {session?.user?.name}! 👋
+            </h2>
+            <p className="text-gray-500 text-sm mt-1">{session?.user?.email}</p>
+          </div>
+          {customerId && (
+            <div className="text-right flex-shrink-0">
+              <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Customer ID</p>
+              <p className="text-sm font-bold text-blue-600">{customerId}</p>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">

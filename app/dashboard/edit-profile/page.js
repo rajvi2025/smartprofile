@@ -65,6 +65,7 @@ export default function EditProfilePage() {
   const [username, setUsername] = useState('');
   const [plan, setPlan] = useState('basic');
   const [email, setEmail] = useState('');
+  const [customerId, setCustomerId] = useState(null);
 
   const [logoPreview, setLogoPreview] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
@@ -150,6 +151,9 @@ export default function EditProfilePage() {
     setLogoPreview(p.logo_url || null);
     setBannerPreview(p.banner_url || null);
     setDirectoryImagePreview(p.directory_image_url || null);
+
+    const { data: userRow } = await supabase.from('users').select('customer_id').eq('id', session.user.id).single();
+    if (userRow?.customer_id) setCustomerId(userRow.customer_id);
 
     const { data: socialRows } = await supabase.from('social_links').select('*').eq('profile_id', p.id);
     const socialValues = {};
@@ -435,6 +439,7 @@ export default function EditProfilePage() {
               <h2 className="text-lg font-bold text-gray-900">{form.business_name || 'Your Business'}</h2>
               <p className="text-sm text-gray-500">{form.full_name}{form.designation ? ` · ${form.designation}` : ''}</p>
               <p className="text-sm text-blue-600 font-medium mt-1">smartprofile.in/{username}</p>
+              {customerId && <p className="text-xs text-gray-400 font-semibold mt-0.5">Customer ID: {customerId}</p>}
             </div>
             <div className="flex flex-col items-end gap-2">
               <span className="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">{PLAN_LABELS[plan] || plan}</span>
@@ -560,6 +565,12 @@ export default function EditProfilePage() {
             <p className={lbl}>Profile URL</p>
             <p className="text-sm font-semibold text-gray-800">smartprofile.in/{username}</p>
           </div>
+          {customerId && (
+            <div>
+              <p className={lbl}>Customer ID</p>
+              <p className="text-sm font-semibold text-gray-800">{customerId}</p>
+            </div>
+          )}
           <div>
             <p className={lbl}>Email (contact support to change)</p>
             <p className="text-sm text-gray-500">{email}</p>
