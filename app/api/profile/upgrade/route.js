@@ -54,6 +54,10 @@ export async function POST(request) {
         amount_paid: finalAmount,
         plan_start_date: now.toISOString(),
         plan_end_date: oneYearLater.toISOString(),
+        // Every paid plan (Basic through Pro) includes the Digital Card —
+        // upgrading must always activate it, even for customers who
+        // started out on a Directory-only listing.
+        digital_card_active: true,
       })
       .eq('id', existingProfile.id)
       .select()
