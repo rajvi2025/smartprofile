@@ -118,7 +118,6 @@ export default function CreateProfilePage() {
   const [products, setProducts] = useState([{ name: '', price: '', description: '' }]);
   const [gallery, setGallery] = useState([]);
   const [bizPresence, setBizPresence] = useState([{ platform: '', url: '' }]);
-  const [socialLinks, setSocialLinks] = useState([{ platform: '', url: '' }]);
 
   const [form, setForm] = useState({
     username: '', full_name: '', designation: '', business_name: '',
@@ -126,6 +125,7 @@ export default function CreateProfilePage() {
     website: '', address: '', area: '', pincode: '', city: '', state: '', about: '', maps_url: '', display_as: 'business',
     business_id_type: 'GST', business_id_number: '',
     video_url: '', brochure_url: '',
+    facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '', threads: '', pinterest: '', telegram: '',
   });
 
   const DRAFT_KEY = 'smartprofile_create_draft';
@@ -291,7 +291,6 @@ export default function CreateProfilePage() {
   const maxProducts = planId === 'business' ? 2 : planId === 'premium' ? 5 : planId === 'pro' ? 10 : 0;
   const maxGallery = planId === 'premium' ? 10 : planId === 'pro' ? 20 : 0;
   const maxBiz = planId === 'premium' ? 3 : planId === 'pro' ? 6 : 0;
-  const maxSocial = planId === 'business' ? 3 : planId === 'premium' ? 5 : planId === 'pro' ? 8 : 0;
 
   const handleImage = (e, type) => {
     const file = e.target.files[0];
@@ -365,12 +364,6 @@ export default function CreateProfilePage() {
         await fetch('/api/profile/sections', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profileId, type: 'products', items: products.filter(p => p.name) }),
-        });
-      }
-      if (has('social') && socialLinks[0].platform && socialLinks[0].url) {
-        await fetch('/api/profile/sections', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profileId, type: 'social', items: socialLinks.filter(s => s.platform && s.url) }),
         });
       }
       if (has('biz_presence') && bizPresence[0].url) {
@@ -720,27 +713,15 @@ export default function CreateProfilePage() {
 
           {/* Social */}
           <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-gray-800 mb-4">🔗 Social Media <span className="text-xs text-gray-400 font-normal">(max {maxSocial || 0})</span></h2>
-            {!has('social') ? <Lock need="Business ₹399"><div className="space-y-2">{SOCIALS.slice(0,3).map(s=><div key={s.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
+            <h2 className="font-bold text-gray-800 mb-4">🔗 Social Media</h2>
+            {!has('social') ? <Lock need="Business ₹399"><div className="space-y-2">{SOCIALS.map(s=><div key={s.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
               <div className="space-y-3">
-                {socialLinks.slice(0, maxSocial).map((s,i)=>{
-                  const selected = SOCIALS.find(p => p.label === s.platform);
-                  return (
-                  <div key={i} className="flex gap-2 items-center">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-gray-100 border border-gray-200">
-                      {selected ? <PlatformIcon domain={selected.domain} /> : <span className="text-gray-400 text-xs font-bold">?</span>}
-                    </div>
-                    <select value={s.platform} onChange={e=>{const n=[...socialLinks];n[i].platform=e.target.value;setSocialLinks(n);}} className={inp}>
-                      <option value="">Select Platform</option>
-                      {SOCIALS.map(p=><option key={p.key} value={p.label}>{p.label}</option>)}
-                    </select>
-                    <input value={s.url} onChange={e=>{const n=[...socialLinks];n[i].url=e.target.value;setSocialLinks(n);}} placeholder="Profile URL" className={inp}/>
+                {SOCIALS.map(s=>(
+                  <div key={s.key} className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-gray-100 border border-gray-200"><PlatformIcon domain={s.domain} /></div>
+                    <input value={form[s.key]||''} onChange={e=>update(s.key,e.target.value)} placeholder={`${s.label} URL`} className={inp}/>
                   </div>
-                  );
-                })}
-                {socialLinks.length < maxSocial && (
-                  <button onClick={()=>setSocialLinks([...socialLinks,{platform:'',url:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Social Link</button>
-                )}
+                ))}
               </div>
             )}
           </div>
@@ -915,14 +896,11 @@ export default function CreateProfilePage() {
                 </div>
               </div>
               {form.about && has('about') && <div className="mx-3 mb-2 bg-blue-50 rounded-xl p-2.5"><p className="text-xs font-bold text-blue-700 mb-1">About Us</p><p className="text-xs text-gray-600 line-clamp-2">{form.about}</p></div>}
-              {has('social') && socialLinks.some(s=>s.platform && s.url) && (
+              {has('social') && SOCIALS.some(s=>form[s.key]) && (
                 <div className="mx-3 mb-2">
                   <p className="text-xs font-bold text-gray-400 mb-1.5 text-center">Connect With Us</p>
                   <div className="flex justify-center gap-2">
-                    {socialLinks.filter(s=>s.platform && s.url).map((s,i)=>{
-                      const sel = SOCIALS.find(p=>p.label===s.platform);
-                      return sel ? <div key={i} className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 border border-gray-200"><PlatformIcon domain={sel.domain} /></div> : null;
-                    })}
+                    {SOCIALS.map(s=>form[s.key]?<div key={s.key} className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 border border-gray-200"><PlatformIcon domain={s.domain} /></div>:null)}
                   </div>
                 </div>
               )}

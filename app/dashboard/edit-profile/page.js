@@ -19,18 +19,17 @@ const PLAN_FEATURES = {
 };
 const GALLERY_LIMITS = { basic: 0, business: 0, premium: 10, pro: 10 };
 const PRODUCT_LIMITS = { basic: 0, business: 2, premium: 5, pro: 10 };
-const SOCIAL_LIMITS = { basic: 0, business: 3, premium: 5, pro: 8 };
 const BIZ_LIMITS = { basic: 0, business: 0, premium: 3, pro: 6 };
 
 const SOCIALS = [
-  { key: 'facebook', label: 'Facebook', color: '#1877F2', domain: 'facebook.com' },
-  { key: 'instagram', label: 'Instagram', color: '#E4405F', domain: 'instagram.com' },
-  { key: 'youtube', label: 'YouTube', color: '#FF0000', domain: 'youtube.com' },
-  { key: 'linkedin', label: 'LinkedIn', color: '#0A66C2', domain: 'linkedin.com' },
-  { key: 'twitter', label: 'Twitter/X', color: '#000000', domain: 'x.com' },
-  { key: 'threads', label: 'Threads', color: '#000000', domain: 'threads.net' },
-  { key: 'pinterest', label: 'Pinterest', color: '#E60023', domain: 'pinterest.com' },
-  { key: 'telegram', label: 'Telegram', color: '#26A5E4', domain: 'telegram.org' },
+  { key: 'facebook', label: 'Facebook', color: '#1877F2', domain: 'facebook.com', match: 'facebook' },
+  { key: 'instagram', label: 'Instagram', color: '#E4405F', domain: 'instagram.com', match: 'instagram' },
+  { key: 'youtube', label: 'YouTube', color: '#FF0000', domain: 'youtube.com', match: 'youtube' },
+  { key: 'linkedin', label: 'LinkedIn', color: '#0A66C2', domain: 'linkedin.com', match: 'linkedin' },
+  { key: 'twitter', label: 'Twitter/X', color: '#000000', domain: 'x.com', match: 'twitter' },
+  { key: 'threads', label: 'Threads', color: '#000000', domain: 'threads.net', match: 'threads' },
+  { key: 'pinterest', label: 'Pinterest', color: '#E60023', domain: 'pinterest.com', match: 'pinterest' },
+  { key: 'telegram', label: 'Telegram', color: '#26A5E4', domain: 'telegram.org', match: 'telegram' },
 ];
 
 // Business Presence platforms, grouped by category for the dropdown. Each
@@ -121,7 +120,6 @@ export default function EditProfilePage() {
   const [galleryUploading, setGalleryUploading] = useState(false);
 
   const [productItems, setProductItems] = useState([]);
-  const [socialLinks, setSocialLinks] = useState([]);
   const [bizPresence, setBizPresence] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '' });
   const [newProductImageFile, setNewProductImageFile] = useState(null);
@@ -132,6 +130,7 @@ export default function EditProfilePage() {
     full_name: '', designation: '', business_name: '', tagline: '', category: '',
     display_as: 'business', area: '', pincode: '', city: '', state: '', phone: '', whatsapp: '', website: '', about: '', address: '', maps_url: '',
     video_url: '', brochure_url: '',
+    facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '', threads: '', pinterest: '', telegram: '',
   });
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }));
@@ -199,7 +198,11 @@ export default function EditProfilePage() {
     if (userRow?.customer_id) setCustomerId(userRow.customer_id);
 
     const { data: socialRows } = await supabase.from('social_links').select('*').eq('profile_id', p.id);
-    setSocialLinks((socialRows || []).map(r => ({ platform: r.platform || '', url: r.url || '' })));
+    const socialValues = {};
+    SOCIALS.forEach(s => {
+      const row = (socialRows || []).find(r => (r.platform || '').toLowerCase().includes(s.match));
+      socialValues[s.key] = row ? row.url : '';
+    });
 
     let bizRows = [];
     try {
@@ -214,6 +217,7 @@ export default function EditProfilePage() {
       phone: p.phone || '', whatsapp: p.whatsapp || '', website: p.website || '', about: p.about || '',
       address: p.address || '', maps_url: p.maps_url || '',
       video_url: p.video_url || '', brochure_url: p.brochure_url || '',
+      ...socialValues,
     };
     try {
       const savedDraft = localStorage.getItem(DRAFT_KEY);
@@ -276,7 +280,6 @@ export default function EditProfilePage() {
   const has = (f) => (PLAN_FEATURES[plan] || PLAN_FEATURES.basic).includes(f);
   const maxGallery = GALLERY_LIMITS[plan] || 0;
   const maxProducts = PRODUCT_LIMITS[plan] || 0;
-  const maxSocial = SOCIAL_LIMITS[plan] || 0;
   const maxBiz = BIZ_LIMITS[plan] || 0;
 
   const handleImage = (e, type) => {
@@ -313,7 +316,7 @@ export default function EditProfilePage() {
       const res = await fetch('/api/profile/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, logo_url, banner_url, directory_image_url, socialLinks, bizPresence }),
+        body: JSON.stringify({ ...form, logo_url, banner_url, directory_image_url, bizPresence }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Update failed'); setSaving(false); return; }
@@ -548,21 +551,18 @@ export default function EditProfilePage() {
             </div>
           )}
 
-          {socialLinks.some(s => s.platform && s.url) && (
+          {has('social') && SOCIALS.some(s => form[s.key]) && (
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h3 className="font-bold text-gray-800 mb-3">🔗 Social Media</h3>
               <div className="flex gap-3 flex-wrap">
-                {socialLinks.filter(s => s.platform && s.url).map((s,i) => {
-                  const sel = SOCIALS.find(p => p.label === s.platform);
-                  return (
-                    <a key={i} href={s.url} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 border border-gray-200">
-                        {sel ? <PlatformIcon domain={sel.domain} /> : <span className="text-gray-400 text-xs font-bold">?</span>}
-                      </div>
-                      <span className="text-xs text-gray-500">{s.platform}</span>
-                    </a>
-                  );
-                })}
+                {SOCIALS.filter(s => form[s.key]).map(s => (
+                  <a key={s.key} href={form[s.key]} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 border border-gray-200">
+                      <PlatformIcon domain={s.domain} />
+                    </div>
+                    <span className="text-xs text-gray-500">{s.label}</span>
+                  </a>
+                ))}
               </div>
             </div>
           )}
@@ -726,28 +726,15 @@ export default function EditProfilePage() {
             </div>
 
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h2 className="font-bold text-gray-800 mb-4">🔗 Social Media <span className="text-xs text-gray-400 font-normal">(max {maxSocial || 0})</span></h2>
-              {maxSocial === 0 ? <Lock need="Business ₹399"><div className="space-y-2">{SOCIALS.slice(0,3).map(s=><div key={s.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
+              <h2 className="font-bold text-gray-800 mb-4">🔗 Social Media</h2>
+              {!has('social') ? <Lock need="Business ₹399"><div className="space-y-2">{SOCIALS.map(s=><div key={s.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
                 <div className="space-y-3">
-                  {socialLinks.slice(0, maxSocial).map((s,i)=>{
-                    const selected = SOCIALS.find(p => p.label === s.platform);
-                    return (
-                    <div key={i} className="flex gap-2 items-center">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-gray-100 border border-gray-200">
-                        {selected ? <PlatformIcon domain={selected.domain} /> : <span className="text-gray-400 text-xs font-bold">?</span>}
-                      </div>
-                      <select value={s.platform} onChange={e=>{const n=[...socialLinks];n[i]={...n[i],platform:e.target.value};setSocialLinks(n);}} className={inp}>
-                        <option value="">Select Platform</option>
-                        {SOCIALS.map(p=><option key={p.key} value={p.label}>{p.label}</option>)}
-                      </select>
-                      <input value={s.url} onChange={e=>{const n=[...socialLinks];n[i]={...n[i],url:e.target.value};setSocialLinks(n);}} placeholder="Profile URL" className={inp}/>
-                      <button onClick={()=>setSocialLinks(socialLinks.filter((_,idx)=>idx!==i))} className="text-red-500 text-xs px-2 flex-shrink-0">✕</button>
+                  {SOCIALS.map(s=>(
+                    <div key={s.key} className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-gray-100 border border-gray-200"><PlatformIcon domain={s.domain} /></div>
+                      <input value={form[s.key]||''} onChange={e=>update(s.key,e.target.value)} placeholder={`${s.label} URL`} className={inp}/>
                     </div>
-                    );
-                  })}
-                  {socialLinks.length < maxSocial && (
-                    <button onClick={()=>setSocialLinks([...socialLinks,{platform:'',url:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Social Link</button>
-                  )}
+                  ))}
                 </div>
               )}
             </div>
