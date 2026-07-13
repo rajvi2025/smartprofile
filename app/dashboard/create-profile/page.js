@@ -255,6 +255,14 @@ export default function CreateProfilePage() {
     else { setBannerPreview(url); setBannerFile(file); }
   };
 
+  const handleProductImage = (e, i) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const n = [...products];
+    n[i] = { ...n[i], imageFile: file, imagePreview: URL.createObjectURL(file) };
+    setProducts(n);
+  };
+
   const handleGallery = (e) => {
     const files = Array.from(e.target.files).slice(0, maxGallery);
     setGallery(files.map(f => ({ file: f, preview: URL.createObjectURL(f) })));
@@ -313,9 +321,16 @@ export default function CreateProfilePage() {
       }
 
       if (has('products') && products[0].name) {
+        const itemsWithImages = await Promise.all(
+          products.filter(p => p.name).map(async (p) => {
+            let image_url = null;
+            if (p.imageFile) image_url = await uploadImage(p.imageFile, 'products');
+            return { name: p.name, price: p.price, description: p.description, image_url };
+          })
+        );
         await fetch('/api/profile/sections', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profileId, type: 'products', items: products.filter(p => p.name) }),
+          body: JSON.stringify({ profileId, type: 'products', items: itemsWithImages }),
         });
       }
       if (has('biz_presence') && bizPresence[0].url) {
@@ -685,6 +700,15 @@ export default function CreateProfilePage() {
               <div className="space-y-3">
                 {products.slice(0, maxProducts).map((p,i)=>(
                   <div key={i} className="border border-gray-200 rounded-xl p-3 space-y-2">
+                    <div className="flex gap-2 items-center">
+                      <div className="w-14 h-14 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {p.imagePreview ? <img src={p.imagePreview} className="w-full h-full object-cover"/> : <span className="text-gray-300 text-xs">No img</span>}
+                      </div>
+                      <div>
+                        <input type="file" accept="image/*" onChange={e=>handleProductImage(e,i)} className="hidden" id={`product-img-${i}`}/>
+                        <label htmlFor={`product-img-${i}`} className="cursor-pointer text-xs text-blue-600 font-semibold">📤 {p.imagePreview ? 'Change photo' : 'Add photo (optional)'}</label>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-2 gap-2">
                       <input value={p.name} onChange={e=>{const n=[...products];n[i].name=e.target.value;setProducts(n);}} placeholder="Product / Service name" className={inp}/>
                       <input value={p.price} onChange={e=>{const n=[...products];n[i].price=e.target.value;setProducts(n);}} placeholder="Price (₹)" className={inp}/>
@@ -704,6 +728,7 @@ export default function CreateProfilePage() {
             <h2 className="font-bold text-gray-800 mb-4">🖼️ Gallery <span className="text-xs text-gray-400 font-normal">(max {maxGallery || 0} photos)</span></h2>
             {!has('gallery') ? <Lock need="Premium ₹599"><div className="grid grid-cols-3 gap-2">{[1,2,3].map(i=><div key={i} className="aspect-square bg-gray-100 rounded-xl"/>)}</div></Lock> : (
               <>
+                <p className="text-xs text-gray-400 mb-3">Upload photos of your business, products, workspace, or team — whatever helps customers get to know you.</p>
                 <input type="file" accept="image/*" multiple onChange={handleGallery} className="hidden" id="gallery-up"/>
                 <label htmlFor="gallery-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 mb-3">📤 Upload Photos (max {maxGallery})</label>
                 {gallery.length > 0 && (
