@@ -2,6 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  "https://lekyzsyadanghxafpjmh.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
+);
 
 const PLANS = [
   { id: 'basic', name: 'Basic', price: '₹199', amount: 199, color: 'bg-green-500', border: 'border-green-500', features: ['logo','name','phone','whatsapp','email','website','vcf','qr','about'] },
@@ -59,6 +65,12 @@ export default function CreateProfilePage() {
   const [bannerFile, setBannerFile] = useState(null);
   const [showCheckout, setShowCheckout] = useState(false);
 
+  // ---- Coupon state ----
+  const [couponCode, setCouponCode] = useState('');
+  const [couponChecking, setCouponChecking] = useState(false);
+  const [couponError, setCouponError] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null); // { id, code, discountAmount }
+
   const [products, setProducts] = useState([{ name: '', price: '', description: '' }]);
   const [services, setServices] = useState([{ name: '', price: '', description: '' }]);
   const [gallery, setGallery] = useState([]);
@@ -109,6 +121,85 @@ export default function CreateProfilePage() {
   if (!session) { router.push('/login'); return null; }
 
   const plan = PLANS.find(p => p.id === planId);
+
+  // Final payable amount after coupon discount (never below ₹1, Razorpay doesn't allow ₹0 orders)
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const finalAmount = Math.max(1, Math.round((plan.amount - discountAmount) * 100) / 100);
+
+  async function handleApplyCoupon() {
+    setCouponError('');
+    setAppliedCoupon(null);
+    const code = couponCode.trim().toUpperCase();
+    if (!code) { setCouponError('Please enter a coupon code.'); return; }
+
+    setCouponChecking(true);
+    try {
+      const { data: coupon, error: fetchErr } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('code', code)
+        .single();
+
+      if (fetchErr || !coupon) { setCouponError('This coupon code is not valid.'); setCouponChecking(false); return; }
+      if (!coupon.is_active) { setCouponError('This coupon is not active.'); setCouponChecking(false); return; }
+
+      const now = new Date();
+      if (coupon.valid_from && new Date(coupon.valid_from) > now) { setCouponError('This coupon is not active yet.'); setCouponChecking(false); return; }
+      if (coupon.valid_until && new Date(coupon.valid_until) < now) { setCouponError('This coupon has expired.'); setCouponChecking(false); return; }
+
+      if (coupon.applicable_product && coupon.applicable_product !== 'all' && coupon.applicable_product !== 'digital_card') {
+        setCouponError('This coupon is not valid for Digital Card plans.'); setCouponChecking(false); return;
+      }
+      if (coupon.applicable_plans && coupon.applicable_plans.length > 0 && !coupon.applicable_plans.includes(planId)) {
+        setCouponError('This coupon is not valid for this plan.'); setCouponChecking(false); return;
+      }
+      if (coupon.min_order_value && plan.amount < Number(coupon.min_order_value)) {
+        setCouponError(`A minimum order of ₹${coupon.min_order_value} is required for this coupon.`); setCouponChecking(false); return;
+      }
+
+      // Usage limit checks
+      if (coupon.usage_type === 'single_use' && (coupon.used_count || 0) >= 1) {
+        setCouponError('This coupon has already been fully used.'); setCouponChecking(false); return;
+      }
+      if (coupon.usage_type === 'limited' && coupon.max_uses && (coupon.used_count || 0) >= coupon.max_uses) {
+        setCouponError('This coupon has reached its usage limit.'); setCouponChecking(false); return;
+      }
+
+      // Per-user limit check
+      const userEmail = form.email || session?.user?.email;
+      if (userEmail) {
+        const { count: userUseCount } = await supabase
+          .from('coupon_redemptions')
+          .select('id', { count: 'exact', head: true })
+          .eq('coupon_id', coupon.id)
+          .eq('email', userEmail);
+        if (coupon.per_user_limit && (userUseCount || 0) >= coupon.per_user_limit) {
+          setCouponError('You have already used this coupon.'); setCouponChecking(false); return;
+        }
+      }
+
+      // Calculate discount
+      let discount = coupon.type === 'percentage'
+        ? (Number(coupon.value) / 100) * plan.amount
+        : Number(coupon.value);
+      if (coupon.max_discount_cap && discount > Number(coupon.max_discount_cap)) {
+        discount = Number(coupon.max_discount_cap);
+      }
+      discount = Math.min(discount, plan.amount); // never discount more than the order itself
+      discount = Math.round(discount * 100) / 100;
+
+      setAppliedCoupon({ id: coupon.id, code: coupon.code, discountAmount: discount });
+    } catch {
+      setCouponError('Something went wrong. Please try again.');
+    }
+    setCouponChecking(false);
+  }
+
+  function removeCoupon() {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError('');
+  }
   const has = (f) => plan.features.includes(f);
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }));
 
@@ -153,15 +244,35 @@ export default function CreateProfilePage() {
       const res = await fetch('/api/profile/create', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...form, theme: theme.id, plan: planId, logo_url, banner_url, amount_paid: plan.amount,
+          ...form, theme: theme.id, plan: planId, logo_url, banner_url, amount_paid: finalAmount,
           razorpay_order_id: paymentDetails?.razorpay_order_id || null,
           razorpay_payment_id: paymentDetails?.razorpay_payment_id || null,
+          coupon_code: appliedCoupon ? appliedCoupon.code : null,
         }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Error'); setLoading(false); return; }
 
       const profileId = data.profile.id;
+
+      // Record coupon redemption + bump used_count — only after the profile
+      // (and its payments-table row) was actually created successfully.
+      if (appliedCoupon) {
+        try {
+          await supabase.from('coupon_redemptions').insert([{
+            coupon_id: appliedCoupon.id,
+            profile_id: profileId,
+            email: form.email || session?.user?.email,
+            order_amount: plan.amount,
+            discount_amount: appliedCoupon.discountAmount,
+            final_amount: finalAmount,
+            razorpay_order_id: paymentDetails?.razorpay_order_id || null,
+          }]);
+          await supabase.rpc('increment_coupon_usage', { coupon_id_input: appliedCoupon.id });
+        } catch {
+          // Non-critical — the account/profile already succeeded, don't block the user for this
+        }
+      }
 
       if (has('products') && products[0].name) {
         await fetch('/api/profile/sections', {
@@ -219,7 +330,7 @@ export default function CreateProfilePage() {
       const orderRes = await fetch('/api/razorpay/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: plan.amount, planId: plan.id, username: form.username }),
+        body: JSON.stringify({ amount: finalAmount, planId: plan.id, username: form.username }),
       });
       const orderData = await orderRes.json();
       if (!orderRes.ok || !orderData.order) {
@@ -319,13 +430,56 @@ export default function CreateProfilePage() {
           <div className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> {form.business_name}</div>
           <div className="flex items-center gap-2"><span className="text-green-500 font-bold">✓</span> All {plan.name} features · 1 Year</div>
         </div>
+
+        {/* Coupon code */}
+        <div className="mb-5">
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">🏷️ Have a Coupon?</p>
+          {appliedCoupon ? (
+            <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+              <div>
+                <span className="text-green-700 font-bold text-sm">{appliedCoupon.code}</span>
+                <span className="text-green-600 text-xs ml-2">applied — you saved ₹{appliedCoupon.discountAmount.toFixed(2)}</span>
+              </div>
+              <button onClick={removeCoupon} className="text-red-500 text-xs font-semibold">Remove</button>
+            </div>
+          ) : (
+            <div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={e => setCouponCode(e.target.value)}
+                  placeholder="Enter coupon code"
+                  className="flex-1 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 uppercase"
+                />
+                <button
+                  onClick={handleApplyCoupon}
+                  disabled={couponChecking}
+                  className="bg-gray-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl disabled:opacity-60"
+                >
+                  {couponChecking ? '...' : 'Apply'}
+                </button>
+              </div>
+              {couponError && <p className="text-red-500 text-xs mt-2">{couponError}</p>}
+            </div>
+          )}
+        </div>
+
+        {appliedCoupon && (
+          <div className="space-y-1.5 mb-5 text-sm bg-gray-50 rounded-xl p-4">
+            <div className="flex justify-between text-gray-600"><span>Plan price</span><span>₹{plan.amount}</span></div>
+            <div className="flex justify-between text-green-600"><span>Coupon ({appliedCoupon.code})</span><span>− ₹{appliedCoupon.discountAmount.toFixed(2)}</span></div>
+            <div className="border-t pt-1.5 flex justify-between font-bold text-gray-900"><span>You Pay</span><span>₹{finalAmount.toFixed(2)}</span></div>
+          </div>
+        )}
+
         {error && <div className="bg-red-50 border border-red-300 text-red-600 rounded-xl p-3 mb-4 text-sm text-center">{error}</div>}
         <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-5 text-center">
           <p className="text-xs text-green-700 font-semibold">🔒 Secure payment powered by Razorpay</p>
         </div>
         <button onClick={handlePayment} disabled={loading}
           className={`w-full ${plan.color} text-white font-bold py-4 rounded-2xl text-lg hover:opacity-90 shadow-lg disabled:opacity-60`}>
-          {loading ? '⏳ Processing...' : `✅ Pay ${plan.price} & Create Profile`}
+          {loading ? '⏳ Processing...' : `✅ Pay ₹${finalAmount.toFixed(2)} & Create Profile`}
         </button>
         <button onClick={() => { setShowCheckout(false); setError(''); }} className="w-full mt-3 text-gray-400 text-sm">← Back to Edit</button>
       </div>
@@ -352,7 +506,7 @@ export default function CreateProfilePage() {
             <h2 className="font-bold text-gray-800 mb-4">💎 Choose Your Plan</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {PLANS.map(p => (
-                <button key={p.id} onClick={() => setPlanId(p.id)}
+                <button key={p.id} onClick={() => { setPlanId(p.id); setAppliedCoupon(null); setCouponError(''); setCouponCode(''); }}
                   className={`rounded-xl p-3 border-2 transition-all text-center ${planId === p.id ? `${p.border} bg-blue-50` : 'border-gray-200'}`}>
                   <div className={`${p.color} text-white text-xs font-bold px-2 py-1 rounded-lg mb-2`}>{p.name}</div>
                   <div className="font-bold text-gray-800">{p.price}</div>

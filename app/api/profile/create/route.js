@@ -22,7 +22,7 @@ export async function POST(request) {
       tagline, video_url, brochure_url,
       facebook, instagram, youtube, linkedin, twitter,
       amount_paid,
-      razorpay_order_id, razorpay_payment_id,
+      razorpay_order_id, razorpay_payment_id, coupon_code,
     } = body;
 
     if (!username || username.length < 3) {
@@ -108,7 +108,7 @@ export async function POST(request) {
         amount: amount_paid ?? 0,
         razorpay_order_id: razorpay_order_id || null,
         razorpay_payment_id: razorpay_payment_id || null,
-        coupon_code: null,
+        coupon_code: coupon_code || null,
       }]);
 
     if (paymentError) {
