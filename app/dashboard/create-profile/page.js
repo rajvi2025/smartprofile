@@ -74,13 +74,12 @@ export default function CreateProfilePage() {
   const [products, setProducts] = useState([{ name: '', price: '', description: '' }]);
   const [services, setServices] = useState([{ name: '', price: '', description: '' }]);
   const [gallery, setGallery] = useState([]);
-  const [testimonials, setTestimonials] = useState([{ name: '', rating: 5, text: '' }]);
   const [bizPresence, setBizPresence] = useState([{ platform: '', url: '' }]);
 
   const [form, setForm] = useState({
     username: '', full_name: '', designation: '', business_name: '',
     tagline: '', category: '', phone: '', whatsapp: '', email: '',
-    website: '', address: '', area: '', pincode: '', city: '', state: '', about: '', maps_url: '',
+    website: '', address: '', area: '', pincode: '', city: '', state: '', about: '', maps_url: '', display_as: 'business',
     facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '',
     video_url: '', brochure_url: '',
   });
@@ -248,7 +247,6 @@ export default function CreateProfilePage() {
   const maxProducts = planId === 'business' ? 2 : planId === 'premium' ? 5 : planId === 'pro' ? 10 : 0;
   const maxServices = planId === 'business' ? 2 : planId === 'premium' ? 5 : planId === 'pro' ? 10 : 0;
   const maxGallery = planId === 'premium' ? 10 : planId === 'pro' ? 20 : 0;
-  const maxTestimonials = planId === 'business' ? 2 : planId === 'premium' ? 5 : planId === 'pro' ? 10 : 0;
   const maxBiz = planId === 'premium' ? 3 : planId === 'pro' ? 6 : 0;
 
   const handleImage = (e, type) => {
@@ -326,12 +324,6 @@ export default function CreateProfilePage() {
         await fetch('/api/profile/sections', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profileId, type: 'services', items: services.filter(s => s.name) }),
-        });
-      }
-      if (has('testimonials') && testimonials[0].name) {
-        await fetch('/api/profile/sections', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profileId, type: 'testimonials', items: testimonials.filter(t => t.name) }),
         });
       }
       if (has('biz_presence') && bizPresence[0].url) {
@@ -580,6 +572,74 @@ export default function CreateProfilePage() {
                 <div><label className={lbl}>Category</label><input value={form.category} onChange={e=>update('category',e.target.value)} placeholder="Real Estate" className={inp}/></div>
               </div>
               <div>
+                <label className={lbl}>This Digital Card is for</label>
+                <div className="flex gap-3">
+                  <label className={`flex-1 flex items-center gap-2 border-[1.5px] rounded-xl px-4 py-3 text-sm cursor-pointer ${form.display_as === 'personal' ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold' : 'border-gray-200 bg-gray-50 text-gray-600'}`}>
+                    <input type="checkbox" checked={form.display_as === 'personal'} onChange={()=>update('display_as','personal')} className="w-4 h-4 accent-blue-600"/>
+                    Personal ({form.full_name || 'Your Name'})
+                  </label>
+                  <label className={`flex-1 flex items-center gap-2 border-[1.5px] rounded-xl px-4 py-3 text-sm cursor-pointer ${form.display_as === 'business' ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold' : 'border-gray-200 bg-gray-50 text-gray-600'}`}>
+                    <input type="checkbox" checked={form.display_as === 'business'} onChange={()=>update('display_as','business')} className="w-4 h-4 accent-blue-600"/>
+                    Business ({form.business_name || 'Business Name'})
+                  </label>
+                </div>
+                <p className="text-[11px] text-gray-400 mt-2">Which name shows prominently on your Digital Card. Directory listing always shows Business Name — this only affects the Digital Card.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Logo */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">📷 Logo / Photo</h2>
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-full border-4 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {logoPreview ? <img src={logoPreview} className="w-full h-full object-cover"/> : <span className="text-3xl">🏢</span>}
+              </div>
+              <div>
+                <input type="file" accept="image/*" onChange={e=>handleImage(e,'logo')} className="hidden" id="logo-up"/>
+                <label htmlFor="logo-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 Upload Logo</label>
+                {logoPreview && <p className="text-xs text-green-600 mt-1">✓ Logo ready!</p>}
+              </div>
+            </div>
+          </div>
+
+          {/* Banner */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">🖼️ Cover Banner</h2>
+            {!has('banner') ? <Lock need="Business ₹399"><div className="h-28 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold">Your Banner Here</div></Lock> : (
+              <>
+                <div className="w-full h-28 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
+                  {bannerPreview ? <img src={bannerPreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload banner image</span>}
+                </div>
+                <input type="file" accept="image/*" onChange={e=>handleImage(e,'banner')} className="hidden" id="banner-up"/>
+                <label htmlFor="banner-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 Upload Banner</label>
+                {bannerPreview && <span className="ml-2 text-xs text-green-600 font-semibold">✓ Banner ready!</span>}
+              </>
+            )}
+          </div>
+
+          {/* Contact */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">📞 Contact</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div><label className={lbl}>Phone *</label><input value={form.phone} onChange={e=>update('phone',e.target.value)} placeholder="+91 98765 43210" className={inp}/></div>
+              <div><label className={lbl}>WhatsApp</label><input value={form.whatsapp} onChange={e=>update('whatsapp',e.target.value)} placeholder="919876543210" className={inp}/></div>
+              <div>
+                <label className={lbl}>Email</label>
+                <input value={form.email} disabled readOnly placeholder="you@email.com" className={inp + ' bg-gray-100 text-gray-500 cursor-not-allowed'}/>
+                <p className="text-[11px] text-gray-400 mt-1">This is your account email — it can't be changed here. Contact support to update it.</p>
+              </div>
+              <div><label className={lbl}>Website</label><input value={form.website} onChange={e=>update('website',e.target.value)} placeholder="https://yoursite.com" className={inp}/></div>
+            </div>
+          </div>
+
+          {/* Location & Address — always visible on every plan, since the free
+              Directory Listing needs City at minimum to build its URL. */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-4">📍 Location & Address</h2>
+            <div className="space-y-3">
+              <div><label className={lbl}>Address</label><input value={form.address} onChange={e=>update('address',e.target.value)} placeholder="Shop No. 12, City Center..." className={inp}/></div>
+              <div>
                 <label className={lbl}>Area / Locality</label>
                 <input value={form.area} onChange={e=>update('area',e.target.value)} placeholder="e.g. Mira Road" className={inp}/>
               </div>
@@ -599,63 +659,15 @@ export default function CreateProfilePage() {
               </div>
               {pincodeLoading && <p className="text-xs text-blue-500">Looking up pincode…</p>}
               {pincodeError && <p className="text-xs text-amber-600">{pincodeError}</p>}
+              <div><label className={lbl}>Google Maps URL</label><input value={form.maps_url} onChange={e=>update('maps_url',e.target.value)} placeholder="https://maps.google.com/..." className={inp}/></div>
             </div>
           </div>
 
-          {/* Logo */}
+          {/* About Us */}
           <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-gray-800 mb-4">📷 Logo / Photo</h2>
-            <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full border-4 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
-                {logoPreview ? <img src={logoPreview} className="w-full h-full object-cover"/> : <span className="text-3xl">🏢</span>}
-              </div>
-              <div>
-                <input type="file" accept="image/*" onChange={e=>handleImage(e,'logo')} className="hidden" id="logo-up"/>
-                <label htmlFor="logo-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 Upload Logo</label>
-                {logoPreview && <p className="text-xs text-green-600 mt-1">✓ Logo ready!</p>}
-              </div>
-            </div>
-          </div>
-
-          {/* Contact */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-gray-800 mb-4">📞 Contact</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div><label className={lbl}>Phone *</label><input value={form.phone} onChange={e=>update('phone',e.target.value)} placeholder="+91 98765 43210" className={inp}/></div>
-              <div><label className={lbl}>WhatsApp</label><input value={form.whatsapp} onChange={e=>update('whatsapp',e.target.value)} placeholder="919876543210" className={inp}/></div>
-              <div>
-                <label className={lbl}>Email</label>
-                <input value={form.email} disabled readOnly placeholder="you@email.com" className={inp + ' bg-gray-100 text-gray-500 cursor-not-allowed'}/>
-                <p className="text-[11px] text-gray-400 mt-1">This is your account email — it can't be changed here. Contact support to update it.</p>
-              </div>
-              <div><label className={lbl}>Website</label><input value={form.website} onChange={e=>update('website',e.target.value)} placeholder="https://yoursite.com" className={inp}/></div>
-            </div>
-          </div>
-
-          {/* Banner */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-gray-800 mb-4">🖼️ Cover Banner</h2>
-            {!has('banner') ? <Lock need="Business ₹399"><div className="h-28 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold">Your Banner Here</div></Lock> : (
-              <>
-                <div className="w-full h-28 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
-                  {bannerPreview ? <img src={bannerPreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload banner image</span>}
-                </div>
-                <input type="file" accept="image/*" onChange={e=>handleImage(e,'banner')} className="hidden" id="banner-up"/>
-                <label htmlFor="banner-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 Upload Banner</label>
-                {bannerPreview && <span className="ml-2 text-xs text-green-600 font-semibold">✓ Banner ready!</span>}
-              </>
-            )}
-          </div>
-
-          {/* About & Address */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-gray-800 mb-4">📍 About & Address</h2>
-            {!has('about') ? <Lock need="Business ₹399"><div className="space-y-3"><div className="h-20 bg-gray-100 rounded-xl"/><div className="h-12 bg-gray-100 rounded-xl"/></div></Lock> : (
-              <div className="space-y-3">
-                <div><label className={lbl}>About Us</label><textarea value={form.about} onChange={e=>update('about',e.target.value)} rows={3} placeholder="About your business..." className={inp+' resize-none'}/></div>
-                <div><label className={lbl}>Address</label><input value={form.address} onChange={e=>update('address',e.target.value)} placeholder="Shop No. 12, City Center..." className={inp}/></div>
-                <div><label className={lbl}>Google Maps URL</label><input value={form.maps_url} onChange={e=>update('maps_url',e.target.value)} placeholder="https://maps.google.com/..." className={inp}/></div>
-              </div>
+            <h2 className="font-bold text-gray-800 mb-4">📝 About Us</h2>
+            {!has('about') ? <Lock need="Business ₹399"><div className="h-20 bg-gray-100 rounded-xl"/></Lock> : (
+              <textarea value={form.about} onChange={e=>update('about',e.target.value)} rows={3} placeholder="About your business..." className={inp+' resize-none'}/>
             )}
           </div>
 
@@ -729,29 +741,6 @@ export default function CreateProfilePage() {
                   </div>
                 )}
               </>
-            )}
-          </div>
-
-          {/* Testimonials */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-gray-800 mb-4">💬 Testimonials <span className="text-xs text-gray-400 font-normal">(max {maxTestimonials || 0})</span></h2>
-            {!has('testimonials') ? <Lock need="Business ₹399"><div className="space-y-2"><div className="h-20 bg-gray-100 rounded-xl"/></div></Lock> : (
-              <div className="space-y-3">
-                {testimonials.slice(0, maxTestimonials).map((t,i)=>(
-                  <div key={i} className="border border-gray-200 rounded-xl p-3 space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <input value={t.name} onChange={e=>{const n=[...testimonials];n[i].name=e.target.value;setTestimonials(n);}} placeholder="Customer name" className={inp}/>
-                      <select value={t.rating} onChange={e=>{const n=[...testimonials];n[i].rating=Number(e.target.value);setTestimonials(n);}} className={inp}>
-                        {[5,4,3,2,1].map(r=><option key={r} value={r}>{'⭐'.repeat(r)} {r} Star</option>)}
-                      </select>
-                    </div>
-                    <textarea value={t.text} onChange={e=>{const n=[...testimonials];n[i].text=e.target.value;setTestimonials(n);}} placeholder="What did they say?" rows={2} className={inp+' resize-none'}/>
-                  </div>
-                ))}
-                {testimonials.length < maxTestimonials && (
-                  <button onClick={()=>setTestimonials([...testimonials,{name:'',rating:5,text:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Testimonial</button>
-                )}
-              </div>
             )}
           </div>
 
@@ -858,12 +847,6 @@ export default function CreateProfilePage() {
                   <div className="grid grid-cols-2 gap-1.5">
                     {products.filter(p=>p.name).slice(0,2).map((p,i)=><div key={i} className="border border-gray-100 rounded-lg p-2"><p className="text-xs font-semibold">{p.name}</p>{p.price&&<p className="text-xs text-blue-600">₹{p.price}</p>}</div>)}
                   </div>
-                </div>
-              )}
-              {has('testimonials') && testimonials.some(t=>t.name) && (
-                <div className="mx-3 mb-2">
-                  <p className="text-xs font-bold text-gray-700 mb-1.5">💬 Testimonials</p>
-                  {testimonials.filter(t=>t.name).slice(0,1).map((t,i)=><div key={i} className="bg-gray-50 rounded-lg p-2"><p className="text-xs italic text-gray-600">"{t.text}"</p><p className="text-xs font-bold mt-1">— {t.name}</p></div>)}
                 </div>
               )}
               <div className="mx-3 mb-3"><div className="bg-gray-900 rounded-xl py-2.5 text-center text-white text-xs font-bold">💾 Save Contact</div></div>
