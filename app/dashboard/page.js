@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [planInfo, setPlanInfo] = useState(null);
+  const [hasProfile, setHasProfile] = useState(null); // null = still loading, true/false once known
   const [customerId, setCustomerId] = useState(null);
 
   useEffect(() => {
@@ -38,7 +39,12 @@ export default function DashboardPage() {
         .select('plan, plan_start_date, plan_end_date, username')
         .eq('user_id', session.user.id)
         .single();
-      if (data) setPlanInfo(data);
+      if (data) {
+        setPlanInfo(data);
+        setHasProfile(true);
+      } else {
+        setHasProfile(false);
+      }
     }
     async function loadCustomerId() {
       const { data } = await supabase
@@ -81,10 +87,10 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div onClick={() => router.push('/dashboard/edit-profile')} className="bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer hover:shadow-md transition">
+          <div onClick={() => router.push(hasProfile === false ? '/dashboard/create-profile' : '/dashboard/edit-profile')} className="bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer hover:shadow-md transition">
             <div className="text-3xl mb-2">👤</div>
             <p className="font-semibold text-gray-800">My Profile</p>
-            <p className="text-xs text-gray-500 mt-1">Edit your profile</p>
+            <p className="text-xs text-gray-500 mt-1">{hasProfile === false ? 'Create your profile' : 'Edit your profile'}</p>
           </div>
         <div onClick={() => router.push('/dashboard/analytics')} className="bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer hover:shadow-md transition">
             <div className="text-3xl mb-2">📊</div>
@@ -92,23 +98,32 @@ export default function DashboardPage() {
             <p className="text-xs text-gray-500 mt-1">View profile stats</p>
           </div>
 
-          {/* My Plan — now shows real plan, price and renewal date, plus an Upgrade CTA */}
+          {/* My Plan — shows real plan/price/renewal date if a profile exists;
+              otherwise shows a "no active plan" state and sends the person to
+              choose a plan (create-profile) instead of the upgrade page,
+              which only makes sense for someone who already has a plan. */}
           <div className="bg-white rounded-2xl p-6 shadow-sm text-center hover:shadow-md transition col-span-2 md:col-span-1">
-            <div onClick={() => router.push('/dashboard/edit-profile')} className="cursor-pointer">
+            <div onClick={() => router.push(hasProfile === false ? '/dashboard/create-profile' : '/dashboard/edit-profile')} className="cursor-pointer">
               <div className="text-3xl mb-2">💳</div>
               <p className="font-semibold text-gray-800">My Plan</p>
-              <p className="text-xs text-orange-500 mt-1 font-semibold">
-                {PLAN_LABELS[planKey] || planKey} {PLAN_PRICES[planKey] || ''}
-              </p>
-              {planInfo?.plan_end_date && (
-                <p className="text-[11px] text-gray-400 mt-1">Renews: {formatDate(planInfo.plan_end_date)}</p>
+              {hasProfile === false ? (
+                <p className="text-xs text-gray-400 mt-1 font-semibold">No active plan yet</p>
+              ) : (
+                <>
+                  <p className="text-xs text-orange-500 mt-1 font-semibold">
+                    {PLAN_LABELS[planKey] || planKey} {PLAN_PRICES[planKey] || ''}
+                  </p>
+                  {planInfo?.plan_end_date && (
+                    <p className="text-[11px] text-gray-400 mt-1">Renews: {formatDate(planInfo.plan_end_date)}</p>
+                  )}
+                </>
               )}
             </div>
             <button
-              onClick={() => router.push('/dashboard/upgrade-plan')}
+              onClick={() => router.push(hasProfile === false ? '/dashboard/create-profile' : '/dashboard/upgrade-plan')}
               className="mt-3 w-full bg-blue-600 text-white text-xs font-semibold py-2 rounded-lg hover:bg-blue-700"
             >
-              🚀 Upgrade Plan
+              {hasProfile === false ? '✨ Choose a Plan' : '🚀 Upgrade Plan'}
             </button>
           </div>
 
