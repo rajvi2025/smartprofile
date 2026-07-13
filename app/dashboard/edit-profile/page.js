@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { createClient } from '@supabase/supabase-js';
@@ -256,8 +256,17 @@ export default function EditProfilePage() {
     setLoadingData(false);
   };
 
+  // NextAuth refreshes the session object whenever the browser tab regains
+  // focus (e.g. switching tabs to copy a URL and coming back). That used to
+  // re-run loadProfile() every time, silently overwriting whatever the
+  // customer was mid-typing (like a Business Presence entry) with the old
+  // saved data — this guard makes sure the profile is only loaded once per
+  // visit to this page, not every time the session object changes.
+  const hasLoadedRef = useRef(false);
   useEffect(() => {
     if (status !== 'authenticated') return;
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
     loadProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session]);
