@@ -180,7 +180,17 @@ export default function EditProfilePage() {
     };
     try {
       const savedDraft = localStorage.getItem(DRAFT_KEY);
-      if (savedDraft) restoredForm = { ...restoredForm, ...JSON.parse(savedDraft) };
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        // Only bring over fields that actually have a non-empty value in the
+        // draft. A stale/blank draft (e.g. saved from a session where fields
+        // were left empty) must never overwrite real data just loaded from
+        // the database.
+        const nonEmptyDraft = Object.fromEntries(
+          Object.entries(draft).filter(([, v]) => v !== '' && v !== null && v !== undefined)
+        );
+        restoredForm = { ...restoredForm, ...nonEmptyDraft };
+      }
     } catch (e) {}
     setForm(restoredForm);
 
