@@ -160,7 +160,7 @@ export default function AdminCouponsPage() {
                 <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={inputStyle}>
                   <option value="percentage">Percentage (%)</option>
                   <option value="flat">Flat Amount (₹)</option>
-                  <option value="final_price">Final Price (₹) — same price on every plan</option>
+                  <option value="final_price">Final Price (₹)</option>
                 </select>
               </div>
 
