@@ -822,8 +822,11 @@ export default function CreateProfilePage() {
                 </div>
               </div>
               <div className="pt-10 pb-2 px-3 text-center">
-                <h2 className="font-bold text-gray-900 text-sm">{form.business_name||'Business Name'}</h2>
-                {(form.full_name||form.designation) && <p className="text-xs mt-0.5 font-semibold" style={{color:theme.accent}}>{form.full_name}{form.designation?` · ${form.designation}`:''}</p>}
+                <h2 className="font-bold text-gray-900 text-sm">{form.display_as === 'personal' ? (form.full_name || 'Your Name') : (form.business_name || 'Business Name')}</h2>
+                {form.display_as === 'personal'
+                  ? (form.business_name && <p className="text-xs mt-0.5 font-semibold" style={{color:theme.accent}}>{form.business_name}{form.designation?` · ${form.designation}`:''}</p>)
+                  : ((form.full_name||form.designation) && <p className="text-xs mt-0.5 font-semibold" style={{color:theme.accent}}>{form.full_name}{form.designation?` · ${form.designation}`:''}</p>)
+                }
                 {form.city && <p className="text-xs text-gray-400 mt-0.5">📍 {form.city}</p>}
                 {form.tagline && <p className="text-xs text-gray-400 mt-0.5 italic">"{form.tagline}"</p>}
               </div>
