@@ -1,5 +1,5 @@
 ﻿'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { createClient } from '@supabase/supabase-js';
@@ -149,7 +149,25 @@ export default function CreateProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [pincodeLoading, setPincodeLoading] = useState(false);
+  // If the customer just came from the Spin & Win page and won a coupon,
+  // auto-fill and auto-apply it here so they don't have to type it in —
+  // it was stashed in localStorage right when they won.
+  const spinCouponAppliedRef = useRef(false);
+  useEffect(() => {
+    if (spinCouponAppliedRef.current) return;
+    try {
+      const spinCode = localStorage.getItem('smartprofile_spin_coupon');
+      if (spinCode) {
+        spinCouponAppliedRef.current = true;
+        setCouponCode(spinCode);
+        localStorage.removeItem('smartprofile_spin_coupon');
+        // Give state a tick to settle before applying — handleApplyCoupon
+        // reads couponCode fresh from a subsequent render.
+        setTimeout(() => { handleApplyCoupon(); }, 0);
+      }
+    } catch (e) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [pincodeError, setPincodeError] = useState('');
 
   // Looks up City/State from a 6-digit Indian PIN code using the free
@@ -264,13 +282,20 @@ export default function CreateProfilePage() {
       }
 
       // Calculate discount
-      let discount = coupon.type === 'percentage'
-        ? (Number(coupon.value) / 100) * plan.amount
-        : Number(coupon.value);
+      let discount;
+      if (coupon.type === 'percentage') {
+        discount = (Number(coupon.value) / 100) * plan.amount;
+      } else if (coupon.type === 'final_price') {
+        // Discount is whatever brings this plan's price down to the coupon's
+        // target final price — same amount payable no matter which plan.
+        discount = plan.amount - Number(coupon.value);
+      } else {
+        discount = Number(coupon.value);
+      }
       if (coupon.max_discount_cap && discount > Number(coupon.max_discount_cap)) {
         discount = Number(coupon.max_discount_cap);
       }
-      discount = Math.min(discount, plan.amount); // never discount more than the order itself
+      discount = Math.max(0, Math.min(discount, plan.amount)); // never negative, never more than the order itself
       discount = Math.round(discount * 100) / 100;
 
       setAppliedCoupon({ id: coupon.id, code: coupon.code, discountAmount: discount });
