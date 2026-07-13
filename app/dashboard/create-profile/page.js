@@ -72,7 +72,6 @@ export default function CreateProfilePage() {
   const [appliedCoupon, setAppliedCoupon] = useState(null); // { id, code, discountAmount }
 
   const [products, setProducts] = useState([{ name: '', price: '', description: '' }]);
-  const [services, setServices] = useState([{ name: '', price: '', description: '' }]);
   const [gallery, setGallery] = useState([]);
   const [bizPresence, setBizPresence] = useState([{ platform: '', url: '' }]);
 
@@ -245,7 +244,6 @@ export default function CreateProfilePage() {
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }));
 
   const maxProducts = planId === 'business' ? 2 : planId === 'premium' ? 5 : planId === 'pro' ? 10 : 0;
-  const maxServices = planId === 'business' ? 2 : planId === 'premium' ? 5 : planId === 'pro' ? 10 : 0;
   const maxGallery = planId === 'premium' ? 10 : planId === 'pro' ? 20 : 0;
   const maxBiz = planId === 'premium' ? 3 : planId === 'pro' ? 6 : 0;
 
@@ -318,12 +316,6 @@ export default function CreateProfilePage() {
         await fetch('/api/profile/sections', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profileId, type: 'products', items: products.filter(p => p.name) }),
-        });
-      }
-      if (has('services') && services[0].name) {
-        await fetch('/api/profile/sections', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profileId, type: 'services', items: services.filter(s => s.name) }),
         });
       }
       if (has('biz_presence') && bizPresence[0].url) {
@@ -686,43 +678,22 @@ export default function CreateProfilePage() {
             )}
           </div>
 
-          {/* Products */}
+          {/* Product / Service */}
           <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-gray-800 mb-4">📦 Products <span className="text-xs text-gray-400 font-normal">(max {maxProducts || 0})</span></h2>
+            <h2 className="font-bold text-gray-800 mb-4">📦 Product / Service <span className="text-xs text-gray-400 font-normal">(max {maxProducts || 0})</span></h2>
             {!has('products') ? <Lock need="Business ₹399"><div className="space-y-2"><div className="h-16 bg-gray-100 rounded-xl"/><div className="h-16 bg-gray-100 rounded-xl"/></div></Lock> : (
               <div className="space-y-3">
                 {products.slice(0, maxProducts).map((p,i)=>(
                   <div key={i} className="border border-gray-200 rounded-xl p-3 space-y-2">
                     <div className="grid grid-cols-2 gap-2">
-                      <input value={p.name} onChange={e=>{const n=[...products];n[i].name=e.target.value;setProducts(n);}} placeholder="Product name" className={inp}/>
+                      <input value={p.name} onChange={e=>{const n=[...products];n[i].name=e.target.value;setProducts(n);}} placeholder="Product / Service name" className={inp}/>
                       <input value={p.price} onChange={e=>{const n=[...products];n[i].price=e.target.value;setProducts(n);}} placeholder="Price (₹)" className={inp}/>
                     </div>
                     <input value={p.description} onChange={e=>{const n=[...products];n[i].description=e.target.value;setProducts(n);}} placeholder="Description" className={inp}/>
                   </div>
                 ))}
                 {products.length < maxProducts && (
-                  <button onClick={()=>setProducts([...products,{name:'',price:'',description:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Product</button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Services */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-bold text-gray-800 mb-4">⚙️ Services <span className="text-xs text-gray-400 font-normal">(max {maxServices || 0})</span></h2>
-            {!has('services') ? <Lock need="Business ₹399"><div className="space-y-2"><div className="h-16 bg-gray-100 rounded-xl"/><div className="h-16 bg-gray-100 rounded-xl"/></div></Lock> : (
-              <div className="space-y-3">
-                {services.slice(0, maxServices).map((s,i)=>(
-                  <div key={i} className="border border-gray-200 rounded-xl p-3 space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <input value={s.name} onChange={e=>{const n=[...services];n[i].name=e.target.value;setServices(n);}} placeholder="Service name" className={inp}/>
-                      <input value={s.price} onChange={e=>{const n=[...services];n[i].price=e.target.value;setServices(n);}} placeholder="Price (₹)" className={inp}/>
-                    </div>
-                    <input value={s.description} onChange={e=>{const n=[...services];n[i].description=e.target.value;setServices(n);}} placeholder="Description" className={inp}/>
-                  </div>
-                ))}
-                {services.length < maxServices && (
-                  <button onClick={()=>setServices([...services,{name:'',price:'',description:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Service</button>
+                  <button onClick={()=>setProducts([...products,{name:'',price:'',description:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Product / Service</button>
                 )}
               </div>
             )}
