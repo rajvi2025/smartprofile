@@ -19,6 +19,7 @@ function isDigitalCardRoute(pathname) {
 export default function Footer() {
   const pathname = usePathname();
   if (isDigitalCardRoute(pathname)) return null;
+  if (pathname === '/spin') return null;
 
   return (
     <footer style={{ background: '#0f172a', color: '#94a3b8', padding: '60px 24px 24px' }}>

@@ -24,6 +24,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   if (isDigitalCardRoute(pathname)) return null;
+  if (pathname === '/spin') return null;
 
   const closeMenu = () => setMenuOpen(false);
 
