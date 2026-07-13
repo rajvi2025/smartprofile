@@ -6,6 +6,10 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
 
+function slugifyCity(city) {
+  return (city || "").toLowerCase().trim().replace(/\s+/g, "-");
+}
+
 // Runs on the server before the page is sent, so WhatsApp/Facebook/etc. link
 // previews show this business's own name, tagline and photo — instead of
 // the generic site-wide SmartProfile card that showed for every link before.
@@ -14,7 +18,7 @@ export async function generateMetadata({ params }) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("business_name, full_name, tagline, about, directory_image_url, banner_url, logo_url")
+    .select("business_name, full_name, tagline, about, directory_image_url, banner_url, logo_url, city")
     .eq("username", username)
     .single();
 
@@ -22,6 +26,7 @@ export async function generateMetadata({ params }) {
     return {
       title: "SmartProfile.in — One Link. Complete Business.",
       description: "Create your Digital Business Card with SmartProfile.",
+      robots: { index: false, follow: false },
     };
   }
 
@@ -33,6 +38,13 @@ export async function generateMetadata({ params }) {
   return {
     title: `${name} | SmartProfile`,
     description,
+    // Digital Card URLs (smartprofile.in/username) are for NFC/QR/personal
+    // sharing only. They must never be indexed by Google — the richer
+    // Directory Listing page (smartprofile.in/directory/city/username) is
+    // the canonical, SEO-facing version of this same business, and having
+    // both indexed would look like duplicate content to Google.
+    robots: { index: false, follow: false },
+    ...(profile.city ? { alternates: { canonical: `https://smartprofile.in/directory/${slugifyCity(profile.city)}/${username}` } } : {}),
     openGraph: {
       title: name,
       description,

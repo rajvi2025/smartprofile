@@ -35,6 +35,15 @@ export async function POST(request) {
       return Response.json({ error: 'Username can only contain lowercase letters, numbers, and hyphens' }, { status: 400 });
     }
 
+    const RESERVED_USERNAMES = [
+      'directory', 'dashboard', 'admin', 'api', 'login', 'register', 'about',
+      'contact', 'pricing', 'free-listing', 'terms', 'privacy', 'refund',
+      'shipping', 'blog', 'home', 'search',
+    ];
+    if (RESERVED_USERNAMES.includes(username)) {
+      return Response.json({ error: 'This username is reserved. Please choose a different one.' }, { status: 400 });
+    }
+
     if (directory_active && !business_id_number) {
       return Response.json({ error: 'Business Identification Number is required to submit to the Directory' }, { status: 400 });
     }

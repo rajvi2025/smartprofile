@@ -38,15 +38,22 @@ export default async function sitemap() {
 
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("username")
+    .select("username, city")
     .eq("is_active", true);
 
-  const profilePages = (profiles || []).map((p) => ({
-    url: `${baseUrl}/${p.username}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: 0.6,
-  }));
+  // Directory Listing pages (smartprofile.in/directory/city/username) are
+  // the SEO-facing, indexable version of each business — Digital Card URLs
+  // (smartprofile.in/username) are noindex on purpose and must NOT appear
+  // here, or Google sees the same business twice as duplicate content.
+  const slugifyCity = (city) => (city || "").toLowerCase().trim().replace(/\s+/g, "-");
+  const directoryPages = (profiles || [])
+    .filter((p) => p.city)
+    .map((p) => ({
+      url: `${baseUrl}/directory/${slugifyCity(p.city)}/${p.username}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    }));
 
-  return [...staticPages, ...profilePages];
+  return [...staticPages, ...directoryPages];
 }
