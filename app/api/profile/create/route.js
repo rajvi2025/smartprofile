@@ -20,7 +20,7 @@ export async function POST(request) {
       business_type, category, city, state, area, pincode, bio, theme, plan, display_as,
       logo_url, banner_url, whatsapp, website, about, address, maps_url,
       tagline, video_url, brochure_url,
-      facebook, instagram, youtube, linkedin, twitter,
+      facebook, instagram, youtube, linkedin, twitter, threads, pinterest, telegram,
       amount_paid,
       razorpay_order_id, razorpay_payment_id, coupon_code,
       directory_active, business_id_type, business_id_number,
@@ -142,7 +142,10 @@ export async function POST(request) {
       { platform: 'Instagram', url: instagram },
       { platform: 'YouTube', url: youtube },
       { platform: 'LinkedIn', url: linkedin },
-      { platform: 'Twitter', url: twitter },
+      { platform: 'Twitter/X', url: twitter },
+      { platform: 'Threads', url: threads },
+      { platform: 'Pinterest', url: pinterest },
+      { platform: 'Telegram', url: telegram },
     ].filter(s => s.url);
 
     if (socialEntries.length > 0) {

@@ -31,7 +31,7 @@ export async function GET(request) {
     supabase.from('social_links').select('*').eq('profile_id', profile.id),
     supabase.from('gallery').select('*').eq('profile_id', profile.id),
     supabase.from('testimonials').select('*').eq('profile_id', profile.id),
-    supabase.from('business_links').select('*').eq('profile_id', profile.id),
+    supabase.from('business_presence').select('*').eq('profile_id', profile.id),
   ]);
 
   return Response.json({
@@ -42,7 +42,7 @@ export async function GET(request) {
       social_links: social.data || [],
       gallery: gallery.data || [],
       testimonials: testimonials.data || [],
-      business_links: bizlinks.data || [],
+      business_presence: bizlinks.data || [],
     }
   });
 }

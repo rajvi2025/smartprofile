@@ -19,8 +19,8 @@ export async function POST(request) {
       full_name, designation, business_name, tagline, category, display_as, area, pincode, city, state,
       phone, whatsapp, website, about, address, maps_url,
       logo_url, banner_url, video_url, brochure_url, directory_image_url,
-      facebook, instagram, youtube, linkedin, twitter,
-      google, indiamart, justdial, tradeindia, exportersindia, alibaba,
+      facebook, instagram, youtube, linkedin, twitter, threads, pinterest, telegram,
+      bizPresence,
     } = body;
     // Note: email and plan are intentionally NOT accepted here — email changes
     // require an admin/support request, and plan changes go through a separate
@@ -74,7 +74,10 @@ export async function POST(request) {
       { platform: 'Instagram', url: instagram },
       { platform: 'YouTube', url: youtube },
       { platform: 'LinkedIn', url: linkedin },
-      { platform: 'Twitter', url: twitter },
+      { platform: 'Twitter/X', url: twitter },
+      { platform: 'Threads', url: threads },
+      { platform: 'Pinterest', url: pinterest },
+      { platform: 'Telegram', url: telegram },
     ].filter(s => s.url);
 
     if (socialEntries.length > 0) {
@@ -93,14 +96,7 @@ export async function POST(request) {
     // Business Presence: same delete-then-reinsert pattern as social links.
     await supabase.from('business_presence').delete().eq('profile_id', existingProfile.id);
 
-    const bizEntries = [
-      { platform: 'Google Business', url: google },
-      { platform: 'IndiaMART', url: indiamart },
-      { platform: 'JustDial', url: justdial },
-      { platform: 'TradeIndia', url: tradeindia },
-      { platform: 'ExportersIndia', url: exportersindia },
-      { platform: 'Alibaba', url: alibaba },
-    ].filter(b => b.url);
+    const bizEntries = (bizPresence || []).filter(b => b.platform && b.url);
 
     if (bizEntries.length > 0) {
       const { error: bizError } = await supabase

@@ -19,34 +19,77 @@ const PLAN_FEATURES = {
 };
 const GALLERY_LIMITS = { basic: 0, business: 0, premium: 10, pro: 10 };
 const PRODUCT_LIMITS = { basic: 0, business: 2, premium: 5, pro: 10 };
+const SOCIAL_LIMITS = { basic: 0, business: 3, premium: 5, pro: 8 };
+const BIZ_LIMITS = { basic: 0, business: 0, premium: 3, pro: 6 };
 
 const SOCIALS = [
-  { key: 'facebook', label: 'Facebook', color: '#1877F2', match: 'facebook' },
-  { key: 'instagram', label: 'Instagram', color: '#E4405F', match: 'instagram' },
-  { key: 'youtube', label: 'YouTube', color: '#FF0000', match: 'youtube' },
-  { key: 'linkedin', label: 'LinkedIn', color: '#0A66C2', match: 'linkedin' },
-  { key: 'twitter', label: 'Twitter/X', color: '#000000', match: 'twitter' },
+  { key: 'facebook', label: 'Facebook', color: '#1877F2', domain: 'facebook.com' },
+  { key: 'instagram', label: 'Instagram', color: '#E4405F', domain: 'instagram.com' },
+  { key: 'youtube', label: 'YouTube', color: '#FF0000', domain: 'youtube.com' },
+  { key: 'linkedin', label: 'LinkedIn', color: '#0A66C2', domain: 'linkedin.com' },
+  { key: 'twitter', label: 'Twitter/X', color: '#000000', domain: 'x.com' },
+  { key: 'threads', label: 'Threads', color: '#000000', domain: 'threads.net' },
+  { key: 'pinterest', label: 'Pinterest', color: '#E60023', domain: 'pinterest.com' },
+  { key: 'telegram', label: 'Telegram', color: '#26A5E4', domain: 'telegram.org' },
 ];
 
-const BIZ_PLATFORMS = [
-  { key: 'google', label: 'Google Business', color: '#4285F4', match: 'google business' },
-  { key: 'indiamart', label: 'IndiaMART', color: '#ef4444', match: 'indiamart' },
-  { key: 'justdial', label: 'JustDial', color: '#ff6600', match: 'justdial' },
-  { key: 'tradeindia', label: 'TradeIndia', color: '#0066cc', match: 'tradeindia' },
-  { key: 'exportersindia', label: 'ExportersIndia', color: '#009900', match: 'exportersindia' },
-  { key: 'alibaba', label: 'Alibaba', color: '#ff6a00', match: 'alibaba' },
+// Business Presence platforms, grouped by category for the dropdown. Each
+// item's `domain` is used to fetch a small real favicon via Google's
+// favicon service, so every platform shows its actual icon.
+const BIZ_CATEGORIES = [
+  { category: 'Business Directories', items: [
+    { key: 'google', label: 'Google Business Profile', domain: 'business.google.com' },
+    { key: 'justdial', label: 'Justdial', domain: 'justdial.com' },
+    { key: 'indiamart', label: 'IndiaMART', domain: 'indiamart.com' },
+    { key: 'tradeindia', label: 'TradeIndia', domain: 'tradeindia.com' },
+    { key: 'exportersindia', label: 'ExportersIndia', domain: 'exportersindia.com' },
+    { key: 'sulekha', label: 'Sulekha', domain: 'sulekha.com' },
+  ]},
+  { category: 'Marketplace / Seller Store', items: [
+    { key: 'amazon', label: 'Amazon', domain: 'amazon.in' },
+    { key: 'flipkart', label: 'Flipkart', domain: 'flipkart.com' },
+    { key: 'meesho', label: 'Meesho', domain: 'meesho.com' },
+    { key: 'jiomart', label: 'JioMart', domain: 'jiomart.com' },
+  ]},
+  { category: 'Quick Commerce', items: [
+    { key: 'blinkit', label: 'Blinkit', domain: 'blinkit.com' },
+    { key: 'zepto', label: 'Zepto', domain: 'zeptonow.com' },
+    { key: 'instamart', label: 'Swiggy Instamart', domain: 'swiggy.com' },
+  ]},
+  { category: 'Food Delivery', items: [
+    { key: 'zomato', label: 'Zomato', domain: 'zomato.com' },
+    { key: 'swiggy', label: 'Swiggy', domain: 'swiggy.com' },
+    { key: 'magicpin', label: 'Magicpin', domain: 'magicpin.in' },
+  ]},
+  { category: 'Real Estate', items: [
+    { key: 'magicbricks', label: 'MagicBricks', domain: 'magicbricks.com' },
+    { key: '99acres', label: '99acres', domain: '99acres.com' },
+    { key: 'housing', label: 'Housing.com', domain: 'housing.com' },
+    { key: 'nobroker', label: 'NoBroker', domain: 'nobroker.in' },
+  ]},
+  { category: 'Healthcare', items: [
+    { key: 'practo', label: 'Practo', domain: 'practo.com' },
+    { key: 'apollo247', label: 'Apollo 24/7', domain: 'apollo247.com' },
+  ]},
+  { category: 'Jobs', items: [
+    { key: 'naukri', label: 'Naukri', domain: 'naukri.com' },
+    { key: 'apna', label: 'Apna', domain: 'apna.co' },
+    { key: 'indeed', label: 'Indeed', domain: 'indeed.com' },
+  ]},
+  { category: 'B2B Export', items: [
+    { key: 'alibaba', label: 'Alibaba', domain: 'alibaba.com' },
+    { key: 'globalsources', label: 'Global Sources', domain: 'globalsources.com' },
+    { key: 'tradewheel', label: 'TradeWheel', domain: 'tradewheel.com' },
+  ]},
 ];
+const BIZ_PLATFORMS = BIZ_CATEGORIES.flatMap(c => c.items.map(i => ({ ...i, category: c.category })));
 
-function SocialIcon({ platformKey }) {
-  const common = "w-5 h-5";
-  if (platformKey === "facebook") return <svg className={common} viewBox="0 0 24 24" fill="white"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.891h-2.33v6.987C18.343 21.128 22 16.991 22 12z"/></svg>;
-  if (platformKey === "instagram") return <svg className={common} viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.163 6.163 0 100 12.326 6.163 6.163 0 000-12.326zm0 10.162a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>;
-  if (platformKey === "youtube") return <svg className={common} viewBox="0 0 24 24" fill="white"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>;
-  if (platformKey === "linkedin") return <svg className={common} viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 110-4.124 2.062 2.062 0 010 4.124zM7.114 20.452H3.558V9h3.556v11.452z"/></svg>;
-  if (platformKey === "twitter") return <svg className={common} viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>;
-  return <span className="text-white text-xs font-bold">?</span>;
+// Fetches each platform's real small icon via Google's public favicon
+// service, keyed by domain.
+function PlatformIcon({ domain }) {
+  if (!domain) return <span className="text-gray-400 text-xs font-bold">?</span>;
+  return <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-5 h-5 rounded-sm" />;
 }
-
 const inp = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50';
 const lbl = 'block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide';
 const sizeHint = 'text-[11px] text-gray-400 mt-2';
@@ -78,6 +121,8 @@ export default function EditProfilePage() {
   const [galleryUploading, setGalleryUploading] = useState(false);
 
   const [productItems, setProductItems] = useState([]);
+  const [socialLinks, setSocialLinks] = useState([]);
+  const [bizPresence, setBizPresence] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '' });
   const [newProductImageFile, setNewProductImageFile] = useState(null);
   const [newProductImagePreview, setNewProductImagePreview] = useState(null);
@@ -86,8 +131,6 @@ export default function EditProfilePage() {
   const [form, setForm] = useState({
     full_name: '', designation: '', business_name: '', tagline: '', category: '',
     display_as: 'business', area: '', pincode: '', city: '', state: '', phone: '', whatsapp: '', website: '', about: '', address: '', maps_url: '',
-    facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '',
-    google: '', indiamart: '', justdial: '', tradeindia: '', exportersindia: '', alibaba: '',
     video_url: '', brochure_url: '',
   });
 
@@ -156,22 +199,14 @@ export default function EditProfilePage() {
     if (userRow?.customer_id) setCustomerId(userRow.customer_id);
 
     const { data: socialRows } = await supabase.from('social_links').select('*').eq('profile_id', p.id);
-    const socialValues = {};
-    SOCIALS.forEach(s => {
-      const row = (socialRows || []).find(r => (r.platform || '').toLowerCase() === s.match);
-      socialValues[s.key] = row ? row.url : '';
-    });
+    setSocialLinks((socialRows || []).map(r => ({ platform: r.platform || '', url: r.url || '' })));
 
     let bizRows = [];
     try {
       const { data } = await supabase.from('business_presence').select('*').eq('profile_id', p.id);
       bizRows = data || [];
     } catch (e) { bizRows = []; }
-    const bizValues = {};
-    BIZ_PLATFORMS.forEach(b => {
-      const row = bizRows.find(r => (r.platform || '').toLowerCase() === b.match);
-      bizValues[b.key] = row ? row.url : '';
-    });
+    setBizPresence(bizRows.map(r => ({ platform: r.platform || '', url: r.url || '' })));
 
     let restoredForm = {
       full_name: p.full_name || '', designation: p.designation || '', business_name: p.business_name || '',
@@ -179,8 +214,6 @@ export default function EditProfilePage() {
       phone: p.phone || '', whatsapp: p.whatsapp || '', website: p.website || '', about: p.about || '',
       address: p.address || '', maps_url: p.maps_url || '',
       video_url: p.video_url || '', brochure_url: p.brochure_url || '',
-      ...socialValues,
-      ...bizValues,
     };
     try {
       const savedDraft = localStorage.getItem(DRAFT_KEY);
@@ -243,6 +276,8 @@ export default function EditProfilePage() {
   const has = (f) => (PLAN_FEATURES[plan] || PLAN_FEATURES.basic).includes(f);
   const maxGallery = GALLERY_LIMITS[plan] || 0;
   const maxProducts = PRODUCT_LIMITS[plan] || 0;
+  const maxSocial = SOCIAL_LIMITS[plan] || 0;
+  const maxBiz = BIZ_LIMITS[plan] || 0;
 
   const handleImage = (e, type) => {
     const file = e.target.files[0];
@@ -278,7 +313,7 @@ export default function EditProfilePage() {
       const res = await fetch('/api/profile/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, logo_url, banner_url, directory_image_url }),
+        body: JSON.stringify({ ...form, logo_url, banner_url, directory_image_url, socialLinks, bizPresence }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Update failed'); setSaving(false); return; }
@@ -513,32 +548,40 @@ export default function EditProfilePage() {
             </div>
           )}
 
-          {has('social') && SOCIALS.some(s => form[s.key]) && (
+          {socialLinks.some(s => s.platform && s.url) && (
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h3 className="font-bold text-gray-800 mb-3">🔗 Social Media</h3>
               <div className="flex gap-3 flex-wrap">
-                {SOCIALS.filter(s => form[s.key]).map(s => (
-                  <a key={s.key} href={form[s.key]} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: s.color }}>
-                      <SocialIcon platformKey={s.key} />
-                    </div>
-                    <span className="text-xs text-gray-500">{s.label}</span>
-                  </a>
-                ))}
+                {socialLinks.filter(s => s.platform && s.url).map((s,i) => {
+                  const sel = SOCIALS.find(p => p.label === s.platform);
+                  return (
+                    <a key={i} href={s.url} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 border border-gray-200">
+                        {sel ? <PlatformIcon domain={sel.domain} /> : <span className="text-gray-400 text-xs font-bold">?</span>}
+                      </div>
+                      <span className="text-xs text-gray-500">{s.platform}</span>
+                    </a>
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {has('social') && BIZ_PLATFORMS.some(b => form[b.key]) && (
+          {bizPresence.some(b => b.platform && b.url) && (
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h3 className="font-bold text-gray-800 mb-3">🏢 Business Presence</h3>
               <div className="flex gap-3 flex-wrap">
-                {BIZ_PLATFORMS.filter(b => form[b.key]).map(b => (
-                  <a key={b.key} href={form[b.key]} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: b.color }}>{b.label.slice(0,2)}</div>
-                    <span className="text-xs text-gray-500">{b.label}</span>
-                  </a>
-                ))}
+                {bizPresence.filter(b => b.platform && b.url).map((b,i) => {
+                  const sel = BIZ_PLATFORMS.find(p => p.label === b.platform);
+                  return (
+                    <a key={i} href={b.url} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 border border-gray-200">
+                        {sel ? <PlatformIcon domain={sel.domain} /> : <span className="text-gray-400 text-xs font-bold">?</span>}
+                      </div>
+                      <span className="text-xs text-gray-500">{b.platform}</span>
+                    </a>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -683,30 +726,60 @@ export default function EditProfilePage() {
             </div>
 
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h2 className="font-bold text-gray-800 mb-4">🔗 Social Media</h2>
-              {!has('social') ? <Lock need="Business ₹399"><div className="space-y-2">{SOCIALS.map(s=><div key={s.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
+              <h2 className="font-bold text-gray-800 mb-4">🔗 Social Media <span className="text-xs text-gray-400 font-normal">(max {maxSocial || 0})</span></h2>
+              {maxSocial === 0 ? <Lock need="Business ₹399"><div className="space-y-2">{SOCIALS.slice(0,3).map(s=><div key={s.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
                 <div className="space-y-3">
-                  {SOCIALS.map(s=>(
-                    <div key={s.key} className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{backgroundColor:s.color}}><SocialIcon platformKey={s.key} /></div>
-                      <input value={form[s.key]||''} onChange={e=>update(s.key,e.target.value)} placeholder={`${s.label} URL`} className={inp}/>
+                  {socialLinks.slice(0, maxSocial).map((s,i)=>{
+                    const selected = SOCIALS.find(p => p.label === s.platform);
+                    return (
+                    <div key={i} className="flex gap-2 items-center">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-gray-100 border border-gray-200">
+                        {selected ? <PlatformIcon domain={selected.domain} /> : <span className="text-gray-400 text-xs font-bold">?</span>}
+                      </div>
+                      <select value={s.platform} onChange={e=>{const n=[...socialLinks];n[i]={...n[i],platform:e.target.value};setSocialLinks(n);}} className={inp}>
+                        <option value="">Select Platform</option>
+                        {SOCIALS.map(p=><option key={p.key} value={p.label}>{p.label}</option>)}
+                      </select>
+                      <input value={s.url} onChange={e=>{const n=[...socialLinks];n[i]={...n[i],url:e.target.value};setSocialLinks(n);}} placeholder="Profile URL" className={inp}/>
+                      <button onClick={()=>setSocialLinks(socialLinks.filter((_,idx)=>idx!==i))} className="text-red-500 text-xs px-2 flex-shrink-0">✕</button>
                     </div>
-                  ))}
+                    );
+                  })}
+                  {socialLinks.length < maxSocial && (
+                    <button onClick={()=>setSocialLinks([...socialLinks,{platform:'',url:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Social Link</button>
+                  )}
                 </div>
               )}
             </div>
 
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h2 className="font-bold text-gray-800 mb-1">🏢 Business Presence</h2>
+              <h2 className="font-bold text-gray-800 mb-1">🏢 Business Presence <span className="text-xs text-gray-400 font-normal">(max {maxBiz || 0})</span></h2>
               <p className="text-xs text-gray-500 mb-4">Link your listings on other platforms — IndiaMART, JustDial, TradeIndia etc.</p>
-              {!has('social') ? <Lock need="Business ₹399"><div className="space-y-2">{BIZ_PLATFORMS.map(b=><div key={b.key} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
+              {maxBiz === 0 ? <Lock need="Premium ₹599"><div className="space-y-2">{[1,2,3].map(i=><div key={i} className="h-12 bg-gray-100 rounded-xl"/>)}</div></Lock> : (
                 <div className="space-y-3">
-                  {BIZ_PLATFORMS.map(b=>(
-                    <div key={b.key} className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-white text-xs font-bold" style={{backgroundColor:b.color}}>{b.label.slice(0,2)}</div>
-                      <input value={form[b.key]||''} onChange={e=>update(b.key,e.target.value)} placeholder={`${b.label} URL`} className={inp}/>
+                  {bizPresence.slice(0, maxBiz).map((b,i)=>{
+                    const selected = BIZ_PLATFORMS.find(p => p.label === b.platform);
+                    return (
+                    <div key={i} className="flex gap-2 items-center">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-gray-100 border border-gray-200">
+                        {selected ? <PlatformIcon domain={selected.domain} /> : <span className="text-gray-400 text-xs font-bold">?</span>}
+                      </div>
+                      <select value={b.platform} onChange={e=>{const n=[...bizPresence];n[i]={...n[i],platform:e.target.value};setBizPresence(n);}} className={inp}>
+                        <option value="">Select Platform</option>
+                        {BIZ_CATEGORIES.map(cat=>(
+                          <optgroup key={cat.category} label={cat.category}>
+                            {cat.items.map(item=><option key={item.key} value={item.label}>{item.label}</option>)}
+                          </optgroup>
+                        ))}
+                      </select>
+                      <input value={b.url} onChange={e=>{const n=[...bizPresence];n[i]={...n[i],url:e.target.value};setBizPresence(n);}} placeholder="Profile URL" className={inp}/>
+                      <button onClick={()=>setBizPresence(bizPresence.filter((_,idx)=>idx!==i))} className="text-red-500 text-xs px-2 flex-shrink-0">✕</button>
                     </div>
-                  ))}
+                    );
+                  })}
+                  {bizPresence.length < maxBiz && (
+                    <button onClick={()=>setBizPresence([...bizPresence,{platform:'',url:''}])} className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-blue-300">+ Add Platform</button>
+                  )}
                 </div>
               )}
             </div>

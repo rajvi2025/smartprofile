@@ -18,7 +18,10 @@ export async function POST(request) {
       products: 'products',
       services: 'services',
       testimonials: 'testimonials',
-      biz_presence: 'business_links',
+      // Bug fix: this used to point at 'business_links', a different table
+      // than the one Edit Profile actually reads/writes ('business_presence'),
+      // so entries added at signup never showed up when editing later.
+      biz_presence: 'business_presence',
     };
 
     const table = tableMap[type];
@@ -30,7 +33,13 @@ export async function POST(request) {
       sort_order: i,
     }));
 
-    const { error } = await supabase.from(table).insert(rows);
+    let { error } = await supabase.from(table).insert(rows);
+    if (error && /sort_order/i.test(error.message || '')) {
+      // Some tables (e.g. social_links, business_presence) may not have a
+      // sort_order column — retry without it rather than failing the save.
+      const rowsNoSort = items.map((item) => ({ profile_id: profileId, ...item }));
+      ({ error } = await supabase.from(table).insert(rowsNoSort));
+    }
     if (error) return Response.json({ error: error.message }, { status: 500 });
 
     return Response.json({ success: true });
