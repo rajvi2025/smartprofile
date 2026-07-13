@@ -60,6 +60,42 @@ function SocialIcon({ platform }) {
   return <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-6 h-6 rounded-sm" />;
 }
 
+const BIZ_DOMAINS = {
+  'google business profile': 'business.google.com',
+  'justdial': 'justdial.com',
+  'indiamart': 'indiamart.com',
+  'tradeindia': 'tradeindia.com',
+  'exportersindia': 'exportersindia.com',
+  'sulekha': 'sulekha.com',
+  'amazon': 'amazon.in',
+  'flipkart': 'flipkart.com',
+  'meesho': 'meesho.com',
+  'jiomart': 'jiomart.com',
+  'blinkit': 'blinkit.com',
+  'zepto': 'zeptonow.com',
+  'swiggy instamart': 'swiggy.com',
+  'zomato': 'zomato.com',
+  'swiggy': 'swiggy.com',
+  'magicpin': 'magicpin.in',
+  'magicbricks': 'magicbricks.com',
+  '99acres': '99acres.com',
+  'housing.com': 'housing.com',
+  'nobroker': 'nobroker.in',
+  'practo': 'practo.com',
+  'apollo 24/7': 'apollo247.com',
+  'naukri': 'naukri.com',
+  'apna': 'apna.co',
+  'indeed': 'indeed.com',
+  'alibaba': 'alibaba.com',
+  'global sources': 'globalsources.com',
+  'tradewheel': 'tradewheel.com',
+};
+function BizIcon({ platform }) {
+  const domain = BIZ_DOMAINS[(platform || '').toLowerCase()];
+  if (!domain) return <span className="text-gray-400 text-xs font-bold">{(platform || "?")[0]?.toUpperCase()}</span>;
+  return <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-6 h-6 rounded-sm" />;
+}
+
 function StarRating({ rating }) {
   return (
     <div className="flex gap-0.5">
@@ -203,7 +239,7 @@ function BasicProfile({ profile }) {
 }
 
 // ---------- BUSINESS+ PLANS: richer card-style with more sections ----------
-function BusinessProfile({ profile, products, socials, testimonials, gallery }) {
+function BusinessProfile({ profile, products, socials, testimonials, gallery, bizPresence }) {
   const { displayName, line2, line3 } = getCardIdentity(profile);
   const shareProfile = async () => {
     const url = `https://smartprofile.in/${profile.username}`;
@@ -341,6 +377,21 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery }) 
             </div>
           </div>
         )}
+        {(profile.plan === "premium" || profile.plan === "pro") && bizPresence && bizPresence.length > 0 && (
+          <div className="mx-4 mb-4">
+            <p className="text-sm font-bold text-gray-800 mb-3">Business Presence</p>
+            <div className="flex gap-3 flex-wrap">
+              {bizPresence.map((b) => (
+                <a key={b.id} href={b.url} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center shadow bg-gray-100 border border-gray-200">
+                    <BizIcon platform={b.platform} />
+                  </div>
+                  <span className="text-xs text-gray-500">{b.platform}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
         <TestimonialsSection testimonials={visibleTestimonials} username={profile.username} />
         <div className="mx-4 mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center gap-4">
           <QRSection username={profile.username} />
@@ -393,6 +444,7 @@ export default function ProfileClient({ username }) {
   const [socials, setSocials] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [gallery, setGallery] = useState([]);
+  const [bizPresence, setBizPresence] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -414,6 +466,12 @@ export default function ProfileClient({ username }) {
           setGallery(gl || []);
         } catch (e) {
           setGallery([]);
+        }
+        try {
+          const { data: bp } = await supabase.from("business_presence").select("*").eq("profile_id", p.id);
+          setBizPresence(bp || []);
+        } catch (e) {
+          setBizPresence([]);
         }
       }
       setLoading(false);
@@ -442,7 +500,7 @@ export default function ProfileClient({ username }) {
   }
 
   if (profile.plan === "business" || profile.plan === "premium" || profile.plan === "pro" || profile.plan === "ultimate") {
-    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} gallery={gallery} />;
+    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} gallery={gallery} bizPresence={bizPresence} />;
   }
   return <BasicProfile profile={profile} />;
 }
