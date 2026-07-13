@@ -483,7 +483,9 @@ export default function EditProfilePage() {
               <h3 className="font-bold text-gray-800 mb-3">🖼️ Gallery ({galleryItems.length})</h3>
               <div className="grid grid-cols-3 gap-2">
                 {galleryItems.map(g => (
-                  <img key={g.id} src={g.image_url} className="w-full h-20 object-cover rounded-lg" />
+                  <div key={g.id} className="aspect-square bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                    <img src={g.image_url} className="w-full h-full object-contain" />
+                  </div>
                 ))}
               </div>
             </div>
@@ -727,8 +729,8 @@ export default function EditProfilePage() {
                   <p className="text-xs text-gray-500 mb-3">Up to {maxGallery} photos, any size (800×800px recommended)</p>
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     {galleryItems.map(g => (
-                      <div key={g.id} className="relative aspect-square rounded-lg overflow-hidden group">
-                        <img src={g.image_url} className="w-full h-full object-cover" />
+                      <div key={g.id} className="relative aspect-square rounded-lg overflow-hidden group bg-gray-100 flex items-center justify-center">
+                        <img src={g.image_url} className="w-full h-full object-contain" />
                         <button onClick={() => handleGalleryDelete(g.id)}
                           className="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center opacity-90">✕</button>
                       </div>
