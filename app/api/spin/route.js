@@ -8,7 +8,7 @@ const supabase = createClient(
 // The one coupon this wheel gives out. Kept server-side so it can't be
 // tampered with from the browser.
 const WIN_COUPON_CODE = 'SPIN11';
-const WIN_CHANCE = 0.7; // 70% chance to win — keeps it feeling like a real spin, not guaranteed
+const WIN_CHANCE = 0.99; // 99% chance to win — almost everyone should win
 
 export async function POST(request) {
   try {
