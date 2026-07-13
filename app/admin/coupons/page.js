@@ -160,16 +160,17 @@ export default function AdminCouponsPage() {
                 <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={inputStyle}>
                   <option value="percentage">Percentage (%)</option>
                   <option value="flat">Flat Amount (₹)</option>
+                  <option value="final_price">Final Price (₹) — same price on every plan</option>
                 </select>
               </div>
 
               <div>
                 <label style={labelStyle}>
-                  {form.type === 'percentage' ? 'Discount %' : 'Discount ₹'} *
+                  {form.type === 'percentage' ? 'Discount %' : form.type === 'final_price' ? 'Final Price customer pays (₹)' : 'Discount ₹'} *
                 </label>
                 <input
                   type="number"
-                  placeholder={form.type === 'percentage' ? '10' : '100'}
+                  placeholder={form.type === 'percentage' ? '10' : form.type === 'final_price' ? '11' : '100'}
                   value={form.value}
                   onChange={e => setForm({ ...form, value: e.target.value })}
                   style={inputStyle}
@@ -345,7 +346,7 @@ export default function AdminCouponsPage() {
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 6, fontSize: 13, color: '#475569' }}>
                           <p style={{ margin: 0 }}>
-                            <strong>Discount:</strong> {c.type === 'percentage' ? `${c.value}%` : `₹${c.value}`}
+                            <strong>Discount:</strong> {c.type === 'percentage' ? `${c.value}%` : c.type === 'final_price' ? `Final price ₹${c.value}` : `₹${c.value}`}
                             {c.max_discount_cap ? ` (max ₹${c.max_discount_cap})` : ''}
                           </p>
                           <p style={{ margin: 0 }}><strong>Min Order:</strong> {c.min_order_value ? `₹${c.min_order_value}` : 'None'}</p>
