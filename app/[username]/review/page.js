@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { use } from 'react';
+import { useState, useEffect, use } from 'react';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 
 export default function PublicReviewPage({ params }) {
@@ -94,7 +94,7 @@ export default function PublicReviewPage({ params }) {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
             {profile.logo_url ? (
-              <img src={profile.logo_url} alt={displayName} style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }} />
+              <Image src={profile.logo_url} alt={displayName} width={48} height={48} style={{ borderRadius: 10, objectFit: 'cover' }} />
             ) : (
               <div style={{ width: 48, height: 48, borderRadius: 10, background: '#3b82f6', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18 }}>
                 {displayName.charAt(0).toUpperCase()}
