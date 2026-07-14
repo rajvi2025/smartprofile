@@ -20,10 +20,11 @@ export default async function sitemap() {
 
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("username, city")
+    .select("username, city, category")
     .eq("is_active", true);
 
   const slugifyCity = (city) => (city || "").toLowerCase().trim().replace(/\s+/g, "-");
+  const slugifyCategory = (category) => (category || "").toLowerCase().trim().replace(/\s+/g, "-");
   const directoryPages = (profiles || [])
     .filter((p) => p.city)
     .map((p) => ({
@@ -44,5 +45,16 @@ export default async function sitemap() {
     priority: 0.7,
   }));
 
-  return [...staticPages, ...cityPages, ...directoryPages];
+  // Category landing pages (smartprofile.in/directory/category/xyz) — same
+  // reasoning as city pages: one per distinct category with active
+  // businesses, empty ones stay noindexed on the page itself.
+  const categorySlugs = [...new Set((profiles || []).filter((p) => p.category).map((p) => slugifyCategory(p.category)))];
+  const categoryPages = categorySlugs.map((slug) => ({
+    url: `${baseUrl}/directory/category/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...cityPages, ...categoryPages, ...directoryPages];
 }
