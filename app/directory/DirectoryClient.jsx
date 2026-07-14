@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Ad banners shown on the Directory homepage — as a sticky sidebar on
 // desktop, and interspersed every 5 listings on mobile (see AD_INTERVAL).
@@ -391,9 +392,9 @@ export default function DirectoryClient() {
 
                   {/* LEFT COLUMN: image + rating badge below it */}
                   <div style={{ width: isMobile ? '44%' : '42%', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: isMobile ? '14px 0 14px 14px' : '14px', alignItems: isMobile ? 'stretch' : 'center', justifyContent: isMobile ? 'flex-start' : 'center' }}>
-                    <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 12, overflow: 'hidden' }}>
+                    <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
                       {biz.img ? (
-                        <img src={biz.img} alt={biz.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <Image src={biz.img} alt={biz.name} fill sizes="(max-width: 768px) 44vw, 280px" style={{ objectFit: 'cover' }} />
                       ) : (
                         <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${biz.color}25, ${biz.color}10)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <span style={{ fontWeight: 800, color: biz.color, fontSize: isMobile ? 26 : 30 }}>{biz.initials}</span>
@@ -482,7 +483,7 @@ export default function DirectoryClient() {
                     const ad = AD_BANNERS[Math.floor(bizIndex / 5) % AD_BANNERS.length];
                     return (
                       <a href={ad.link} target="_blank" rel="noreferrer" style={{ position: 'relative', display: 'block', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-                        <img src={ad.img} alt={ad.alt} style={{ width: '100%', display: 'block' }} />
+                        <img src={ad.img} alt={ad.alt} loading="lazy" style={{ width: '100%', display: 'block' }} />
                         <span style={{ position: 'absolute', top: 8, left: 8, background: 'rgba(0,0,0,0.55)', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, padding: '2px 7px', borderRadius: 5 }}>AD</span>
                       </a>
                     );
@@ -497,7 +498,7 @@ export default function DirectoryClient() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20, position: 'sticky', top: 20 }}>
                 {AD_BANNERS.map(ad => (
                   <a key={ad.alt} href={ad.link} target="_blank" rel="noreferrer" style={{ position: 'relative', display: 'block', borderRadius: 16, overflow: 'hidden', minHeight: 340, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-                    <img src={ad.img} alt={ad.alt} style={{ width: '100%', height: '100%', display: 'block' }} />
+                    <img src={ad.img} alt={ad.alt} loading="lazy" style={{ width: '100%', height: '100%', display: 'block' }} />
                     <span style={{ position: 'absolute', top: 8, left: 8, background: 'rgba(0,0,0,0.55)', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, padding: '2px 7px', borderRadius: 5 }}>AD</span>
                   </a>
                 ))}
