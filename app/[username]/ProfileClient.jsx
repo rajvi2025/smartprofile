@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import { createClient } from "@supabase/supabase-js";
 import QRCode from "qrcode";
 
@@ -170,8 +171,8 @@ function BasicProfile({ profile }) {
       <div className="w-full max-w-sm bg-white rounded-3xl border border-white shadow-[0_2px_4px_rgba(0,0,0,0.08),0_16px_32px_rgba(0,0,0,0.16),0_50px_100px_-20px_rgba(0,0,0,0.45)] overflow-hidden">
         <div className="bg-[#0a1628] h-36 relative">
           <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
-            <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-              {profile.logo_url ? <img src={profile.logo_url} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[#0a1628] flex items-center justify-center text-white text-3xl font-bold">{(profile.business_name || "?")[0]}</div>}
+            <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
+              {profile.logo_url ? <Image src={profile.logo_url} alt={profile.business_name || "Business logo"} fill sizes="96px" className="object-cover" /> : <div className="w-full h-full bg-[#0a1628] flex items-center justify-center text-white text-3xl font-bold">{(profile.business_name || "?")[0]}</div>}
             </div>
           </div>
         </div>
@@ -273,10 +274,10 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
     <div className="min-h-screen bg-[#faf6ef] flex flex-col items-center py-6 px-4">
       <div className="w-full max-w-sm bg-white rounded-3xl border border-white shadow-[0_2px_4px_rgba(0,0,0,0.08),0_16px_32px_rgba(0,0,0,0.16),0_50px_100px_-20px_rgba(0,0,0,0.45)] overflow-hidden">
         <div className="h-40 relative">
-          {profile.banner_url ? <img src={profile.banner_url} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-r from-blue-600 to-blue-800" />}
+          {profile.banner_url ? <Image src={profile.banner_url} alt={`${profile.business_name || "Business"} banner`} fill sizes="384px" priority className="object-cover" /> : <div className="w-full h-full bg-gradient-to-r from-blue-600 to-blue-800" />}
           <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
-            <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-              {profile.logo_url ? <img src={profile.logo_url} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-blue-700 flex items-center justify-center text-white text-3xl font-bold">{(profile.business_name || "?")[0]}</div>}
+            <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
+              {profile.logo_url ? <Image src={profile.logo_url} alt={profile.business_name || "Business logo"} fill sizes="96px" className="object-cover" /> : <div className="w-full h-full bg-blue-700 flex items-center justify-center text-white text-3xl font-bold">{(profile.business_name || "?")[0]}</div>}
             </div>
           </div>
         </div>
@@ -369,7 +370,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
             <div className="grid grid-cols-2 gap-3">
               {products.slice(0, 2).map((p) => (
                 <div key={p.id} onClick={() => setProductsOpen(true)} className="rounded-2xl overflow-hidden border border-gray-200 cursor-pointer active:opacity-80">
-                  {p.image_url ? <div className="w-full h-24 bg-gray-50 flex items-center justify-center"><img src={p.image_url} className="w-full h-full object-contain" /></div> : <div className="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
+                  {p.image_url ? <div className="relative w-full h-24 bg-gray-50 flex items-center justify-center"><Image src={p.image_url} alt={p.name || "Product"} fill sizes="150px" className="object-contain" /></div> : <div className="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
                   <div className="p-2"><p className="text-xs font-bold text-gray-800">{p.name}</p><p className="text-xs text-gray-500 line-clamp-2">{p.description}</p></div>
                 </div>
               ))}
@@ -387,7 +388,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
               {products.map((p) => (
                 <div key={p.id} className="rounded-2xl overflow-hidden border border-gray-200">
-                  {p.image_url ? <div className="w-full h-48 bg-gray-50 flex items-center justify-center"><img src={p.image_url} className="w-full h-full object-contain" /></div> : <div className="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
+                  {p.image_url ? <div className="relative w-full h-48 bg-gray-50 flex items-center justify-center"><Image src={p.image_url} alt={p.name || "Product"} fill sizes="384px" className="object-contain" /></div> : <div className="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
                   <div className="p-3"><p className="text-sm font-bold text-gray-800">{p.name}</p><p className="text-xs text-gray-500 mt-1">{p.description}</p></div>
                 </div>
               ))}
@@ -401,13 +402,15 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
             </div>
             <div className="grid grid-cols-3 gap-2">
               {gallery.map((g, idx) => (
-                <img
-                  key={g.id}
-                  src={g.image_url}
-                  alt={g.caption || ""}
-                  onClick={() => setLightboxIndex(idx)}
-                  className="w-full h-20 object-cover rounded-xl border border-gray-200 cursor-pointer active:opacity-80"
-                />
+                <div key={g.id} className="relative w-full h-20 rounded-xl overflow-hidden border border-gray-200 cursor-pointer active:opacity-80" onClick={() => setLightboxIndex(idx)}>
+                  <Image
+                    src={g.image_url}
+                    alt={g.caption || ""}
+                    fill
+                    sizes="150px"
+                    className="object-cover"
+                  />
+                </div>
               ))}
             </div>
           </div>
