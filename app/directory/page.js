@@ -473,18 +473,12 @@ export default function DirectoryPage() {
 
             {/* RIGHT: advertise banner slots */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20, position: isMobile ? 'static' : 'sticky', top: 20 }}>
-              <div style={{ background: 'linear-gradient(160deg, #1e40af, #3b82f6)', borderRadius: 16, padding: '24px 18px', minHeight: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: 'white' }}>
-                <div style={{ fontSize: 34, marginBottom: 10 }}>📢</div>
-                <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>Advertise Here</div>
-                <div style={{ fontSize: 12, color: '#dbeafe', marginBottom: 16, lineHeight: 1.5 }}>Get your business seen by thousands of customers searching every day.</div>
-                <Link href="/contact" style={{ background: 'white', color: '#1e40af', fontSize: 12, fontWeight: 700, padding: '9px 18px', borderRadius: 8, textDecoration: 'none' }}>Contact Us →</Link>
-              </div>
-              <div style={{ background: 'white', border: '1.5px dashed #cbd5e1', borderRadius: 16, padding: '24px 18px', minHeight: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                <div style={{ fontSize: 34, marginBottom: 10 }}>🏪</div>
-                <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: '#0f172a' }}>Advertise Here</div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 16, lineHeight: 1.5 }}>Ad space available. Promote your brand right where customers are browsing.</div>
-                <Link href="/contact" style={{ background: '#3b82f6', color: 'white', fontSize: 12, fontWeight: 700, padding: '9px 18px', borderRadius: 8, textDecoration: 'none' }}>Book This Space →</Link>
-              </div>
+              <a href="https://wa.me/919323929638" target="_blank" rel="noreferrer" style={{ display: 'block', borderRadius: 16, overflow: 'hidden', minHeight: 340, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                <img src="https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/Banners/walchand-banner-slot1.png" alt="Walchand Park View" style={{ width: '100%', height: '100%', display: 'block' }} />
+              </a>
+              <a href="https://wa.me/919824148381" target="_blank" rel="noreferrer" style={{ display: 'block', borderRadius: 16, overflow: 'hidden', minHeight: 340, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                <img src="https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/Banners/marsfincorp-banner-slot2.png" alt="Mars Fincorp" style={{ width: '100%', height: '100%', display: 'block' }} />
+              </a>
             </div>
 
           </div>
