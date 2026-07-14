@@ -166,8 +166,8 @@ function BasicProfile({ profile }) {
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${profile.business_name}.vcf`; a.click();
   };
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-6 px-4">
-      <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl overflow-hidden">
+    <div className="min-h-screen bg-[#faf6ef] flex flex-col items-center py-6 px-4">
+      <div className="w-full max-w-sm bg-white rounded-3xl border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.18)] overflow-hidden">
         <div className="bg-[#0a1628] h-36 relative">
           <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
             <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
@@ -267,8 +267,8 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
   const visibleTestimonials = (testimonials || []).slice(0, limit);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-6 px-4">
-      <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl overflow-hidden">
+    <div className="min-h-screen bg-[#faf6ef] flex flex-col items-center py-6 px-4">
+      <div className="w-full max-w-sm bg-white rounded-3xl border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.18)] overflow-hidden">
         <div className="h-40 relative">
           {profile.banner_url ? <img src={profile.banner_url} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-r from-blue-600 to-blue-800" />}
           <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
