@@ -1,5 +1,6 @@
 ﻿"use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
@@ -33,7 +34,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         
         <Link href="/" className="flex items-center gap-2" onClick={closeMenu}>
-          <img src="/logo-icon.png" alt="SmartProfile" className="w-8 h-8" />
+          <Image src="/logo-icon.png" alt="SmartProfile" width={32} height={32} className="w-8 h-8" priority />
           <span className="font-bold text-xl"><span style={{ color: "#001144" }}>Smart</span><span style={{ color: "#005DFF" }}>Profile</span></span>
         </Link>
 
