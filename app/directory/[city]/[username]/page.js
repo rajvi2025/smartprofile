@@ -174,19 +174,21 @@ export default async function Page({ params }) {
         : {}),
     };
 
-    // Breadcrumb: Home -> Directory -> City (text only, no landing page yet) -> Business
-    const items = [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://smartprofile.in" },
-      { "@type": "ListItem", position: 2, name: "Directory", item: "https://smartprofile.in/directory" },
-    ];
-    if (profile.city) {
-      items.push({ "@type": "ListItem", position: 3, name: profile.city });
-    }
-    items.push({ "@type": "ListItem", position: items.length + 1, name });
-
+    // Breadcrumb: Home -> Directory -> Business.
+    // NOTE: A city level was tried here (Home -> Directory -> City -> Business)
+    // but Google's Rich Results Test flags it as invalid — every breadcrumb
+    // item except the last one is required to have a working `item` URL, and
+    // there's no standalone city landing page (e.g. /directory/thane) yet to
+    // link to. Once city landing pages exist, re-add a city ListItem here
+    // between Directory and the business, with a real `item` URL pointing to
+    // that page.
     const breadcrumbNode = {
       "@type": "BreadcrumbList",
-      itemListElement: items,
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://smartprofile.in" },
+        { "@type": "ListItem", position: 2, name: "Directory", item: "https://smartprofile.in/directory" },
+        { "@type": "ListItem", position: 3, name },
+      ],
     };
 
     jsonLd = {
