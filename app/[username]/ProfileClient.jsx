@@ -370,7 +370,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
               {products.slice(0, 2).map((p) => (
                 <div key={p.id} onClick={() => setProductsOpen(true)} className="rounded-2xl overflow-hidden border border-gray-200 cursor-pointer active:opacity-80">
                   {p.image_url ? <div className="w-full h-24 bg-gray-50 flex items-center justify-center"><img src={p.image_url} className="w-full h-full object-contain" /></div> : <div className="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
-                  <div className="p-2"><p className="text-xs font-bold text-gray-800">{p.name}</p><p className="text-xs text-gray-500">{p.description}</p></div>
+                  <div className="p-2"><p className="text-xs font-bold text-gray-800">{p.name}</p><p className="text-xs text-gray-500 line-clamp-2">{p.description}</p></div>
                 </div>
               ))}
             </div>
