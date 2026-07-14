@@ -106,6 +106,8 @@ export default function CreateProfilePage() {
   const [bannerPreview, setBannerPreview] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
+  const [directoryImagePreview, setDirectoryImagePreview] = useState(null);
+  const [directoryImageFile, setDirectoryImageFile] = useState(null);
   const [showCheckout, setShowCheckout] = useState(false);
   const [directoryOptIn, setDirectoryOptIn] = useState(true);
 
@@ -323,7 +325,8 @@ export default function CreateProfilePage() {
     if (!file) return;
     const url = URL.createObjectURL(file);
     if (type === 'logo') { setLogoPreview(url); setLogoFile(file); }
-    else { setBannerPreview(url); setBannerFile(file); }
+    else if (type === 'banner') { setBannerPreview(url); setBannerFile(file); }
+    else { setDirectoryImagePreview(url); setDirectoryImageFile(file); }
   };
 
   const handleGallery = (e) => {
@@ -346,14 +349,15 @@ export default function CreateProfilePage() {
     }
     setLoading(true); setError('');
     try {
-      let logo_url = null, banner_url = null;
+      let logo_url = null, banner_url = null, directory_image_url = null;
       if (logoFile) logo_url = await uploadImage(logoFile, 'logos');
       if (bannerFile) banner_url = await uploadImage(bannerFile, 'banners');
+      if (directoryImageFile) directory_image_url = await uploadImage(directoryImageFile, 'directory');
 
       const res = await fetch('/api/profile/create', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...form, theme: theme.id, plan: planId, logo_url, banner_url, amount_paid: finalAmount,
+          ...form, theme: theme.id, plan: planId, logo_url, banner_url, directory_image_url, amount_paid: finalAmount,
           directory_active: directoryOptIn,
           business_id_type: directoryOptIn ? form.business_id_type : null,
           business_id_number: directoryOptIn ? form.business_id_number : null,
@@ -397,6 +401,20 @@ export default function CreateProfilePage() {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profileId, type: 'biz_presence', items: bizPresence.filter(b => b.url) }),
         });
+      }
+      if (has('gallery') && gallery.length > 0) {
+        for (const g of gallery) {
+          try {
+            const image_url = await uploadImage(g.file, 'gallery');
+            await fetch('/api/profile/gallery', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image_url }),
+            });
+          } catch {
+            // One photo failing shouldn't block the rest — signup itself
+            // already succeeded at this point, so just skip and continue.
+          }
+        }
       }
 
       localStorage.removeItem(DRAFT_KEY);
@@ -683,6 +701,20 @@ export default function CreateProfilePage() {
               </>
             )}
           </div>
+
+          {/* Directory Image — only relevant if listing on the Directory */}
+          {directoryOptIn && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 mb-1">🏙️ Directory Listing Image</h2>
+              <p className="text-xs text-gray-500 mb-3">Main photo shown on your public Directory listing page. Falls back to your Banner or Logo if not set.</p>
+              <div className="w-full h-28 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
+                {directoryImagePreview ? <img src={directoryImagePreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload directory image</span>}
+              </div>
+              <input type="file" accept="image/*" onChange={e=>handleImage(e,'directory')} className="hidden" id="directory-img-up"/>
+              <label htmlFor="directory-img-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 Upload Directory Image</label>
+              {directoryImagePreview && <span className="ml-2 text-xs text-green-600 font-semibold">✓ Ready!</span>}
+            </div>
+          )}
 
           {/* Contact */}
           <div className="bg-white rounded-2xl p-5 shadow-sm">

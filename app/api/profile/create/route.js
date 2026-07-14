@@ -18,7 +18,7 @@ export async function POST(request) {
     const {
       username, full_name, designation, phone, email, business_name,
       business_type, category, city, state, area, pincode, bio, theme, plan, display_as,
-      logo_url, banner_url, whatsapp, website, about, address, maps_url,
+      logo_url, banner_url, directory_image_url, whatsapp, website, about, address, maps_url,
       tagline, video_url, brochure_url,
       facebook, instagram, youtube, linkedin, twitter, threads, pinterest, telegram,
       amount_paid,
@@ -90,6 +90,7 @@ export async function POST(request) {
         is_active: true,
         logo_url: logo_url || null,
         banner_url: banner_url || null,
+        directory_image_url: directory_image_url || null,
         whatsapp: whatsapp || null,
         website: website || null,
         about: about || null,
