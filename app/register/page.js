@@ -89,8 +89,8 @@ export default function RegisterPage() {
           {/* RIGHT - FORM */}
           <div className="order-1 lg:order-2 bg-white rounded-3xl px-5 py-8 sm:px-9 sm:py-10 shadow-[0_20px_60px_rgba(99,102,241,0.1)] border border-gray-200">
             <div className="text-center mb-7">
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-[20px] flex items-center justify-center mx-auto mb-3.5 shadow-[0_8px_24px_rgba(99,102,241,0.35)]">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              <div className="w-16 h-16 flex items-center justify-center mx-auto mb-3.5">
+                <img src="/logo-icon.png" alt="SmartProfile" className="w-14 h-14" />
               </div>
               <h2 className="text-[22px] font-extrabold text-slate-900 mb-1">Create Your Account 🎉</h2>
               <p className="text-[13px] text-slate-500">Join SmartProfile — it's free to get started</p>

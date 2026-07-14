@@ -59,8 +59,8 @@ export default function LoginPage() {
         {/* RIGHT - FORM */}
         <div style={{ background: "#fff", borderRadius: 24, padding: "40px 36px", boxShadow: "0 20px 60px rgba(99,102,241,0.1)", border: "1px solid #e2e8f0" }}>
           <div style={{ textAlign: "center", marginBottom: 28 }}>
-            <div style={{ width: 60, height: 60, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", boxShadow: "0 8px 24px rgba(99,102,241,0.35)" }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div style={{ width: 60, height: 60, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
+              <img src="/logo-icon.png" alt="SmartProfile" style={{ width: 56, height: 56 }} />
             </div>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>Welcome Back! 👋</h2>
             <p style={{ fontSize: 13, color: "#64748b" }}>Login to your SmartProfile account</p>
@@ -131,4 +131,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
