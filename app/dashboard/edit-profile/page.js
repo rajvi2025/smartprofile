@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -535,8 +536,8 @@ export default function EditProfilePage() {
               <h3 className="font-bold text-gray-800 mb-3">🖼️ Gallery ({galleryItems.length})</h3>
               <div className="grid grid-cols-3 gap-2">
                 {galleryItems.map(g => (
-                  <div key={g.id} className="aspect-square bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
-                    <img src={g.image_url} className="w-full h-full object-contain" />
+                  <div key={g.id} className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                    <Image src={g.image_url} alt={g.caption || ""} fill sizes="150px" className="object-contain" />
                   </div>
                 ))}
               </div>
@@ -549,8 +550,8 @@ export default function EditProfilePage() {
               <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "thin" }}>
                 {productItems.map(p => (
                   <div key={p.id} className="w-36 flex-shrink-0 border border-gray-100 rounded-xl overflow-hidden">
-                    <div className="w-full h-28 bg-gray-100 flex items-center justify-center">
-                      {p.image_url ? <img src={p.image_url} className="w-full h-full object-cover" /> : <span className="text-gray-300 text-xs">No image</span>}
+                    <div className="relative w-full h-28 bg-gray-100 flex items-center justify-center">
+                      {p.image_url ? <Image src={p.image_url} alt={p.name || "Product"} fill sizes="140px" className="object-cover" /> : <span className="text-gray-300 text-xs">No image</span>}
                     </div>
                     <div className="p-2">
                       <p className="text-sm font-semibold text-gray-800 truncate">{p.name}</p>
@@ -813,7 +814,7 @@ export default function EditProfilePage() {
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     {galleryItems.map(g => (
                       <div key={g.id} className="relative aspect-square rounded-lg overflow-hidden group bg-gray-100 flex items-center justify-center">
-                        <img src={g.image_url} className="w-full h-full object-contain" />
+                        <Image src={g.image_url} alt={g.caption || ""} fill sizes="150px" className="object-contain" />
                         <button onClick={() => handleGalleryDelete(g.id)}
                           className="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center opacity-90">✕</button>
                       </div>
@@ -864,8 +865,8 @@ export default function EditProfilePage() {
                     {productItems.map(p => (
                       <div key={p.id} className="border border-gray-200 rounded-xl p-3 space-y-2">
                         <div className="flex gap-2">
-                          <div className="w-14 h-14 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                            {p.image_url ? <img src={p.image_url} className="w-full h-full object-cover"/> : <span className="text-gray-300 text-xs">No img</span>}
+                          <div className="relative w-14 h-14 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            {p.image_url ? <Image src={p.image_url} alt={p.name || "Product"} fill sizes="56px" className="object-cover"/> : <span className="text-gray-300 text-xs">No img</span>}
                           </div>
                           <div className="flex-1">
                             <input type="file" accept="image/*" onChange={e=>handleProductImageChange(p, e.target.files[0])} className="hidden" id={`product-img-${p.id}`}/>
