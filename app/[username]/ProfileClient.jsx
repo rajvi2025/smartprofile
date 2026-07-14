@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import QRCode from "qrcode";
 
@@ -242,6 +242,7 @@ function BasicProfile({ profile }) {
 function BusinessProfile({ profile, products, socials, testimonials, gallery, bizPresence }) {
   const { displayName, line2, line3 } = getCardIdentity(profile);
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const touchStartY = useRef(0);
   const shareProfile = async () => {
     const url = `https://smartprofile.in/${profile.username}`;
     const shareData = { title: profile.business_name || profile.full_name, text: `Check out ${profile.business_name || profile.full_name} on SmartProfile`, url };
@@ -284,7 +285,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
           {line3 && <p className="text-blue-600 font-medium text-xs mt-0.5">{line3}</p>}
           {profile.city && <p className="text-gray-500 text-sm mt-1">📍 {profile.city}{profile.state ? `, ${profile.state}` : ""}</p>}
         </div>
-        <div className="grid grid-cols-4 gap-2 px-4 mb-4">
+        <div className="grid grid-cols-4 gap-2 px-8 mb-4">
           <a href={`tel:${profile.phone}`} className="aspect-square flex flex-col items-center justify-center bg-green-500 text-white rounded-2xl text-xs font-semibold gap-1 shadow-md text-center leading-tight">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
             Call
@@ -385,7 +386,18 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
           </div>
         )}
         {lightboxIndex !== null && gallery && gallery.length > 0 && (
-          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" onClick={() => setLightboxIndex(null)}>
+          <div
+            className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center touch-pan-y"
+            onClick={() => setLightboxIndex(null)}
+            onTouchStart={(e) => { touchStartY.current = e.touches[0].clientY; }}
+            onTouchEnd={(e) => {
+              const diff = touchStartY.current - e.changedTouches[0].clientY;
+              if (Math.abs(diff) > 40) {
+                if (diff > 0) setLightboxIndex((lightboxIndex + 1) % gallery.length); // swiped up -> next
+                else setLightboxIndex((lightboxIndex - 1 + gallery.length) % gallery.length); // swiped down -> prev
+              }
+            }}
+          >
             <button
               onClick={(e) => { e.stopPropagation(); setLightboxIndex(null); }}
               className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center text-2xl font-bold z-10"
@@ -399,27 +411,38 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
             {gallery.length > 1 && (
               <button
                 onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + gallery.length) % gallery.length); }}
-                className="absolute left-2 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center text-2xl"
+                className="absolute top-16 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center text-2xl"
                 aria-label="Previous"
               >
-                ‹
+                ⌃
               </button>
             )}
             <img
+              key={lightboxIndex}
               src={gallery[lightboxIndex].image_url}
               alt={gallery[lightboxIndex].caption || ""}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-[90%] max-h-[80%] object-contain rounded-lg"
+              className="max-w-[90%] max-h-[75%] object-contain rounded-lg gallery-flip"
             />
             {gallery.length > 1 && (
               <button
                 onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % gallery.length); }}
-                className="absolute right-2 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center text-2xl"
+                className="absolute bottom-10 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center text-2xl"
                 aria-label="Next"
               >
-                ›
+                ⌄
               </button>
             )}
+            <style jsx>{`
+              @keyframes galleryFlip {
+                0% { transform: rotateX(90deg); opacity: 0; }
+                100% { transform: rotateX(0deg); opacity: 1; }
+              }
+              .gallery-flip {
+                animation: galleryFlip 0.35s ease-out;
+                transform-style: preserve-3d;
+              }
+            `}</style>
           </div>
         )}
         {(profile.plan === "premium" || profile.plan === "pro") && bizPresence && bizPresence.length > 0 && (
