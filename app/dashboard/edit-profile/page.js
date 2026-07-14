@@ -546,14 +546,17 @@ export default function EditProfilePage() {
           {productItems.length > 0 && (
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h3 className="font-bold text-gray-800 mb-3">📦 Products ({productItems.length})</h3>
-              <div className="space-y-2">
+              <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "thin" }}>
                 {productItems.map(p => (
-                  <div key={p.id} className="flex items-center gap-3 text-sm border-b border-gray-100 last:border-0 py-1.5">
-                    <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                      {p.image_url && <img src={p.image_url} className="w-full h-full object-cover" />}
+                  <div key={p.id} className="w-36 flex-shrink-0 border border-gray-100 rounded-xl overflow-hidden">
+                    <div className="w-full h-28 bg-gray-100 flex items-center justify-center">
+                      {p.image_url ? <img src={p.image_url} className="w-full h-full object-cover" /> : <span className="text-gray-300 text-xs">No image</span>}
                     </div>
-                    <span className="text-gray-800 flex-1">{p.name}</span>
-                    {p.price && <span className="text-blue-600 font-semibold">₹{p.price}</span>}
+                    <div className="p-2">
+                      <p className="text-sm font-semibold text-gray-800 truncate">{p.name}</p>
+                      {p.price && <p className="text-xs text-blue-600 font-semibold">₹{p.price}</p>}
+                      {p.description && <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">{p.description}</p>}
+                    </div>
                   </div>
                 ))}
               </div>
