@@ -174,21 +174,28 @@ export default async function Page({ params }) {
         : {}),
     };
 
-    // Breadcrumb: Home -> Directory -> Business.
-    // NOTE: A city level was tried here (Home -> Directory -> City -> Business)
-    // but Google's Rich Results Test flags it as invalid — every breadcrumb
-    // item except the last one is required to have a working `item` URL, and
-    // there's no standalone city landing page (e.g. /directory/thane) yet to
-    // link to. Once city landing pages exist, re-add a city ListItem here
-    // between Directory and the business, with a real `item` URL pointing to
-    // that page.
+    // Breadcrumb: Home -> Directory -> City -> Business.
+    // City landing pages (smartprofile.in/directory/{city}) now exist, so
+    // the city level has a real, working `item` URL — this used to be
+    // text-only and was removed for failing Google's validator (every
+    // breadcrumb item except the last one needs a working URL).
+    const breadcrumbItems = [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://smartprofile.in" },
+      { "@type": "ListItem", position: 2, name: "Directory", item: "https://smartprofile.in/directory" },
+    ];
+    if (profile.city) {
+      breadcrumbItems.push({
+        "@type": "ListItem",
+        position: 3,
+        name: profile.city,
+        item: `https://smartprofile.in/directory/${citySlug}`,
+      });
+    }
+    breadcrumbItems.push({ "@type": "ListItem", position: breadcrumbItems.length + 1, name });
+
     const breadcrumbNode = {
       "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://smartprofile.in" },
-        { "@type": "ListItem", position: 2, name: "Directory", item: "https://smartprofile.in/directory" },
-        { "@type": "ListItem", position: 3, name },
-      ],
+      itemListElement: breadcrumbItems,
     };
 
     jsonLd = {

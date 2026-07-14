@@ -33,5 +33,16 @@ export default async function sitemap() {
       priority: 0.6,
     }));
 
-  return [...staticPages, ...directoryPages];
+  // City landing pages (smartprofile.in/directory/city) — one per distinct
+  // city that has at least one active business. Cities with zero businesses
+  // are noindexed on the page itself, so they're deliberately left out here.
+  const citySlugs = [...new Set((profiles || []).filter((p) => p.city).map((p) => slugifyCity(p.city)))];
+  const cityPages = citySlugs.map((slug) => ({
+    url: `${baseUrl}/directory/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...cityPages, ...directoryPages];
 }
