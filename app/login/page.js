@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -60,7 +61,7 @@ export default function LoginPage() {
         <div style={{ background: "#fff", borderRadius: 24, padding: "40px 36px", boxShadow: "0 20px 60px rgba(99,102,241,0.1)", border: "1px solid #e2e8f0" }}>
           <div style={{ textAlign: "center", marginBottom: 28 }}>
             <div style={{ width: 60, height: 60, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
-              <img src="/logo-icon.png" alt="SmartProfile" style={{ width: 56, height: 56 }} />
+              <Image src="/logo-icon.png" alt="SmartProfile" width={56} height={56} priority />
             </div>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>Welcome Back! 👋</h2>
             <p style={{ fontSize: 13, color: "#64748b" }}>Login to your SmartProfile account</p>

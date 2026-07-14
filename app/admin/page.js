@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 
 const PLAN_LABELS = { basic: 'Basic', business: 'Business', premium: 'Premium', pro: 'Pro' };
@@ -288,7 +289,7 @@ export default function AdminDashboard() {
                     <div style={{ flex: 1, minWidth: 260 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                         {p.logo_url && (
-                          <img src={p.logo_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} />
+                          <Image src={p.logo_url} alt="" width={40} height={40} style={{ borderRadius: 8, objectFit: 'cover' }} />
                         )}
                         <div>
                           <h3 style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', margin: 0 }}>

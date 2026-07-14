@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "" });
@@ -90,7 +91,7 @@ export default function RegisterPage() {
           <div className="order-1 lg:order-2 bg-white rounded-3xl px-5 py-8 sm:px-9 sm:py-10 shadow-[0_20px_60px_rgba(99,102,241,0.1)] border border-gray-200">
             <div className="text-center mb-7">
               <div className="w-16 h-16 flex items-center justify-center mx-auto mb-3.5">
-                <img src="/logo-icon.png" alt="SmartProfile" className="w-14 h-14" />
+                <Image src="/logo-icon.png" alt="SmartProfile" width={56} height={56} priority />
               </div>
               <h2 className="text-[22px] font-extrabold text-slate-900 mb-1">Create Your Account 🎉</h2>
               <p className="text-[13px] text-slate-500">Join SmartProfile — it's free to get started</p>
