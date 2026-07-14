@@ -169,6 +169,7 @@ export default function CreateProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [pincodeError, setPincodeError] = useState('');
+  const [pincodeLoading, setPincodeLoading] = useState(false);
 
   // Looks up City/State from a 6-digit Indian PIN code using the free
   // India Post API. Fires when the pincode field loses focus. City/State
