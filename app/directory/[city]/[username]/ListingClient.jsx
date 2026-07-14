@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@supabase/supabase-js";
 import QRCode from "qrcode";
 
@@ -132,7 +133,14 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
       {/* Banner */}
       <div className="h-44 md:h-64 relative">
         {profile.banner_url ? (
-          <img src={profile.banner_url} className="w-full h-full object-cover" />
+          <Image
+            src={profile.banner_url}
+            alt={`${profile.business_name || profile.full_name || "Business"} banner`}
+            fill
+            sizes="100vw"
+            priority
+            className="object-cover"
+          />
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-blue-600 to-blue-800" />
         )}
@@ -141,9 +149,15 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
       <div className="max-w-6xl mx-auto px-4">
         {/* Header card, overlapping the banner */}
         <div className="bg-white rounded-2xl shadow-md p-5 md:p-6 -mt-14 md:-mt-16 relative z-10 flex flex-col md:flex-row gap-5 md:items-end">
-          <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-white flex-shrink-0 -mt-8 md:mt-0">
+          <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-white flex-shrink-0 -mt-8 md:mt-0">
             {profile.logo_url ? (
-              <img src={profile.logo_url} className="w-full h-full object-cover" />
+              <Image
+                src={profile.logo_url}
+                alt={`${profile.business_name || "Business"} logo`}
+                fill
+                sizes="112px"
+                className="object-cover"
+              />
             ) : (
               <div className="w-full h-full bg-blue-700 flex items-center justify-center text-white text-3xl font-bold">
                 {(profile.business_name || "?")[0]}
@@ -250,7 +264,17 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {products.map((p) => (
                       <div key={p.id} className="rounded-xl overflow-hidden border border-gray-200">
-                        {p.image_url ? <img src={p.image_url} className="w-full h-28 object-cover" /> : <div className="w-full h-28 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
+                        {p.image_url ? (
+                          <div className="relative w-full h-28">
+                            <Image
+                              src={p.image_url}
+                              alt={p.name || "Product"}
+                              fill
+                              sizes="(max-width: 768px) 33vw, 200px"
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : <div className="w-full h-28 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
                         <div className="p-2">
                           <p className="text-xs font-bold text-gray-800">{p.name}</p>
                           {p.description && <p className="text-xs text-gray-500 line-clamp-2">{p.description}</p>}
@@ -271,7 +295,15 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
                 {galleryImages.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {galleryImages.map((g) => (
-                      <img key={g.id} src={g.image_url} alt={g.caption || ""} className="w-full h-28 object-cover rounded-xl border border-gray-200" />
+                      <div key={g.id} className="relative w-full h-28 rounded-xl overflow-hidden border border-gray-200">
+                        <Image
+                          src={g.image_url}
+                          alt={g.caption || ""}
+                          fill
+                          sizes="(max-width: 768px) 33vw, 200px"
+                          className="object-cover"
+                        />
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -347,8 +379,16 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {related.map((r) => (
                 <a key={r.username} href={`/directory/${slugifyCity(r.city)}/${r.username}`} className="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-lg mb-3 overflow-hidden">
-                    {r.logo_url ? <img src={r.logo_url} className="w-full h-full object-cover" /> : (r.business_name || r.full_name || "?")[0]}
+                  <div className="relative w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-lg mb-3 overflow-hidden">
+                    {r.logo_url ? (
+                      <Image
+                        src={r.logo_url}
+                        alt={r.business_name || r.full_name || "Business"}
+                        fill
+                        sizes="48px"
+                        className="object-cover"
+                      />
+                    ) : (r.business_name || r.full_name || "?")[0]}
                   </div>
                   <p className="text-sm font-bold text-gray-800 truncate">{r.business_name || r.full_name}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{r.category}</p>
