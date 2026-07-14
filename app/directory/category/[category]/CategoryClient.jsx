@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import Image from 'next/image';
 
 function slugifyCategory(category) {
   return (category || "").toLowerCase().trim().replace(/\s+/g, "-");
@@ -137,9 +138,9 @@ export default function CategoryClient({ categorySlug }) {
                 style={{ background: 'white', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'row', minHeight: isMobile ? 'auto' : 200 }}>
 
                 <div style={{ width: isMobile ? '44%' : '42%', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: 14, alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 12, overflow: 'hidden' }}>
+                  <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
                     {biz.img ? (
-                      <img src={biz.img} alt={biz.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <Image src={biz.img} alt={biz.name} fill sizes="(max-width: 768px) 44vw, 280px" style={{ objectFit: 'cover' }} />
                     ) : (
                       <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #3b82f625, #3b82f610)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ fontWeight: 800, color: '#3b82f6', fontSize: 28 }}>{biz.initials}</span>
