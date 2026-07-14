@@ -1,8 +1,15 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+
+// Ad banners shown on the Directory homepage — as a sticky sidebar on
+// desktop, and interspersed every 5 listings on mobile (see AD_INTERVAL).
+const AD_BANNERS = [
+  { img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/Banners/walchand-banner-slot1.png', link: 'https://wa.me/919323929638', alt: 'Walchand Park View' },
+  { img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/Banners/marsfincorp-banner-slot2.png', link: 'https://wa.me/919824148381', alt: 'Mars Fincorp' },
+];
 
 const categories = [
   { name: 'Estate Agents', icon: '🏠' },
@@ -373,10 +380,11 @@ export default function DirectoryPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1fr) 280px', gap: 24, alignItems: 'start' }}>
 
-            {/* LEFT: business cards */}
+            {/* LEFT: business cards (mobile intersperses an ad banner every 5 listings) */}
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: 18 }}>
-              {filtered.map(biz => (
-                <div key={biz.username} onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)}
+              {filtered.map((biz, bizIndex) => (
+                <React.Fragment key={biz.username}>
+                <div onClick={() => router.push(`/directory/${slugifyCity(biz.city)}/${biz.username}`)}
                   style={{ background: 'white', borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'row', minHeight: isMobile ? 'auto' : 200 }}
                   onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'}>
@@ -468,18 +476,33 @@ export default function DirectoryPage() {
                     </div>
                   </div>
                 </div>
+
+                {isMobile && (bizIndex + 1) % 5 === 0 && (
+                  (() => {
+                    const ad = AD_BANNERS[Math.floor(bizIndex / 5) % AD_BANNERS.length];
+                    return (
+                      <a href={ad.link} target="_blank" rel="noreferrer" style={{ position: 'relative', display: 'block', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                        <img src={ad.img} alt={ad.alt} style={{ width: '100%', display: 'block' }} />
+                        <span style={{ position: 'absolute', top: 8, left: 8, background: 'rgba(0,0,0,0.55)', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, padding: '2px 7px', borderRadius: 5 }}>AD</span>
+                      </a>
+                    );
+                  })()
+                )}
+                </React.Fragment>
               ))}
             </div>
 
-            {/* RIGHT: advertise banner slots */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, position: isMobile ? 'static' : 'sticky', top: 20 }}>
-              <a href="https://wa.me/919323929638" target="_blank" rel="noreferrer" style={{ display: 'block', borderRadius: 16, overflow: 'hidden', minHeight: 340, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-                <img src="https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/Banners/walchand-banner-slot1.png" alt="Walchand Park View" style={{ width: '100%', height: '100%', display: 'block' }} />
-              </a>
-              <a href="https://wa.me/919824148381" target="_blank" rel="noreferrer" style={{ display: 'block', borderRadius: 16, overflow: 'hidden', minHeight: 340, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-                <img src="https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/Banners/marsfincorp-banner-slot2.png" alt="Mars Fincorp" style={{ width: '100%', height: '100%', display: 'block' }} />
-              </a>
-            </div>
+            {/* RIGHT: advertise banner slots — desktop only (mobile shows ads interspersed in the list instead) */}
+            {!isMobile && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, position: 'sticky', top: 20 }}>
+                {AD_BANNERS.map(ad => (
+                  <a key={ad.alt} href={ad.link} target="_blank" rel="noreferrer" style={{ position: 'relative', display: 'block', borderRadius: 16, overflow: 'hidden', minHeight: 340, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                    <img src={ad.img} alt={ad.alt} style={{ width: '100%', height: '100%', display: 'block' }} />
+                    <span style={{ position: 'absolute', top: 8, left: 8, background: 'rgba(0,0,0,0.55)', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 0.5, padding: '2px 7px', borderRadius: 5 }}>AD</span>
+                  </a>
+                ))}
+              </div>
+            )}
 
           </div>
         </div>
