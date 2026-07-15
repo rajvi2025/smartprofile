@@ -36,6 +36,9 @@ export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([{ role: 'assistant', content: WELCOME_MESSAGE }]);
   const [input, setInput] = useState('');
+  const [listening, setListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  const recognitionRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
 
@@ -62,7 +65,44 @@ export default function ChatWidget() {
     }
   }, [messages, open]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
+      setVoiceSupported(true);
+    }
+  }, []);
+
   if (isDigitalCardRoute(pathname)) return null;
+
+  function toggleVoiceInput() {
+    const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionApi) return;
+
+    if (listening) {
+      recognitionRef.current?.stop();
+      setListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognitionApi();
+    // Use the visitor's own browser/device language automatically — most
+    // phones in India are already set to the owner's preferred language,
+    // so this avoids making them pick from a dropdown. Falls back to
+    // Indian English if the browser doesn't report a specific language.
+    recognition.lang = (navigator.language || 'en-IN');
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const transcript = event.results?.[0]?.[0]?.transcript || '';
+      setInput(prev => (prev ? prev + ' ' : '') + transcript);
+    };
+    recognition.onerror = () => setListening(false);
+    recognition.onend = () => setListening(false);
+
+    recognitionRef.current = recognition;
+    setListening(true);
+    recognition.start();
+  }
 
   async function submitPreChat() {
     setPreChatError('');
@@ -234,21 +274,38 @@ export default function ChatWidget() {
                 )}
               </div>
 
-              <div style={{ padding: 10, borderTop: '1px solid #e2e8f0', display: 'flex', gap: 8, background: 'white' }}>
-                <input
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type your question…"
-                  style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13.5, outline: 'none' }}
-                />
-                <button
-                  onClick={sendMessage}
-                  disabled={loading || !input.trim()}
-                  style={{ background: '#005DFF', color: 'white', border: 'none', borderRadius: 10, padding: '0 16px', fontWeight: 700, fontSize: 13, cursor: 'pointer', opacity: (loading || !input.trim()) ? 0.5 : 1 }}
-                >
-                  Send
-                </button>
+              <div style={{ padding: 10, borderTop: '1px solid #e2e8f0', background: 'white' }}>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {voiceSupported && (
+                    <button
+                      onClick={toggleVoiceInput}
+                      aria-label={listening ? 'Stop recording' : 'Speak your question'}
+                      style={{
+                        background: listening ? '#dc2626' : '#f1f5f9',
+                        color: listening ? 'white' : '#334155',
+                        border: 'none', borderRadius: 10, width: 38, height: 38, flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', fontSize: 16,
+                      }}
+                    >
+                      {listening ? '⏹️' : '🎤'}
+                    </button>
+                  )}
+                  <input
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={listening ? 'Listening…' : 'Type your question…'}
+                    style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13.5, outline: 'none' }}
+                  />
+                  <button
+                    onClick={sendMessage}
+                    disabled={loading || !input.trim()}
+                    style={{ background: '#005DFF', color: 'white', border: 'none', borderRadius: 10, padding: '0 16px', fontWeight: 700, fontSize: 13, cursor: 'pointer', opacity: (loading || !input.trim()) ? 0.5 : 1 }}
+                  >
+                    Send
+                  </button>
+                </div>
               </div>
             </>
           )}
