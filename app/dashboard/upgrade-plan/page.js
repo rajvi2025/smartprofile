@@ -102,59 +102,20 @@ export default function UpgradePlanPage() {
 
     setCouponChecking(true);
     try {
-      const { data: coupon, error: fetchErr } = await supabase
-        .from('coupons')
-        .select('*')
-        .eq('code', code)
-        .single();
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, orderAmount: upgradeCost, planId: selectedPlan, email: current.email }),
+      });
+      const result = await res.json();
 
-      if (fetchErr || !coupon) { setCouponError('This coupon code is not valid.'); setCouponChecking(false); return; }
-      if (!coupon.is_active) { setCouponError('This coupon is not active.'); setCouponChecking(false); return; }
-
-      const now = new Date();
-      if (coupon.valid_from && new Date(coupon.valid_from) > now) { setCouponError('This coupon is not active yet.'); setCouponChecking(false); return; }
-      if (coupon.valid_until && new Date(coupon.valid_until) < now) { setCouponError('This coupon has expired.'); setCouponChecking(false); return; }
-
-      if (coupon.applicable_product && coupon.applicable_product !== 'all' && coupon.applicable_product !== 'digital_card') {
-        setCouponError('This coupon is not valid for Digital Card plans.'); setCouponChecking(false); return;
-      }
-      if (coupon.applicable_plans && coupon.applicable_plans.length > 0 && !coupon.applicable_plans.includes(selectedPlan)) {
-        setCouponError('This coupon is not valid for this plan.'); setCouponChecking(false); return;
-      }
-      if (coupon.min_order_value && upgradeCost < Number(coupon.min_order_value)) {
-        setCouponError(`A minimum order of ₹${coupon.min_order_value} is required for this coupon.`); setCouponChecking(false); return;
+      if (!res.ok || !result.valid) {
+        setCouponError(result.error || 'This coupon code is not valid.');
+        setCouponChecking(false);
+        return;
       }
 
-      // Usage limit checks
-      if (coupon.usage_type === 'single_use' && (coupon.used_count || 0) >= 1) {
-        setCouponError('This coupon has already been fully used.'); setCouponChecking(false); return;
-      }
-      if (coupon.usage_type === 'limited' && coupon.max_uses && (coupon.used_count || 0) >= coupon.max_uses) {
-        setCouponError('This coupon has reached its usage limit.'); setCouponChecking(false); return;
-      }
-
-      // Per-user limit check
-      const { count: userUseCount } = await supabase
-        .from('coupon_redemptions')
-        .select('id', { count: 'exact', head: true })
-        .eq('coupon_id', coupon.id)
-        .eq('email', current.email);
-
-      if (coupon.per_user_limit && (userUseCount || 0) >= coupon.per_user_limit) {
-        setCouponError('You have already used this coupon.'); setCouponChecking(false); return;
-      }
-
-      // Calculate discount
-      let discount = coupon.type === 'percentage'
-        ? (Number(coupon.value) / 100) * upgradeCost
-        : Number(coupon.value);
-      if (coupon.max_discount_cap && discount > Number(coupon.max_discount_cap)) {
-        discount = Number(coupon.max_discount_cap);
-      }
-      discount = Math.min(discount, upgradeCost); // never discount more than the order itself
-      discount = Math.round(discount * 100) / 100;
-
-      setAppliedCoupon({ id: coupon.id, code: coupon.code, discountAmount: discount });
+      setAppliedCoupon({ id: result.couponId, code: result.code, discountAmount: result.discountAmount });
     } catch {
       setCouponError('Something went wrong. Please try again.');
     }
@@ -233,16 +194,19 @@ export default function UpgradePlanPage() {
                 // Record coupon redemption + bump used_count — only after payment + upgrade succeeded
                 if (appliedCoupon) {
                   try {
-                    await supabase.from('coupon_redemptions').insert([{
-                      coupon_id: appliedCoupon.id,
-                      profile_id: current.id || null,
-                      email: current.email,
-                      order_amount: upgradeCost,
-                      discount_amount: appliedCoupon.discountAmount,
-                      final_amount: finalAmount,
-                      razorpay_order_id: response.razorpay_order_id,
-                    }]);
-                    await supabase.rpc('increment_coupon_usage', { coupon_id_input: appliedCoupon.id });
+                    await fetch('/api/coupons/record-redemption', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        couponId: appliedCoupon.id,
+                        profileId: current.id || null,
+                        email: current.email,
+                        orderAmount: upgradeCost,
+                        discountAmount: appliedCoupon.discountAmount,
+                        finalAmount,
+                        razorpayOrderId: response.razorpay_order_id,
+                      }),
+                    });
                   } catch {
                     // Non-critical — payment already succeeded, don't block the user for this
                   }
