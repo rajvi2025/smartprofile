@@ -52,24 +52,16 @@ export default function AdminDashboard() {
 
     const { count: total } = await supabase.from('profiles').select('id', { count: 'exact', head: true });
     const { count: pending } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'pending');
-    const { count: activeCoupons } = await supabase.from('coupons').select('id', { count: 'exact', head: true }).eq('is_active', true);
-
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
 
     const { data: allProfiles } = await supabase
       .from('profiles')
       .select('business_name, full_name, plan, amount_paid, city, created_at, plan_start_date, plan_end_date');
 
-    // Revenue is sourced from the payments table (permanent, per-transaction record of
-    // what Razorpay actually collected) rather than profiles.amount_paid, which only
-    // reflects the CURRENT cycle and can be stale/overwritten by later upgrades.
-    const { data: monthPayments } = await supabase
-      .from('payments')
-      .select('amount')
-      .gte('created_at', startOfMonth.toISOString());
-    const monthRevenue = (monthPayments || []).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    // Revenue and active-coupon count come from a secure server-side route
+    // (payments/coupons tables are not publicly readable via the anon key).
+    const statsRes = await fetch('/api/admin/dashboard-stats');
+    const statsData = statsRes.ok ? await statsRes.json() : { activeCoupons: 0, monthRevenue: 0 };
+    const { activeCoupons, monthRevenue } = statsData;
 
     setStats({ total: total || 0, pending: pending || 0, activeCoupons: activeCoupons || 0, monthRevenue });
 
