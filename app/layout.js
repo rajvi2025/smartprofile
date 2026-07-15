@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import SessionProvider from "@/components/SessionProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ChatWidget from "@/components/ChatWidget";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default async function RootLayout({ children }) {
           <Navbar />
           {children}
           <Footer />
+          <ChatWidget />
         </SessionProvider>
       </body>
     </html>

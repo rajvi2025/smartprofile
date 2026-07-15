@@ -1,0 +1,175 @@
+'use client';
+import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+
+const WELCOME_MESSAGE = "Hi! 👋 I'm here to help with anything about SmartProfile — plans, pricing, features, or how to get your business listed. What would you like to know?";
+
+// Same Digital Card route detection used by Navbar/Footer — the chatbot
+// stays hidden there too, since those pages are for a single business's
+// QR/NFC visitors, not for platform-wide sales conversations.
+const RESERVED_TOP_LEVEL = [
+  '', 'admin', 'api', 'contact', 'dashboard', 'directory', 'free-listing',
+  'login', 'privacy', 'refund', 'register', 'shipping', 'terms', 'blog', 'pricing',
+];
+function isDigitalCardRoute(pathname) {
+  const parts = pathname.split('/').filter(Boolean);
+  if (parts.length === 0) return false;
+  if (RESERVED_TOP_LEVEL.includes(parts[0])) return false;
+  if (parts.length === 1) return true;
+  if (parts.length === 2 && parts[1] === 'review') return true;
+  return false;
+}
+
+export default function ChatWidget() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([{ role: 'assistant', content: WELCOME_MESSAGE }]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [leadSaved, setLeadSaved] = useState(false);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, open]);
+
+  if (isDigitalCardRoute(pathname)) return null;
+
+  async function sendMessage() {
+    const text = input.trim();
+    if (!text || loading) return;
+
+    const nextMessages = [...messages, { role: 'user', content: text }];
+    setMessages(nextMessages);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: nextMessages }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I'm having trouble responding right now. Please try again in a moment." }]);
+        setLoading(false);
+        return;
+      }
+
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+
+      // If the bot captured a lead (name + contact), silently save it —
+      // the visitor never sees this happen, it's not part of the visible chat.
+      if (data.lead && data.lead.contact) {
+        try {
+          await fetch('/api/leads/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: data.lead.name,
+              contact: data.lead.contact,
+              message: data.lead.message,
+              source: 'chatbot_website',
+            }),
+          });
+          setLeadSaved(true);
+        } catch {
+          // Non-critical — the visitor's conversation already succeeded.
+        }
+      }
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, something went wrong. Please try again." }]);
+    }
+    setLoading(false);
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  return (
+    <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999, fontFamily: "'Inter', sans-serif" }}>
+      {open && (
+        <div style={{
+          width: 340, maxWidth: '90vw', height: 460, maxHeight: '75vh',
+          background: 'white', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+          display: 'flex', flexDirection: 'column', overflow: 'hidden', marginBottom: 12,
+          border: '1px solid #e2e8f0',
+        }}>
+          {/* Header */}
+          <div style={{ background: '#005DFF', color: 'white', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 14 }}>SmartProfile Assistant</div>
+              <div style={{ fontSize: 11, opacity: 0.85 }}>Usually replies instantly</div>
+            </div>
+            <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: 'white', fontSize: 20, cursor: 'pointer', lineHeight: 1, padding: 4 }} aria-label="Close chat">×</button>
+          </div>
+
+          {/* Messages */}
+          <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 12px', display: 'flex', flexDirection: 'column', gap: 10, background: '#f8fafc' }}>
+            {messages.map((m, i) => (
+              <div key={i} style={{
+                alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                maxWidth: '82%',
+                background: m.role === 'user' ? '#005DFF' : 'white',
+                color: m.role === 'user' ? 'white' : '#1e293b',
+                padding: '9px 13px',
+                borderRadius: m.role === 'user' ? '14px 14px 3px 14px' : '14px 14px 14px 3px',
+                fontSize: 13.5, lineHeight: 1.5,
+                boxShadow: m.role === 'assistant' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+                border: m.role === 'assistant' ? '1px solid #e2e8f0' : 'none',
+                whiteSpace: 'pre-wrap',
+              }}>
+                {m.content}
+              </div>
+            ))}
+            {loading && (
+              <div style={{ alignSelf: 'flex-start', background: 'white', border: '1px solid #e2e8f0', padding: '9px 13px', borderRadius: '14px 14px 14px 3px', fontSize: 13, color: '#94a3b8' }}>
+                typing…
+              </div>
+            )}
+          </div>
+
+          {/* Input */}
+          <div style={{ padding: 10, borderTop: '1px solid #e2e8f0', display: 'flex', gap: 8, background: 'white' }}>
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your question…"
+              style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13.5, outline: 'none' }}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={loading || !input.trim()}
+              style={{ background: '#005DFF', color: 'white', border: 'none', borderRadius: 10, padding: '0 16px', fontWeight: 700, fontSize: 13, cursor: 'pointer', opacity: (loading || !input.trim()) ? 0.5 : 1 }}
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Floating button */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        aria-label={open ? 'Close chat' : 'Open chat'}
+        style={{
+          width: 56, height: 56, borderRadius: '50%', background: '#005DFF', color: 'white',
+          border: 'none', boxShadow: '0 4px 16px rgba(0,93,255,0.35)', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+          float: 'right',
+        }}
+      >
+        {open ? '×' : '💬'}
+      </button>
+    </div>
+  );
+}
