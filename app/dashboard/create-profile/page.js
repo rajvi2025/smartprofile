@@ -240,68 +240,21 @@ export default function CreateProfilePage() {
 
     setCouponChecking(true);
     try {
-      const { data: coupon, error: fetchErr } = await supabase
-        .from('coupons')
-        .select('*')
-        .eq('code', code)
-        .single();
-
-      if (fetchErr || !coupon) { setCouponError('This coupon code is not valid.'); setCouponChecking(false); return; }
-      if (!coupon.is_active) { setCouponError('This coupon is not active.'); setCouponChecking(false); return; }
-
-      const now = new Date();
-      if (coupon.valid_from && new Date(coupon.valid_from) > now) { setCouponError('This coupon is not active yet.'); setCouponChecking(false); return; }
-      if (coupon.valid_until && new Date(coupon.valid_until) < now) { setCouponError('This coupon has expired.'); setCouponChecking(false); return; }
-
-      if (coupon.applicable_product && coupon.applicable_product !== 'all' && coupon.applicable_product !== 'digital_card') {
-        setCouponError('This coupon is not valid for Digital Card plans.'); setCouponChecking(false); return;
-      }
-      if (coupon.applicable_plans && coupon.applicable_plans.length > 0 && !coupon.applicable_plans.includes(planId)) {
-        setCouponError('This coupon is not valid for this plan.'); setCouponChecking(false); return;
-      }
-      if (coupon.min_order_value && plan.amount < Number(coupon.min_order_value)) {
-        setCouponError(`A minimum order of ₹${coupon.min_order_value} is required for this coupon.`); setCouponChecking(false); return;
-      }
-
-      // Usage limit checks
-      if (coupon.usage_type === 'single_use' && (coupon.used_count || 0) >= 1) {
-        setCouponError('This coupon has already been fully used.'); setCouponChecking(false); return;
-      }
-      if (coupon.usage_type === 'limited' && coupon.max_uses && (coupon.used_count || 0) >= coupon.max_uses) {
-        setCouponError('This coupon has reached its usage limit.'); setCouponChecking(false); return;
-      }
-
-      // Per-user limit check
       const userEmail = form.email || session?.user?.email;
-      if (userEmail) {
-        const { count: userUseCount } = await supabase
-          .from('coupon_redemptions')
-          .select('id', { count: 'exact', head: true })
-          .eq('coupon_id', coupon.id)
-          .eq('email', userEmail);
-        if (coupon.per_user_limit && (userUseCount || 0) >= coupon.per_user_limit) {
-          setCouponError('You have already used this coupon.'); setCouponChecking(false); return;
-        }
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, orderAmount: plan.amount, planId, email: userEmail }),
+      });
+      const result = await res.json();
+
+      if (!res.ok || !result.valid) {
+        setCouponError(result.error || 'This coupon code is not valid.');
+        setCouponChecking(false);
+        return;
       }
 
-      // Calculate discount
-      let discount;
-      if (coupon.type === 'percentage') {
-        discount = (Number(coupon.value) / 100) * plan.amount;
-      } else if (coupon.type === 'final_price') {
-        // Discount is whatever brings this plan's price down to the coupon's
-        // target final price — same amount payable no matter which plan.
-        discount = plan.amount - Number(coupon.value);
-      } else {
-        discount = Number(coupon.value);
-      }
-      if (coupon.max_discount_cap && discount > Number(coupon.max_discount_cap)) {
-        discount = Number(coupon.max_discount_cap);
-      }
-      discount = Math.max(0, Math.min(discount, plan.amount)); // never negative, never more than the order itself
-      discount = Math.round(discount * 100) / 100;
-
-      setAppliedCoupon({ id: coupon.id, code: coupon.code, discountAmount: discount });
+      setAppliedCoupon({ id: result.couponId, code: result.code, discountAmount: result.discountAmount });
     } catch {
       setCouponError('Something went wrong. Please try again.');
     }
@@ -375,16 +328,19 @@ export default function CreateProfilePage() {
       // (and its payments-table row) was actually created successfully.
       if (appliedCoupon) {
         try {
-          await supabase.from('coupon_redemptions').insert([{
-            coupon_id: appliedCoupon.id,
-            profile_id: profileId,
-            email: form.email || session?.user?.email,
-            order_amount: plan.amount,
-            discount_amount: appliedCoupon.discountAmount,
-            final_amount: finalAmount,
-            razorpay_order_id: paymentDetails?.razorpay_order_id || null,
-          }]);
-          await supabase.rpc('increment_coupon_usage', { coupon_id_input: appliedCoupon.id });
+          await fetch('/api/coupons/record-redemption', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              couponId: appliedCoupon.id,
+              profileId,
+              email: form.email || session?.user?.email,
+              orderAmount: plan.amount,
+              discountAmount: appliedCoupon.discountAmount,
+              finalAmount,
+              razorpayOrderId: paymentDetails?.razorpay_order_id || null,
+            }),
+          });
         } catch {
           // Non-critical — the account/profile already succeeded, don't block the user for this
         }
