@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 
 const PLAN_OPTIONS = ['basic', 'business', 'premium', 'pro'];
 
@@ -36,11 +35,11 @@ export default function AdminCouponsPage() {
 
   async function fetchCoupons() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('coupons')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!error) setCoupons(data || []);
+    const res = await fetch('/api/admin/coupons-list');
+    if (res.ok) {
+      const data = await res.json();
+      setCoupons(data.coupons || []);
+    }
     setLoading(false);
   }
 
@@ -88,11 +87,16 @@ export default function AdminCouponsPage() {
       is_active: true,
     };
 
-    const { error } = await supabase.from('coupons').insert([payload]);
+    const res = await fetch('/api/admin/coupons-create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
     setSaving(false);
 
-    if (error) {
-      setFormError(error.code === '23505' ? 'This coupon code already exists.' : error.message);
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      setFormError(errData.error || 'Failed to create coupon.');
       return;
     }
 
@@ -103,11 +107,12 @@ export default function AdminCouponsPage() {
 
   async function toggleActive(coupon) {
     setActionLoading(coupon.id);
-    const { error } = await supabase
-      .from('coupons')
-      .update({ is_active: !coupon.is_active })
-      .eq('id', coupon.id);
-    if (!error) {
+    const res = await fetch('/api/admin/coupons-toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ couponId: coupon.id, is_active: !coupon.is_active }),
+    });
+    if (res.ok) {
       setCoupons(prev => prev.map(c => c.id === coupon.id ? { ...c, is_active: !c.is_active } : c));
     }
     setActionLoading(null);
