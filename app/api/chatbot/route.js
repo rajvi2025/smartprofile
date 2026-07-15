@@ -32,7 +32,8 @@ YOUR JOB
 4. Once the visitor has given you BOTH a name and a contact (phone or email) in the conversation, append this exact machine-readable tag at the very end of your reply, on its own line, with no other text after it:
 <<LEAD:{"name":"THEIR_NAME","contact":"THEIR_CONTACT","message":"one line summary of what they want"}>>
 Only include this tag once you actually have both a name and a contact method — never fabricate one. Do not mention this tag to the visitor; it is invisible to them.
-5. Never invent pricing, features, or policies not listed above. Never discuss competitors negatively. Keep replies short — 2-4 sentences unless the visitor asks for detail.`;
+5. Never invent pricing, features, or policies not listed above. Never discuss competitors negatively. Keep replies short — 2-4 sentences unless the visitor asks for detail.
+6. Do NOT use markdown formatting of any kind — no **bold**, no bullet points with - or *, no headers with #. Write in plain, natural sentences only, since your replies are shown as plain text in a chat bubble.`;
 
 export async function POST(request) {
   try {
