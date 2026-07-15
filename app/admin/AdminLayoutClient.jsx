@@ -69,13 +69,10 @@ export default function AdminLayoutClient({ children }) {
         return;
       }
 
-      const { data: userRow, error } = await supabase
-        .from('users')
-        .select('id, role')
-        .eq('email', session.user.email)
-        .single();
+      const res = await fetch('/api/admin/verify-role');
+      const userRow = res.ok ? await res.json() : null;
 
-      if (error || !userRow || (userRow.role !== 'admin' && userRow.role !== 'staff')) {
+      if (!res.ok || !userRow || (userRow.role !== 'admin' && userRow.role !== 'staff')) {
         router.push('/');
         return;
       }
@@ -86,11 +83,7 @@ export default function AdminLayoutClient({ children }) {
         return;
       }
 
-      const { data: perm } = await supabase
-        .from('staff_permissions')
-        .select('*')
-        .eq('user_id', userRow.id)
-        .single();
+      const perm = userRow.perm;
 
       if (!perm || !perm.is_active) {
         setAccessDenied('Your staff access has been deactivated. Contact the admin.');

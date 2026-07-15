@@ -24,7 +24,17 @@ export async function GET() {
       return Response.json({ error: 'Not found' }, { status: 404 });
     }
 
-    return Response.json({ id: data.id, role: data.role });
+    let perm = null;
+    if (data.role === 'staff') {
+      const { data: permRow } = await supabase
+        .from('staff_permissions')
+        .select('*')
+        .eq('user_id', data.id)
+        .single();
+      perm = permRow || null;
+    }
+
+    return Response.json({ id: data.id, role: data.role, perm });
   } catch (err) {
     return Response.json({ error: 'Server error' }, { status: 500 });
   }

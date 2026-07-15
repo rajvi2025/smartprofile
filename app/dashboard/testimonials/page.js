@@ -24,11 +24,9 @@ export default function TestimonialsViewPage() {
 
   async function fetchData() {
     setLoading(true);
-    const userResult = await supabase.from('users').select('id').eq('email', session.user.email).single();
-    const userRow = userResult.data;
-    if (!userRow) { setLoading(false); return; }
+    if (!session?.user?.id) { setLoading(false); return; }
 
-    const profileResult = await supabase.from('profiles').select('*').eq('user_id', userRow.id).single();
+    const profileResult = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
     const profileRow = profileResult.data;
     if (!profileRow) { setLoading(false); return; }
     setProfile(profileRow);

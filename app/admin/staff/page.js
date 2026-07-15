@@ -33,14 +33,11 @@ export default function AdminStaffPage() {
 
   async function fetchStaff() {
     setLoading(true);
-    const { data: users } = await supabase.from('users').select('*').eq('role', 'staff').order('created_at', { ascending: false });
-    const { data: perms } = await supabase.from('staff_permissions').select('*');
-
-    const merged = (users || []).map(u => ({
-      ...u,
-      perm: (perms || []).find(p => p.user_id === u.id) || null,
-    }));
-    setStaff(merged);
+    const res = await fetch('/api/admin/staff-list');
+    if (res.ok) {
+      const data = await res.json();
+      setStaff(data.staff || []);
+    }
     setLoading(false);
   }
 
@@ -97,11 +94,12 @@ export default function AdminStaffPage() {
   async function toggleActive(member) {
     if (!member.perm) return;
     setActionLoading(member.id);
-    const { error } = await supabase
-      .from('staff_permissions')
-      .update({ is_active: !member.perm.is_active })
-      .eq('id', member.perm.id);
-    if (!error) {
+    const res = await fetch('/api/admin/toggle-staff-permission', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ permId: member.perm.id, is_active: !member.perm.is_active }),
+    });
+    if (res.ok) {
       setStaff(prev => prev.map(s => s.id === member.id ? { ...s, perm: { ...s.perm, is_active: !s.perm.is_active } } : s));
     }
     setActionLoading(null);

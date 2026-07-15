@@ -52,13 +52,10 @@ export default function EditProfilePage() {
         router.push('/login');
         return;
       }
-      const { data, error } = await supabase
-        .from('users')
-        .select('role')
-        .eq('email', session.user.email)
-        .single();
+      const res = await fetch('/api/admin/verify-role');
+      const data = res.ok ? await res.json() : null;
 
-      if (error || data?.role !== 'admin') {
+      if (!res.ok || data?.role !== 'admin') {
         router.push('/');
         return;
       }

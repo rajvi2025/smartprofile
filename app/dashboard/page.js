@@ -47,12 +47,11 @@ export default function DashboardPage() {
       }
     }
     async function loadCustomerId() {
-      const { data } = await supabase
-        .from('users')
-        .select('customer_id')
-        .eq('id', session.user.id)
-        .single();
-      if (data?.customer_id) setCustomerId(data.customer_id);
+      const res = await fetch('/api/dashboard/customer-id');
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.customer_id) setCustomerId(data.customer_id);
+      }
     }
     loadPlan();
     loadCustomerId();

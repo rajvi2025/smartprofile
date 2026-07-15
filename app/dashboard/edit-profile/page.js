@@ -195,7 +195,8 @@ export default function EditProfilePage() {
     setBannerPreview(p.banner_url || null);
     setDirectoryImagePreview(p.directory_image_url || null);
 
-    const { data: userRow } = await supabase.from('users').select('customer_id').eq('id', session.user.id).single();
+    const custIdRes = await fetch('/api/dashboard/customer-id');
+    const userRow = custIdRes.ok ? await custIdRes.json() : null;
     if (userRow?.customer_id) setCustomerId(userRow.customer_id);
 
     const { data: socialRows } = await supabase.from('social_links').select('*').eq('profile_id', p.id);
