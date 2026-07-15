@@ -4,6 +4,15 @@ import { usePathname } from 'next/navigation';
 
 const WELCOME_MESSAGE = "Hi! 👋 I'm here to help with anything about SmartProfile — plans, pricing, features, or how to get your business listed. What would you like to know?";
 
+// Safety net: the system prompt instructs the model to avoid markdown, but
+// just in case it slips in **bold** or bullet markers, strip them so the
+// visitor never sees raw asterisks in the plain-text chat bubble.
+function stripMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/^[-*]\s+/gm, '• ');
+}
+
 // Same Digital Card route detection used by Navbar/Footer — the chatbot
 // stays hidden there too, since those pages are for a single business's
 // QR/NFC visitors, not for platform-wide sales conversations.
@@ -60,7 +69,7 @@ export default function ChatWidget() {
         return;
       }
 
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: stripMarkdown(data.reply) }]);
 
       // If the bot captured a lead (name + contact), silently save it —
       // the visitor never sees this happen, it's not part of the visible chat.
