@@ -258,13 +258,29 @@ export default function ChatWidget() {
         onClick={() => setOpen(o => !o)}
         aria-label={open ? 'Close chat' : 'Open chat'}
         style={{
-          width: 56, height: 56, borderRadius: '50%', background: '#005DFF', color: 'white',
-          border: 'none', boxShadow: '0 4px 16px rgba(0,93,255,0.35)', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+          width: 56, height: 56, borderRadius: '50%',
+          background: open ? '#005DFF' : 'linear-gradient(135deg, #f97316, #ef4444)',
+          color: 'white',
+          border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.25)', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
           float: 'right',
         }}
       >
-        {open ? '×' : '💬'}
+        {open ? (
+          <span style={{ fontSize: 24, lineHeight: 1 }}>×</span>
+        ) : (
+          <svg width="30" height="30" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M256 8C119 8 8 119 8 256c0 49 14.4 94.7 39.2 133.1L8 504l117.4-38.5C163.7 490.2 208.6 504 256 504c137 0 248-111 248-248S393 8 256 8z" fill="white" fillOpacity="0.16"/>
+            <rect x="152" y="88" width="24" height="36" rx="12" fill="white"/>
+            <rect x="120" y="150" width="272" height="150" rx="46" fill="white"/>
+            <rect x="150" y="180" width="212" height="120" rx="30" fill="#1e293b"/>
+            <circle cx="205" cy="240" r="14" fill="white"/>
+            <circle cx="307" cy="240" r="14" fill="white"/>
+            <path d="M235 268q21 16 42 0" stroke="white" strokeWidth="8" strokeLinecap="round" fill="none"/>
+            <rect x="88" y="185" width="26" height="60" rx="13" fill="white" fillOpacity="0.85"/>
+            <rect x="398" y="185" width="26" height="60" rx="13" fill="white" fillOpacity="0.85"/>
+          </svg>
+        )}
       </button>
     </div>
   );
