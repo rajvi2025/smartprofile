@@ -258,24 +258,45 @@ export default function ChatWidget() {
         onClick={() => setOpen(o => !o)}
         aria-label={open ? 'Close chat' : 'Open chat'}
         style={{
-          width: 56, height: 56, borderRadius: '50%',
-          background: open ? '#005DFF' : 'linear-gradient(135deg, #f97316, #ef4444)',
-          color: 'white',
+          width: 60, height: 60, borderRadius: '50%',
+          background: open ? '#005DFF' : 'transparent',
           border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.25)', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          float: 'right',
+          float: 'right', padding: 0, overflow: 'visible',
         }}
       >
         {open ? (
-          <span style={{ fontSize: 24, lineHeight: 1 }}>×</span>
+          <span style={{ fontSize: 24, lineHeight: 1, color: 'white' }}>×</span>
         ) : (
-          <svg width="34" height="34" viewBox="0 0 272 210" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0" y="30" width="272" height="150" rx="46" fill="white"/>
-            <rect x="30" y="60" width="212" height="120" rx="30" fill="#1e293b"/>
-            <circle cx="85" cy="120" r="14" fill="white"/>
-            <circle cx="187" cy="120" r="14" fill="white"/>
-            <path d="M115 148q21 16 42 0" stroke="white" strokeWidth="8" strokeLinecap="round" fill="none"/>
-            <rect x="32" y="0" width="24" height="36" rx="12" fill="white"/>
+          <svg width="60" height="60" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="botBubbleGrad" x1="15%" y1="10%" x2="85%" y2="95%">
+                <stop offset="0%" stopColor="#fbaa3f"/>
+                <stop offset="45%" stopColor="#f7791e"/>
+                <stop offset="100%" stopColor="#ef4410"/>
+              </linearGradient>
+              <linearGradient id="botHeadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#ffffff"/>
+                <stop offset="100%" stopColor="#dde3e9"/>
+              </linearGradient>
+              <filter id="botShadow" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="10" stdDeviation="14" floodColor="#000000" floodOpacity="0.28"/>
+              </filter>
+            </defs>
+            {/* Speech-bubble body with tail, glossy orange */}
+            <circle cx="512" cy="440" r="440" fill="url(#botBubbleGrad)"/>
+            <path d="M310 790 Q345 850 300 940 Q220 900 190 800 Q250 780 310 790Z" fill="url(#botBubbleGrad)"/>
+            {/* Robot head, lifted with a soft shadow */}
+            <g filter="url(#botShadow)">
+              <rect x="490" y="180" width="44" height="90" rx="22" fill="url(#botHeadGrad)"/>
+              <rect x="230" y="330" width="564" height="330" rx="100" fill="url(#botHeadGrad)"/>
+              <rect x="150" y="410" width="70" height="150" rx="35" fill="#dbe1e8"/>
+              <rect x="804" y="410" width="70" height="150" rx="35" fill="#dbe1e8"/>
+            </g>
+            <rect x="290" y="390" width="444" height="220" rx="70" fill="#22405f"/>
+            <circle cx="400" cy="500" r="34" fill="#f7791e"/>
+            <circle cx="624" cy="500" r="34" fill="#f7791e"/>
+            <path d="M462 555q50 42 100 0" stroke="#f7791e" strokeWidth="20" strokeLinecap="round" fill="none"/>
           </svg>
         )}
       </button>
