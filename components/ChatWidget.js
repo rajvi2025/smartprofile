@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 const WELCOME_MESSAGE = "Hi! 👋 I'm here to help with anything about SmartProfile — plans, pricing, features, or how to get your business listed. What would you like to know?";
 const PRECHAT_SESSION_KEY = 'smartprofile_chat_prechat_done';
@@ -156,7 +157,7 @@ export default function ChatWidget() {
   const fieldStyle = { width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '9px 12px', fontSize: 13.5, outline: 'none', boxSizing: 'border-box', marginBottom: 10 };
 
   return (
-    <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999, fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999, fontFamily: "'Inter', sans-serif", display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
       {open && (
         <div style={{
           width: 340, maxWidth: '90vw', height: 460, maxHeight: '75vh',
@@ -262,42 +263,13 @@ export default function ChatWidget() {
           background: open ? '#005DFF' : 'transparent',
           border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.25)', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          float: 'right', padding: 0, overflow: 'visible',
+          padding: 0, overflow: 'hidden',
         }}
       >
         {open ? (
           <span style={{ fontSize: 24, lineHeight: 1, color: 'white' }}>×</span>
         ) : (
-          <svg width="60" height="60" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="botBubbleGrad" x1="15%" y1="10%" x2="85%" y2="95%">
-                <stop offset="0%" stopColor="#fbaa3f"/>
-                <stop offset="45%" stopColor="#f7791e"/>
-                <stop offset="100%" stopColor="#ef4410"/>
-              </linearGradient>
-              <linearGradient id="botHeadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#ffffff"/>
-                <stop offset="100%" stopColor="#dde3e9"/>
-              </linearGradient>
-              <filter id="botShadow" x="-30%" y="-30%" width="160%" height="160%">
-                <feDropShadow dx="0" dy="10" stdDeviation="14" floodColor="#000000" floodOpacity="0.28"/>
-              </filter>
-            </defs>
-            {/* Speech-bubble body with tail, glossy orange */}
-            <circle cx="512" cy="440" r="440" fill="url(#botBubbleGrad)"/>
-            <path d="M310 790 Q345 850 300 940 Q220 900 190 800 Q250 780 310 790Z" fill="url(#botBubbleGrad)"/>
-            {/* Robot head, lifted with a soft shadow */}
-            <g filter="url(#botShadow)">
-              <rect x="490" y="180" width="44" height="90" rx="22" fill="url(#botHeadGrad)"/>
-              <rect x="230" y="330" width="564" height="330" rx="100" fill="url(#botHeadGrad)"/>
-              <rect x="150" y="410" width="70" height="150" rx="35" fill="#dbe1e8"/>
-              <rect x="804" y="410" width="70" height="150" rx="35" fill="#dbe1e8"/>
-            </g>
-            <rect x="290" y="390" width="444" height="220" rx="70" fill="#22405f"/>
-            <circle cx="400" cy="500" r="34" fill="#f7791e"/>
-            <circle cx="624" cy="500" r="34" fill="#f7791e"/>
-            <path d="M462 555q50 42 100 0" stroke="#f7791e" strokeWidth="20" strokeLinecap="round" fill="none"/>
-          </svg>
+          <Image src="/chatbot-icon.png" alt="Chat with us" width={60} height={60} priority />
         )}
       </button>
     </div>
