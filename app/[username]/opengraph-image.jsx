@@ -84,54 +84,6 @@ export default async function Image({ params }) {
               position: "relative",
             }}
           >
-            {/* Status bar */}
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 40,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "0 22px",
-                zIndex: 5,
-              }}
-            >
-              <span style={{ fontSize: 14, fontWeight: 700, color: "white" }}>9:41</span>
-              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <div style={{ display: "flex", alignItems: "flex-end", gap: 2 }}>
-                  {[5, 8, 11, 14].map((h) => (
-                    <div key={h} style={{ width: 3, height: h, background: "white", borderRadius: 1 }} />
-                  ))}
-                </div>
-                <span style={{ fontSize: 13, color: "white" }}>📶</span>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div style={{ width: 22, height: 11, border: "1.5px solid white", borderRadius: 3, display: "flex", padding: 2 }}>
-                    <div style={{ flex: 1, height: "100%", background: "white", borderRadius: 1 }} />
-                  </div>
-                  <div style={{ width: 2, height: 4, background: "white", marginLeft: 1, borderRadius: 1 }} />
-                </div>
-              </div>
-            </div>
-
-            {/* Notch */}
-            <div
-              style={{
-                position: "absolute",
-                top: 8,
-                left: "50%",
-                transform: "translateX(-84px)",
-                width: 108,
-                height: 24,
-                background: "#111318",
-                borderRadius: 14,
-                zIndex: 6,
-                display: "flex",
-              }}
-            />
-
             {/* Banner */}
             <div style={{ width: "100%", height: BANNER_HEIGHT, display: "flex", flexShrink: 0 }}>
               {profile?.banner_url ? (
@@ -225,12 +177,101 @@ export default async function Image({ params }) {
                 </div>
               )}
 
+              {profile?.category && (
+                <div
+                  style={{
+                    display: "flex",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "#475569",
+                    background: "#f1f5f9",
+                    padding: "5px 14px",
+                    borderRadius: 999,
+                    marginTop: 10,
+                  }}
+                >
+                  {profile.category}
+                </div>
+              )}
+
+              {/* Action buttons — mirrors the real Call / WhatsApp / Save
+                  buttons on the actual Digital Card, filling out the card
+                  so it doesn't look empty below the name. */}
+              <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <div style={{ width: 46, height: 46, borderRadius: 14, background: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📞</div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "#475569" }}>Call</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <div style={{ width: 46, height: 46, borderRadius: 14, background: "#4ade80", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>💬</div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "#475569" }}>WhatsApp</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <div style={{ width: 46, height: 46, borderRadius: 14, background: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>👤</div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "#475569" }}>Save</span>
+                </div>
+              </div>
+
+              {profile?.phone && (
+                <div style={{ display: "flex", alignItems: "center", fontSize: 13, color: "#64748b", fontWeight: 600, marginTop: 16 }}>
+                  📞 +91 {profile.phone}
+                </div>
+              )}
+
               {/* Branding footer, pinned to the bottom of the screen */}
               <div style={{ display: "flex", alignItems: "center", fontSize: 13, marginTop: "auto" }}>
                 <span style={{ fontWeight: 800, color: "#0f172a" }}>Smart</span>
                 <span style={{ fontWeight: 800, color: "#475569" }}>Profile</span>
                 <span style={{ marginLeft: 4, color: "#94a3b8", fontWeight: 400 }}>.in</span>
               </div>
+            </div>
+
+            {/* Status bar — rendered LAST so it paints on top of the banner
+                instead of being hidden behind it. */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 40,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "0 22px",
+              }}
+            >
+              <span style={{ fontSize: 14, fontWeight: 700, color: "white" }}>9:41</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 2 }}>
+                  {[5, 8, 11, 14].map((h) => (
+                    <div key={h} style={{ width: 3, height: h, background: "white", borderRadius: 1 }} />
+                  ))}
+                </div>
+                <span style={{ fontSize: 13, color: "white" }}>📶</span>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{ width: 22, height: 11, border: "1.5px solid white", borderRadius: 3, display: "flex", padding: 2 }}>
+                    <div style={{ flex: 1, height: "100%", background: "white", borderRadius: 1 }} />
+                  </div>
+                  <div style={{ width: 2, height: 4, background: "white", marginLeft: 1, borderRadius: 1 }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Notch — a full-width absolute strip with its content
+                centered via flex, instead of transform (more reliably
+                supported by the image-rendering engine). */}
+            <div
+              style={{
+                position: "absolute",
+                top: 8,
+                left: 0,
+                right: 0,
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <div style={{ width: 108, height: 24, background: "#111318", borderRadius: 14, display: "flex" }} />
             </div>
           </div>
         </div>
