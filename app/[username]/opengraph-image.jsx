@@ -33,7 +33,11 @@ export default async function Image({ params }) {
   // Long business names would overflow at a fixed font size, so it scales
   // down automatically as the name gets longer.
   const nameLen = (bigName || "").length;
-  const nameFontSize = nameLen <= 18 ? 48 : nameLen <= 28 ? 38 : nameLen <= 40 ? 30 : 24;
+  const nameFontSize = nameLen <= 18 ? 44 : nameLen <= 28 ? 34 : nameLen <= 40 ? 24 : 19;
+  // Names past ~28 characters usually wrap to 2 lines on the phone's width
+  // — give the subtitle extra clearance in that case so it never collides
+  // with the wrapped second line.
+  const subtitleMarginTop = nameLen > 28 ? 40 : 8;
 
   // Real phone proportions (portrait, not stretched to landscape) — but the
   // canvas AROUND it is transparent, not a colored fill. So instead of a
@@ -41,10 +45,10 @@ export default async function Image({ params }) {
   // (before that), what actually renders is just the phone shape itself —
   // WhatsApp/browsers show whatever's behind a transparent PNG (usually
   // white), so there's no visible "extra background" at all.
-  const PHONE_W = 440;
-  const PHONE_H = 586;
-  const BANNER_HEIGHT = 192;
-  const LOGO_SIZE = 140;
+  const PHONE_W = 466;
+  const PHONE_H = 618;
+  const BANNER_HEIGHT = 202;
+  const LOGO_SIZE = 150;
 
   return new ImageResponse(
     (
@@ -165,7 +169,7 @@ export default async function Image({ params }) {
             </div>
 
             {smallLine && (
-              <div style={{ fontSize: 20, fontWeight: 700, color: "#334155", marginTop: 8, textAlign: "center" }}>
+              <div style={{ fontSize: 20, fontWeight: 700, color: "#334155", marginTop: subtitleMarginTop, textAlign: "center" }}>
                 {smallLine}
               </div>
             )}
