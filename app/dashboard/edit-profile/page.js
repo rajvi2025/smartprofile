@@ -167,14 +167,20 @@ export default function EditProfilePage() {
     }
   };
 
-  const DRAFT_KEY = 'smartprofile_edit_draft';
+  // Same fix as the signup form: this used to be one shared key for the
+  // whole browser, so a stale draft left over from a DIFFERENT account's
+  // edit session on this device could silently get merged into whichever
+  // account opens this page next — overwriting real saved profile data,
+  // not just a blank form. Scoping by email means each account only ever
+  // sees its own draft.
+  const draftKey = session?.user?.email ? `smartprofile_edit_draft:${session.user.email}` : null;
 
   useEffect(() => {
-    if (loadingData) return;
+    if (loadingData || !draftKey) return;
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(form));
+      localStorage.setItem(draftKey, JSON.stringify(form));
     } catch (e) {}
-  }, [form, loadingData]);
+  }, [form, loadingData, draftKey]);
 
   const [profileId, setProfileId] = useState(null);
 
@@ -222,7 +228,7 @@ export default function EditProfilePage() {
       ...socialValues,
     };
     try {
-      const savedDraft = localStorage.getItem(DRAFT_KEY);
+      const savedDraft = draftKey ? localStorage.getItem(draftKey) : null;
       if (savedDraft) {
         const draft = JSON.parse(savedDraft);
         // Only bring over fields that actually have a non-empty value in the
@@ -334,7 +340,7 @@ export default function EditProfilePage() {
 
       setSuccess(true);
       setLogoFile(null); setBannerFile(null); setDirectoryImageFile(null);
-      localStorage.removeItem(DRAFT_KEY);
+      if (draftKey) localStorage.removeItem(draftKey);
       setMode('view');
     } catch {
       setError('Network error. Try again.');

@@ -135,12 +135,18 @@ export default function CreateProfilePage() {
     facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '', threads: '', pinterest: '', telegram: '',
   });
 
-  const DRAFT_KEY = 'smartprofile_create_draft';
+  // The draft used to be one shared key for the whole browser — meaning
+  // whoever typed into this form last on this device (any account) would
+  // have their leftover data auto-fill for the NEXT person who opens it,
+  // even a completely different customer. Scoping the key to the logged-in
+  // account's email fixes that: each account only ever sees its own draft.
+  const draftKey = session?.user?.email ? `smartprofile_create_draft:${session.user.email}` : null;
 
-  // Restore any saved draft once, on first load.
+  // Restore any saved draft once we know which account is logged in.
   useEffect(() => {
+    if (!draftKey) return;
     try {
-      const saved = localStorage.getItem(DRAFT_KEY);
+      const saved = localStorage.getItem(draftKey);
       if (saved) {
         const draft = JSON.parse(saved);
         if (draft.form) setForm(draft.form);
@@ -154,7 +160,7 @@ export default function CreateProfilePage() {
       // corrupted draft — ignore and start fresh
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [draftKey]);
 
   // If the customer just came from the Spin & Win page and won a coupon,
   // auto-fill and auto-apply it here so they don't have to type it in —
@@ -219,14 +225,16 @@ export default function CreateProfilePage() {
 
   // Auto-save the draft (text fields only — images can't be persisted this
   // way, so logo/banner still need re-uploading if a draft is restored)
-  // whenever the form, plan, or theme changes.
+  // whenever the form, plan, or theme changes. Skipped until we know which
+  // account's key to save under.
   useEffect(() => {
+    if (!draftKey) return;
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ form, planId, themeId: theme.id }));
+      localStorage.setItem(draftKey, JSON.stringify({ form, planId, themeId: theme.id }));
     } catch (e) {
       // storage full or unavailable — silently skip autosave
     }
-  }, [form, planId, theme]);
+  }, [draftKey, form, planId, theme]);
 
   if (status === 'loading') return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!session) { router.push('/login'); return null; }
@@ -332,7 +340,7 @@ export default function CreateProfilePage() {
       // got here, the profile (and its coupon redemption / sections) are
       // already done — just go straight to the finished card, don't redo it.
       if (data.alreadyExisted) {
-        localStorage.removeItem(DRAFT_KEY);
+        if (draftKey) localStorage.removeItem(draftKey);
         router.push(`/${data.profile.username}`);
         setLoading(false);
         return;
@@ -387,7 +395,7 @@ export default function CreateProfilePage() {
         }
       }
 
-      localStorage.removeItem(DRAFT_KEY);
+      if (draftKey) localStorage.removeItem(draftKey);
       router.push(`/${form.username}`);
     } catch { setError('Network error.'); }
     finally { setLoading(false); }
