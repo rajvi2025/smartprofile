@@ -111,6 +111,11 @@ export default function CreateProfilePage() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [directoryOptIn, setDirectoryOptIn] = useState(true);
 
+  // Images are now uploaded BEFORE payment (inside handlePayment) so their
+  // URLs can be stashed in pending_signups along with the rest of the form.
+  // handleSubmit reuses these instead of re-uploading after payment.
+  const [uploadedImageUrls, setUploadedImageUrls] = useState({ logo_url: null, banner_url: null, directory_image_url: null });
+
   // ---- Coupon state ----
   const [couponCode, setCouponCode] = useState('');
   const [couponChecking, setCouponChecking] = useState(false);
@@ -302,10 +307,9 @@ export default function CreateProfilePage() {
     }
     setLoading(true); setError('');
     try {
-      let logo_url = null, banner_url = null, directory_image_url = null;
-      if (logoFile) logo_url = await uploadImage(logoFile, 'logos');
-      if (bannerFile) banner_url = await uploadImage(bannerFile, 'banners');
-      if (directoryImageFile) directory_image_url = await uploadImage(directoryImageFile, 'directory');
+      // Logo/banner/directory image were already uploaded before payment
+      // (see handlePayment) — reuse those URLs instead of uploading again.
+      const { logo_url, banner_url, directory_image_url } = uploadedImageUrls;
 
       const res = await fetch('/api/profile/create', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -323,6 +327,16 @@ export default function CreateProfilePage() {
       if (!res.ok) { setError(data.error || 'Error'); setLoading(false); return; }
 
       const profileId = data.profile.id;
+
+      // If the webhook already recovered this payment before the browser
+      // got here, the profile (and its coupon redemption / sections) are
+      // already done — just go straight to the finished card, don't redo it.
+      if (data.alreadyExisted) {
+        localStorage.removeItem(DRAFT_KEY);
+        router.push(`/${data.profile.username}`);
+        setLoading(false);
+        return;
+      }
 
       // Record coupon redemption + bump used_count — only after the profile
       // (and its payments-table row) was actually created successfully.
@@ -401,10 +415,42 @@ export default function CreateProfilePage() {
         return;
       }
 
+      // Upload logo/banner/directory image BEFORE creating the Razorpay
+      // order, so their URLs can travel with the rest of the form into
+      // pending_signups. This is what lets the webhook fully recreate the
+      // profile later if the browser never makes it back after payment.
+      let { logo_url, banner_url, directory_image_url } = uploadedImageUrls;
+      try {
+        if (logoFile && !logo_url) logo_url = await uploadImage(logoFile, 'logos');
+        if (bannerFile && !banner_url) banner_url = await uploadImage(bannerFile, 'banners');
+        if (directoryImageFile && !directory_image_url) directory_image_url = await uploadImage(directoryImageFile, 'directory');
+      } catch {
+        setError('Image upload fail ho gaya. Dobara try karo.');
+        setLoading(false);
+        return;
+      }
+      setUploadedImageUrls({ logo_url, banner_url, directory_image_url });
+
+      // Same shape /api/profile/create expects — this is what gets stashed
+      // in pending_signups and later replayed by either handleSubmit
+      // (normal path) or the webhook (recovery path).
+      const profilePayload = {
+        ...form, theme: theme.id, plan: planId, logo_url, banner_url, directory_image_url, amount_paid: finalAmount,
+        directory_active: directoryOptIn,
+        business_id_type: directoryOptIn ? form.business_id_type : null,
+        business_id_number: directoryOptIn ? form.business_id_number : null,
+        coupon_code: appliedCoupon ? appliedCoupon.code : null,
+        coupon_id: appliedCoupon ? appliedCoupon.id : null,
+        order_amount: plan.amount,
+        discount_amount: discountAmount,
+        products: has('products') && products[0].name ? products.filter(p => p.name) : null,
+        biz_presence: has('biz_presence') && bizPresence[0].url ? bizPresence.filter(b => b.url) : null,
+      };
+
       const orderRes = await fetch('/api/razorpay/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: finalAmount, planId: plan.id, username: form.username }),
+        body: JSON.stringify({ amount: finalAmount, planId: plan.id, username: form.username, profilePayload }),
       });
       const orderData = await orderRes.json();
       if (!orderRes.ok || !orderData.order) {

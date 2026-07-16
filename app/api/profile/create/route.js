@@ -48,6 +48,30 @@ export async function POST(request) {
       return Response.json({ error: 'Business Identification Number is required to submit to the Directory' }, { status: 400 });
     }
 
+    // If this exact payment (order_id) already produced a profile — most
+    // likely because the webhook beat the browser to it after a payment
+    // — treat this as success and hand back the existing profile instead
+    // of erroring. Without this, a customer whose payment the webhook
+    // already recovered would see a confusing "Username already taken"
+    // error on a page that, for them, never actually finished.
+    if (razorpay_order_id) {
+      const { data: existingByOrder } = await supabase
+        .from('payments')
+        .select('profile_id')
+        .eq('razorpay_order_id', razorpay_order_id)
+        .single();
+      if (existingByOrder?.profile_id) {
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', existingByOrder.profile_id)
+          .single();
+        if (existingProfile) {
+          return Response.json({ success: true, profile: existingProfile, alreadyExisted: true }, { status: 200 });
+        }
+      }
+    }
+
     const { data: existing } = await supabase
       .from('profiles')
       .select('username')
