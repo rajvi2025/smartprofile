@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { signIn } from "next-auth/react";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "" });
@@ -36,8 +37,25 @@ export default function RegisterPage() {
         body: JSON.stringify({ name: formData.name, email: formData.email, password: formData.password }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Registration failed"); setLoading(false); }
-      else { router.push("/login?registered=true"); }
+      if (!res.ok) { setError(data.error || "Registration failed"); setLoading(false); return; }
+
+      // Account created — log the customer in immediately instead of sending
+      // them to /login to type their password again. This is the step that
+      // used to lose people between "Register" and actually reaching
+      // create-profile (and therefore payment).
+      const signInResult = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      });
+
+      if (signInResult?.ok) {
+        router.push("/dashboard/create-profile");
+      } else {
+        // Extremely rare (account created but auto-login itself failed) —
+        // fall back to the old behavior so the customer is never stuck.
+        router.push("/login?registered=true");
+      }
     } catch { setError("Something went wrong"); setLoading(false); }
   };
 
