@@ -20,12 +20,16 @@ const FIELDS = [
   ['address', 'Address'],
   ['city', 'City'],
   ['state', 'State'],
-  ['logo_url', 'Logo URL'],
-  ['banner_url', 'Banner URL'],
   ['maps_url', 'Maps URL'],
   ['video_url', 'Video URL'],
   ['brochure_url', 'Brochure URL'],
   ['theme', 'Theme'],
+];
+
+const IMAGE_FIELDS = [
+  ['logo_url', 'Logo', 'logos'],
+  ['banner_url', 'Banner', 'banners'],
+  ['directory_image_url', 'Directory Listing Image', 'directory'],
 ];
 
 const TEXTAREA_FIELDS = [
@@ -44,6 +48,7 @@ export default function EditProfilePage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({});
   const [message, setMessage] = useState('');
+  const [uploadingField, setUploadingField] = useState(null);
 
   useEffect(() => {
     async function checkAdmin() {
@@ -79,6 +84,28 @@ export default function EditProfilePage() {
 
   function handleChange(key, value) {
     setForm(prev => ({ ...prev, [key]: value }));
+  }
+
+  async function handleImageUpload(e, key, folder) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingField(key);
+    setMessage('');
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('folder', folder);
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        handleChange(key, data.url);
+      } else {
+        setMessage('Error: ' + (data.error || 'Image upload failed'));
+      }
+    } catch (err) {
+      setMessage('Error: ' + err.message);
+    }
+    setUploadingField(null);
   }
 
   async function handleSave() {
@@ -132,6 +159,48 @@ export default function EditProfilePage() {
             {message}
           </div>
         )}
+
+        <div style={{ background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: 16 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 14 }}>Images</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 18 }}>
+            {IMAGE_FIELDS.map(([key, label, folder]) => (
+              <div key={key}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 6 }}>
+                  {label}
+                </label>
+                <div style={{
+                  width: '100%', height: 110, borderRadius: 10, background: '#f1f5f9',
+                  border: '1px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  overflow: 'hidden', marginBottom: 8,
+                }}>
+                  {form[key] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={form[key]} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>No image</span>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  id={`upload-${key}`}
+                  style={{ display: 'none' }}
+                  onChange={e => handleImageUpload(e, key, folder)}
+                />
+                <label
+                  htmlFor={`upload-${key}`}
+                  style={{
+                    display: 'inline-block', fontSize: 12.5, fontWeight: 600, color: 'white',
+                    background: uploadingField === key ? '#93c5fd' : '#3b82f6',
+                    padding: '6px 14px', borderRadius: 7, cursor: 'pointer',
+                  }}
+                >
+                  {uploadingField === key ? 'Uploading…' : `📤 Upload ${label}`}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div style={{ background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
