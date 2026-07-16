@@ -232,7 +232,7 @@ function BasicProfile({ profile }) {
         <div className="text-center py-4 border-t border-gray-100">
           <p className="text-xs text-gray-400">Powered by</p>
           <p className="font-bold text-gray-700 text-sm">Smart<span className="text-orange-500">Profile</span>.in</p>
-          <p className="text-xs text-gray-400">One Profile. Complete Business.</p>
+          <a href="/" className="text-xs text-blue-600">Create Your Own Smart Profile →</a>
         </div>
       </div>
     </div>
