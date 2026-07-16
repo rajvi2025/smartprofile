@@ -31,6 +31,13 @@ export default async function Image({ params }) {
   const location = profile ? [profile.city, profile.state].filter(Boolean).join(", ") : "";
   const initial = (bigName || "?")[0]?.toUpperCase();
 
+  // Long business names (e.g. "COPPERKING HOMEE INDIA PRIVATE LIMITED")
+  // would overflow and collide with the subtitle/tagline below at a fixed
+  // large font size — so the name's font size scales down as it gets
+  // longer, keeping everything on-card no matter how long the name is.
+  const nameLen = (bigName || "").length;
+  const nameFontSize = nameLen <= 18 ? 76 : nameLen <= 28 ? 58 : nameLen <= 40 ? 44 : 34;
+
   return new ImageResponse(
     (
       <div
@@ -48,7 +55,8 @@ export default async function Image({ params }) {
       >
         {/* Card panel — sized close to the full canvas so it still reads
             clearly at WhatsApp/social media's small thumbnail size, not
-            just at full resolution. */}
+            just at full resolution. Height is intrinsic (not fixed) so it
+            never clips or overlaps content when the name wraps to 2 lines. */}
         <div
           style={{
             display: "flex",
@@ -56,19 +64,17 @@ export default async function Image({ params }) {
             alignItems: "center",
             background: "white",
             borderRadius: 36,
-            padding: "48px 60px",
+            padding: "44px 60px",
             boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
             width: 1120,
-            height: 550,
-            justifyContent: "center",
           }}
         >
           {/* Logo circle — bigger, so it's still recognizable when scaled
               down to a tiny thumbnail. */}
           <div
             style={{
-              width: 200,
-              height: 200,
+              width: 180,
+              height: 180,
               borderRadius: "50%",
               background: profile?.logo_url ? "white" : "#1e40af",
               display: "flex",
@@ -76,27 +82,27 @@ export default async function Image({ params }) {
               justifyContent: "center",
               border: "8px solid #dbeafe",
               overflow: "hidden",
-              marginBottom: 24,
+              marginBottom: 22,
               flexShrink: 0,
             }}
           >
             {profile?.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.logo_url} width={200} height={200} style={{ objectFit: "cover" }} alt="" />
+              <img src={profile.logo_url} width={180} height={180} style={{ objectFit: "cover" }} alt="" />
             ) : (
-              <span style={{ fontSize: 90, fontWeight: 800, color: "white" }}>{initial}</span>
+              <span style={{ fontSize: 80, fontWeight: 800, color: "white" }}>{initial}</span>
             )}
           </div>
 
-          {/* Business/personal name — much larger and bolder so it's
-              legible even shrunk down in a chat bubble preview. */}
+          {/* Business/personal name — font size scales down automatically
+              for longer names so it never overflows the card. */}
           <div
             style={{
-              fontSize: 76,
+              fontSize: nameFontSize,
               fontWeight: 800,
               color: "#0f172a",
               textAlign: "center",
-              lineHeight: 1.1,
+              lineHeight: 1.15,
               maxWidth: 1000,
             }}
           >
@@ -105,27 +111,20 @@ export default async function Image({ params }) {
 
           {/* Subtitle line */}
           {smallLine && (
-            <div style={{ fontSize: 36, fontWeight: 700, color: "#3b82f6", marginTop: 14, textAlign: "center" }}>
+            <div style={{ fontSize: 32, fontWeight: 700, color: "#3b82f6", marginTop: 12, textAlign: "center" }}>
               {smallLine}
             </div>
           )}
 
-          {/* Tagline */}
-          {profile?.tagline && (
-            <div style={{ fontSize: 30, color: "#64748b", marginTop: 12, textAlign: "center" }}>
-              {profile.tagline}
-            </div>
-          )}
-
           {/* Location + phone row */}
-          <div style={{ display: "flex", gap: 36, marginTop: 26 }}>
+          <div style={{ display: "flex", gap: 32, marginTop: 22 }}>
             {location && (
-              <div style={{ display: "flex", alignItems: "center", fontSize: 28, color: "#475569", fontWeight: 600 }}>
+              <div style={{ display: "flex", alignItems: "center", fontSize: 26, color: "#475569", fontWeight: 600 }}>
                 📍 {location}
               </div>
             )}
             {profile?.phone && (
-              <div style={{ display: "flex", alignItems: "center", fontSize: 28, color: "#475569", fontWeight: 600 }}>
+              <div style={{ display: "flex", alignItems: "center", fontSize: 26, color: "#475569", fontWeight: 600 }}>
                 📞 +91 {profile.phone}
               </div>
             )}
@@ -133,7 +132,7 @@ export default async function Image({ params }) {
         </div>
 
         {/* Branding footer */}
-        <div style={{ display: "flex", alignItems: "center", marginTop: 24, fontSize: 26, color: "white" }}>
+        <div style={{ display: "flex", alignItems: "center", marginTop: 22, fontSize: 26, color: "white" }}>
           <span style={{ fontWeight: 800 }}>Smart</span>
           <span style={{ fontWeight: 800, color: "#bfdbfe" }}>Profile</span>
           <span style={{ marginLeft: 8, color: "#dbeafe", fontWeight: 400 }}>.in</span>
