@@ -35,11 +35,16 @@ export default async function Image({ params }) {
   const nameLen = (bigName || "").length;
   const nameFontSize = nameLen <= 18 ? 48 : nameLen <= 28 ? 38 : nameLen <= 40 ? 30 : 24;
 
-  // The phone bezel now fills the ENTIRE canvas edge-to-edge — no visible
-  // background around it at all, per request. The canvas itself IS the
-  // phone frame.
-  const BANNER_HEIGHT = 210;
-  const LOGO_SIZE = 150;
+  // Real phone proportions (portrait, not stretched to landscape) — but the
+  // canvas AROUND it is transparent, not a colored fill. So instead of a
+  // wide stretched rectangle (previous attempt) or a visible gray box
+  // (before that), what actually renders is just the phone shape itself —
+  // WhatsApp/browsers show whatever's behind a transparent PNG (usually
+  // white), so there's no visible "extra background" at all.
+  const PHONE_W = 460;
+  const PHONE_H = 610;
+  const BANNER_HEIGHT = 200;
+  const LOGO_SIZE = 148;
 
   return new ImageResponse(
     (
@@ -48,56 +53,67 @@ export default async function Image({ params }) {
           width: "100%",
           height: "100%",
           display: "flex",
-          background: "#111318",
-          padding: 16,
-          borderRadius: 44,
+          alignItems: "center",
+          justifyContent: "center",
           fontFamily: "sans-serif",
-          position: "relative",
         }}
       >
-        {/* Screen — fills the bezel completely */}
+        {/* Phone bezel — real portrait phone proportions */}
         <div
           style={{
-            flex: 1,
-            background: "white",
-            borderRadius: 34,
-            overflow: "hidden",
+            width: PHONE_W,
+            height: PHONE_H,
             display: "flex",
-            flexDirection: "column",
+            background: "#111318",
+            padding: 14,
+            borderRadius: 46,
             position: "relative",
+            boxShadow: "0 30px 70px rgba(15,23,42,0.4)",
           }}
         >
-          {/* Banner */}
-          <div style={{ width: "100%", height: BANNER_HEIGHT, display: "flex", flexShrink: 0 }}>
-            {profile?.banner_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.banner_url} width={1200} height={BANNER_HEIGHT} style={{ objectFit: "cover" }} alt="" />
-            ) : (
-              <div style={{ width: "100%", height: "100%", background: "#dde3ea" }} />
-            )}
-          </div>
-
-          {/* Content, pulled up over the banner so the logo overlaps it */}
+          {/* Screen — fills the bezel completely */}
           <div
             style={{
               flex: 1,
+              background: "white",
+              borderRadius: 34,
+              overflow: "hidden",
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "flex-start",
-              marginTop: -(LOGO_SIZE / 2),
-              paddingBottom: 16,
+              position: "relative",
             }}
           >
-            {/* Logo circle with optional verified badge */}
-            <div style={{ display: "flex", position: "relative" }}>
-              <div
-                style={{
-                  width: LOGO_SIZE,
-                  height: LOGO_SIZE,
-                  borderRadius: "50%",
-                  background: profile?.logo_url ? "white" : "#334155",
-                  display: "flex",
+            {/* Banner */}
+            <div style={{ width: "100%", height: BANNER_HEIGHT, display: "flex", flexShrink: 0 }}>
+              {profile?.banner_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.banner_url} width={PHONE_W} height={BANNER_HEIGHT} style={{ objectFit: "cover" }} alt="" />
+              ) : (
+                <div style={{ width: "100%", height: "100%", background: "#dde3ea" }} />
+              )}
+            </div>
+
+            {/* Content, pulled up over the banner so the logo overlaps it */}
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                marginTop: -(LOGO_SIZE / 2),
+                paddingBottom: 14,
+              }}
+            >
+              {/* Logo circle with optional verified badge */}
+              <div style={{ display: "flex", position: "relative" }}>
+                <div
+                  style={{
+                    width: LOGO_SIZE,
+                    height: LOGO_SIZE,
+                    borderRadius: "50%",
+                    background: profile?.logo_url ? "white" : "#334155",
+                    display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   border: "5px solid white",
@@ -253,6 +269,7 @@ export default async function Image({ params }) {
             <div style={{ width: 130, height: 26, background: "#111318", borderRadius: 15, display: "flex" }} />
           </div>
         </div>
+      </div>
       </div>
     ),
     { ...size }
