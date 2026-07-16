@@ -49,7 +49,8 @@ export default async function Image({ params }) {
           height: "100%",
           display: "flex",
           background: "#111318",
-          padding: 14,
+          padding: 16,
+          borderRadius: 44,
           fontFamily: "sans-serif",
           position: "relative",
         }}
