@@ -33,12 +33,12 @@ export default async function Image({ params }) {
   // Long business names would overflow at a fixed font size, so it scales
   // down automatically as the name gets longer.
   const nameLen = (bigName || "").length;
-  const nameFontSize = nameLen <= 18 ? 40 : nameLen <= 28 ? 32 : nameLen <= 40 ? 26 : 21;
+  const nameFontSize = nameLen <= 18 ? 46 : nameLen <= 28 ? 37 : nameLen <= 40 ? 30 : 24;
 
-  const PHONE_W = 336;
-  const PHONE_H = 606;
-  const BANNER_HEIGHT = 190;
-  const LOGO_SIZE = 130;
+  const PHONE_W = 460;
+  const PHONE_H = 614;
+  const BANNER_HEIGHT = 205;
+  const LOGO_SIZE = 150;
 
   return new ImageResponse(
     (
@@ -158,7 +158,7 @@ export default async function Image({ params }) {
                   color: "#0f172a",
                   textAlign: "center",
                   lineHeight: 1.15,
-                  maxWidth: 290,
+                  maxWidth: 400,
                   marginTop: 12,
                 }}
               >
@@ -166,13 +166,13 @@ export default async function Image({ params }) {
               </div>
 
               {smallLine && (
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#334155", marginTop: 6, textAlign: "center" }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#334155", marginTop: 6, textAlign: "center" }}>
                   {smallLine}
                 </div>
               )}
 
               {location && (
-                <div style={{ display: "flex", alignItems: "center", fontSize: 13, color: "#64748b", fontWeight: 600, marginTop: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", fontSize: 15, color: "#64748b", fontWeight: 600, marginTop: 8 }}>
                   📍 {location}
                 </div>
               )}
@@ -181,7 +181,7 @@ export default async function Image({ params }) {
                 <div
                   style={{
                     display: "flex",
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: 700,
                     color: "#475569",
                     background: "#f1f5f9",
@@ -199,27 +199,27 @@ export default async function Image({ params }) {
                   so it doesn't look empty below the name. */}
               <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <div style={{ width: 46, height: 46, borderRadius: 14, background: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📞</div>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: "#475569" }}>Call</span>
+                  <div style={{ width: 54, height: 54, borderRadius: 16, background: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>📞</div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#475569" }}>Call</span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <div style={{ width: 46, height: 46, borderRadius: 14, background: "#4ade80", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>💬</div>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: "#475569" }}>WhatsApp</span>
+                  <div style={{ width: 54, height: 54, borderRadius: 16, background: "#4ade80", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>💬</div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#475569" }}>WhatsApp</span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <div style={{ width: 46, height: 46, borderRadius: 14, background: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>👤</div>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: "#475569" }}>Save</span>
+                  <div style={{ width: 54, height: 54, borderRadius: 16, background: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>👤</div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#475569" }}>Save</span>
                 </div>
               </div>
 
               {profile?.phone && (
-                <div style={{ display: "flex", alignItems: "center", fontSize: 13, color: "#64748b", fontWeight: 600, marginTop: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", fontSize: 15, color: "#64748b", fontWeight: 600, marginTop: 16 }}>
                   📞 +91 {profile.phone}
                 </div>
               )}
 
               {/* Branding footer, pinned to the bottom of the screen */}
-              <div style={{ display: "flex", alignItems: "center", fontSize: 13, marginTop: "auto" }}>
+              <div style={{ display: "flex", alignItems: "center", fontSize: 15, marginTop: "auto", marginBottom: 6 }}>
                 <span style={{ fontWeight: 800, color: "#0f172a" }}>Smart</span>
                 <span style={{ fontWeight: 800, color: "#475569" }}>Profile</span>
                 <span style={{ marginLeft: 4, color: "#94a3b8", fontWeight: 400 }}>.in</span>
