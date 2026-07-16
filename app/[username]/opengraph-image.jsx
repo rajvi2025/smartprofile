@@ -46,51 +46,58 @@ export default async function Image({ params }) {
           position: "relative",
         }}
       >
-        {/* Card panel */}
+        {/* Card panel — sized close to the full canvas so it still reads
+            clearly at WhatsApp/social media's small thumbnail size, not
+            just at full resolution. */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             background: "white",
-            borderRadius: 32,
-            padding: "56px 80px",
+            borderRadius: 36,
+            padding: "48px 60px",
             boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-            width: 920,
+            width: 1120,
+            height: 550,
+            justifyContent: "center",
           }}
         >
-          {/* Logo circle */}
+          {/* Logo circle — bigger, so it's still recognizable when scaled
+              down to a tiny thumbnail. */}
           <div
             style={{
-              width: 140,
-              height: 140,
+              width: 200,
+              height: 200,
               borderRadius: "50%",
               background: profile?.logo_url ? "white" : "#1e40af",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              border: "6px solid #dbeafe",
+              border: "8px solid #dbeafe",
               overflow: "hidden",
-              marginBottom: 28,
+              marginBottom: 24,
+              flexShrink: 0,
             }}
           >
             {profile?.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.logo_url} width={140} height={140} style={{ objectFit: "cover" }} alt="" />
+              <img src={profile.logo_url} width={200} height={200} style={{ objectFit: "cover" }} alt="" />
             ) : (
-              <span style={{ fontSize: 64, fontWeight: 800, color: "white" }}>{initial}</span>
+              <span style={{ fontSize: 90, fontWeight: 800, color: "white" }}>{initial}</span>
             )}
           </div>
 
-          {/* Business/personal name */}
+          {/* Business/personal name — much larger and bolder so it's
+              legible even shrunk down in a chat bubble preview. */}
           <div
             style={{
-              fontSize: 52,
+              fontSize: 76,
               fontWeight: 800,
               color: "#0f172a",
               textAlign: "center",
-              lineHeight: 1.15,
-              maxWidth: 820,
+              lineHeight: 1.1,
+              maxWidth: 1000,
             }}
           >
             {bigName}
@@ -98,27 +105,27 @@ export default async function Image({ params }) {
 
           {/* Subtitle line */}
           {smallLine && (
-            <div style={{ fontSize: 26, fontWeight: 600, color: "#3b82f6", marginTop: 12, textAlign: "center" }}>
+            <div style={{ fontSize: 36, fontWeight: 700, color: "#3b82f6", marginTop: 14, textAlign: "center" }}>
               {smallLine}
             </div>
           )}
 
           {/* Tagline */}
           {profile?.tagline && (
-            <div style={{ fontSize: 22, color: "#64748b", marginTop: 10, textAlign: "center" }}>
+            <div style={{ fontSize: 30, color: "#64748b", marginTop: 12, textAlign: "center" }}>
               {profile.tagline}
             </div>
           )}
 
           {/* Location + phone row */}
-          <div style={{ display: "flex", gap: 28, marginTop: 24 }}>
+          <div style={{ display: "flex", gap: 36, marginTop: 26 }}>
             {location && (
-              <div style={{ display: "flex", alignItems: "center", fontSize: 22, color: "#475569" }}>
+              <div style={{ display: "flex", alignItems: "center", fontSize: 28, color: "#475569", fontWeight: 600 }}>
                 📍 {location}
               </div>
             )}
             {profile?.phone && (
-              <div style={{ display: "flex", alignItems: "center", fontSize: 22, color: "#475569" }}>
+              <div style={{ display: "flex", alignItems: "center", fontSize: 28, color: "#475569", fontWeight: 600 }}>
                 📞 +91 {profile.phone}
               </div>
             )}
@@ -126,7 +133,7 @@ export default async function Image({ params }) {
         </div>
 
         {/* Branding footer */}
-        <div style={{ display: "flex", alignItems: "center", marginTop: 32, fontSize: 24, color: "white" }}>
+        <div style={{ display: "flex", alignItems: "center", marginTop: 24, fontSize: 26, color: "white" }}>
           <span style={{ fontWeight: 800 }}>Smart</span>
           <span style={{ fontWeight: 800, color: "#bfdbfe" }}>Profile</span>
           <span style={{ marginLeft: 8, color: "#dbeafe", fontWeight: 400 }}>.in</span>
