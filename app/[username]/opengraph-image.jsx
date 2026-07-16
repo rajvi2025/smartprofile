@@ -16,7 +16,7 @@ export default async function Image({ params }) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("business_name, full_name, designation, tagline, category, city, state, phone, logo_url, display_as")
+    .select("business_name, full_name, designation, tagline, category, city, state, phone, logo_url, banner_url, display_as")
     .eq("username", username)
     .single();
 
@@ -32,11 +32,13 @@ export default async function Image({ params }) {
   const initial = (bigName || "?")[0]?.toUpperCase();
 
   // Long business names (e.g. "COPPERKING HOMEE INDIA PRIVATE LIMITED")
-  // would overflow and collide with the subtitle/tagline below at a fixed
-  // large font size — so the name's font size scales down as it gets
-  // longer, keeping everything on-card no matter how long the name is.
+  // would overflow at a fixed large font size — so the name's font size
+  // scales down as it gets longer, keeping everything on-card.
   const nameLen = (bigName || "").length;
-  const nameFontSize = nameLen <= 18 ? 76 : nameLen <= 28 ? 58 : nameLen <= 40 ? 44 : 34;
+  const nameFontSize = nameLen <= 18 ? 64 : nameLen <= 28 ? 50 : nameLen <= 40 ? 40 : 32;
+
+  const BANNER_HEIGHT = 230;
+  const LOGO_SIZE = 168;
 
   return new ImageResponse(
     (
@@ -46,96 +48,103 @@ export default async function Image({ params }) {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          background: "linear-gradient(135deg, #1e3a8a 0%, #1e40af 45%, #3b82f6 100%)",
+          background: "white",
           fontFamily: "sans-serif",
-          position: "relative",
         }}
       >
-        {/* Card panel — sized close to the full canvas so it still reads
-            clearly at WhatsApp/social media's small thumbnail size, not
-            just at full resolution. Height is intrinsic (not fixed) so it
-            never clips or overlaps content when the name wraps to 2 lines. */}
+        {/* Banner strip — this business's own banner image, matching how
+            their actual Digital Card page looks. Falls back to a plain
+            neutral gray (no brand-blue) when no banner has been uploaded. */}
+        <div style={{ width: "100%", height: BANNER_HEIGHT, display: "flex", flexShrink: 0 }}>
+          {profile?.banner_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.banner_url} width={1200} height={BANNER_HEIGHT} style={{ objectFit: "cover" }} alt="" />
+          ) : (
+            <div style={{ width: "100%", height: "100%", background: "#e2e8f0" }} />
+          )}
+        </div>
+
+        {/* Content — pulled up over the banner (negative margin) so the
+            logo overlaps the banner's bottom edge, then centered text
+            below, with the branding footer pinned to the bottom. */}
         <div
           style={{
+            flex: 1,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            background: "white",
-            borderRadius: 36,
-            padding: "44px 60px",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-            width: 1120,
+            justifyContent: "space-between",
+            marginTop: -(LOGO_SIZE / 2),
           }}
         >
-          {/* Logo circle — bigger, so it's still recognizable when scaled
-              down to a tiny thumbnail. */}
-          <div
-            style={{
-              width: 180,
-              height: 180,
-              borderRadius: "50%",
-              background: profile?.logo_url ? "white" : "#1e40af",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "8px solid #dbeafe",
-              overflow: "hidden",
-              marginBottom: 22,
-              flexShrink: 0,
-            }}
-          >
-            {profile?.logo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.logo_url} width={180} height={180} style={{ objectFit: "cover" }} alt="" />
-            ) : (
-              <span style={{ fontSize: 80, fontWeight: 800, color: "white" }}>{initial}</span>
-            )}
-          </div>
-
-          {/* Business/personal name — font size scales down automatically
-              for longer names so it never overflows the card. */}
-          <div
-            style={{
-              fontSize: nameFontSize,
-              fontWeight: 800,
-              color: "#0f172a",
-              textAlign: "center",
-              lineHeight: 1.15,
-              maxWidth: 1000,
-            }}
-          >
-            {bigName}
-          </div>
-
-          {/* Subtitle line */}
-          {smallLine && (
-            <div style={{ fontSize: 32, fontWeight: 700, color: "#3b82f6", marginTop: 12, textAlign: "center" }}>
-              {smallLine}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {/* Logo circle, overlapping the banner */}
+            <div
+              style={{
+                width: LOGO_SIZE,
+                height: LOGO_SIZE,
+                borderRadius: "50%",
+                background: profile?.logo_url ? "white" : "#334155",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "6px solid white",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
+                overflow: "hidden",
+                flexShrink: 0,
+              }}
+            >
+              {profile?.logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.logo_url} width={LOGO_SIZE} height={LOGO_SIZE} style={{ objectFit: "cover" }} alt="" />
+              ) : (
+                <span style={{ fontSize: 72, fontWeight: 800, color: "white" }}>{initial}</span>
+              )}
             </div>
-          )}
 
-          {/* Location + phone row */}
-          <div style={{ display: "flex", gap: 32, marginTop: 22 }}>
-            {location && (
-              <div style={{ display: "flex", alignItems: "center", fontSize: 26, color: "#475569", fontWeight: 600 }}>
-                📍 {location}
+            {/* Business/personal name — font size scales down for long names */}
+            <div
+              style={{
+                fontSize: nameFontSize,
+                fontWeight: 800,
+                color: "#0f172a",
+                textAlign: "center",
+                lineHeight: 1.15,
+                maxWidth: 1020,
+                marginTop: 16,
+              }}
+            >
+              {bigName}
+            </div>
+
+            {/* Subtitle line */}
+            {smallLine && (
+              <div style={{ fontSize: 28, fontWeight: 700, color: "#334155", marginTop: 10, textAlign: "center" }}>
+                {smallLine}
               </div>
             )}
-            {profile?.phone && (
-              <div style={{ display: "flex", alignItems: "center", fontSize: 26, color: "#475569", fontWeight: 600 }}>
-                📞 +91 {profile.phone}
-              </div>
-            )}
+
+            {/* Location + phone row */}
+            <div style={{ display: "flex", gap: 32, marginTop: 16 }}>
+              {location && (
+                <div style={{ display: "flex", alignItems: "center", fontSize: 24, color: "#475569", fontWeight: 600 }}>
+                  📍 {location}
+                </div>
+              )}
+              {profile?.phone && (
+                <div style={{ display: "flex", alignItems: "center", fontSize: 24, color: "#475569", fontWeight: 600 }}>
+                  📞 +91 {profile.phone}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Branding footer */}
-        <div style={{ display: "flex", alignItems: "center", marginTop: 22, fontSize: 26, color: "white" }}>
-          <span style={{ fontWeight: 800 }}>Smart</span>
-          <span style={{ fontWeight: 800, color: "#bfdbfe" }}>Profile</span>
-          <span style={{ marginLeft: 8, color: "#dbeafe", fontWeight: 400 }}>.in</span>
+          {/* Branding footer */}
+          <div style={{ display: "flex", alignItems: "center", fontSize: 24, marginBottom: 20 }}>
+            <span style={{ fontWeight: 800, color: "#0f172a" }}>Smart</span>
+            <span style={{ fontWeight: 800, color: "#475569" }}>Profile</span>
+            <span style={{ marginLeft: 6, color: "#94a3b8", fontWeight: 400 }}>.in</span>
+          </div>
         </div>
       </div>
     ),
