@@ -27,7 +27,7 @@ function PlanBadge({ plan }) {
 
 export default function AdminDashboard() {
   // Dashboard overview state
-  const [stats, setStats] = useState({ total: 0, pending: 0, activeCoupons: 0, monthRevenue: 0 });
+  const [stats, setStats] = useState({ total: 0, pending: 0, activeCoupons: 0, monthRevenue: 0, stuckPayments: 0 });
   const [topPlans, setTopPlans] = useState([]);
   const [recentSignups, setRecentSignups] = useState([]);
   const [expiringSoon, setExpiringSoon] = useState([]);
@@ -60,10 +60,10 @@ export default function AdminDashboard() {
     // Revenue and active-coupon count come from a secure server-side route
     // (payments/coupons tables are not publicly readable via the anon key).
     const statsRes = await fetch('/api/admin/dashboard-stats');
-    const statsData = statsRes.ok ? await statsRes.json() : { activeCoupons: 0, monthRevenue: 0 };
-    const { activeCoupons, monthRevenue } = statsData;
+    const statsData = statsRes.ok ? await statsRes.json() : { activeCoupons: 0, monthRevenue: 0, stuckPayments: 0 };
+    const { activeCoupons, monthRevenue, stuckPayments } = statsData;
 
-    setStats({ total: total || 0, pending: pending || 0, activeCoupons: activeCoupons || 0, monthRevenue });
+    setStats({ total: total || 0, pending: pending || 0, activeCoupons: activeCoupons || 0, monthRevenue, stuckPayments: stuckPayments || 0 });
 
     // Top plans by revenue — aggregated client-side from the same fetch above.
     const planMap = {};
@@ -141,15 +141,28 @@ export default function AdminDashboard() {
             { label: 'Pending Approvals', value: dashLoading ? '—' : stats.pending, icon: '⏳', bg: '#fef3c7' },
             { label: 'Active Coupons', value: dashLoading ? '—' : stats.activeCoupons, icon: '🏷️', bg: '#f0fdf4' },
             { label: 'This Month Revenue', value: dashLoading ? '—' : `₹${stats.monthRevenue.toLocaleString('en-IN')}`, icon: '💰', bg: '#f5f3ff' },
-          ].map(s => (
-            <div key={s.label} style={panelStyle}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>{s.icon}</div>
-                <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{s.label}</span>
-              </div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>{s.value}</div>
-            </div>
-          ))}
+            {
+              label: '⚠️ Stuck Payments', value: dashLoading ? '—' : stats.stuckPayments, icon: '💳',
+              bg: !dashLoading && stats.stuckPayments > 0 ? '#fee2e2' : '#f8fafc',
+              href: '/admin/payment-issues',
+              alert: !dashLoading && stats.stuckPayments > 0,
+            },
+          ].map(s => {
+            const card = (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 10, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>{s.icon}</div>
+                  <span style={{ fontSize: 12, color: s.alert ? '#dc2626' : '#64748b', fontWeight: 600 }}>{s.label}</span>
+                </div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: s.alert ? '#dc2626' : '#0f172a' }}>{s.value}</div>
+              </>
+            );
+            return s.href ? (
+              <a key={s.label} href={s.href} style={{ ...panelStyle, textDecoration: 'none', display: 'block', border: s.alert ? '1px solid #fecaca' : panelStyle.border }}>{card}</a>
+            ) : (
+              <div key={s.label} style={panelStyle}>{card}</div>
+            );
+          })}
         </div>
 
         {/* Content grid: tables + sidebar */}

@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase';
 const BUILT_ITEMS = [
   { key: 'approvals', href: '/admin', label: 'Dashboard', icon: '📊' },
   { key: 'coupons', href: '/admin/coupons', label: 'Coupons', icon: '🏷️' },
+  { key: 'payment-issues', href: '/admin/payment-issues', label: 'Payment Issues', icon: '⚠️' },
   { key: 'leads', href: '/admin/leads', label: 'Leads (CRM)', icon: '🎯' },
   { key: 'staff', href: '/admin/staff', label: 'Staff', icon: '🧑\u200d💼', adminOnly: true },
 ];
@@ -46,6 +47,7 @@ const COMING_SOON_ITEMS = [
 function keyForPath(pathname) {
   if (pathname.startsWith('/admin/staff')) return 'staff';
   if (pathname.startsWith('/admin/coupons')) return 'coupons';
+  if (pathname.startsWith('/admin/payment-issues')) return 'payment-issues';
   if (pathname.startsWith('/admin/leads')) return 'leads';
   if (pathname.startsWith('/admin/edit')) return 'approvals';
   if (pathname === '/admin') return 'approvals';

@@ -38,7 +38,24 @@ export async function GET() {
       .gte('created_at', startOfMonth.toISOString());
     const monthRevenue = (monthPayments || []).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
 
-    return Response.json({ activeCoupons: activeCoupons || 0, monthRevenue });
+    // "Stuck" = a payment we're still owed a profile for. Anything 'failed'
+    // needs a human regardless of age; anything still 'pending' only counts
+    // once it's had a few minutes to resolve on its own via the webhook —
+    // most payments finish in seconds, so a still-pending row past that
+    // window is the one worth surfacing.
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    const { count: stuckPending } = await supabase
+      .from('pending_signups')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .lt('created_at', tenMinutesAgo);
+    const { count: stuckFailed } = await supabase
+      .from('pending_signups')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'failed');
+    const stuckPayments = (stuckPending || 0) + (stuckFailed || 0);
+
+    return Response.json({ activeCoupons: activeCoupons || 0, monthRevenue, stuckPayments });
   } catch (err) {
     return Response.json({ error: 'Server error' }, { status: 500 });
   }
