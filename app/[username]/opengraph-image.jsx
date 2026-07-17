@@ -99,11 +99,15 @@ export default async function Image({ params }) {
   const nameFontSize = nameLen <= 18 ? 57 : nameLen <= 28 ? 44 : nameLen <= 40 ? 31 : 25;
   const subtitleMarginTop = nameLen > 28 ? 64 : 13;
 
-  // Phone sized to fill 85% of the canvas height (1020 of 1200), with only
-  // a 9px margin on each side horizontally — essentially edge-to-edge,
-  // fully visible, no cropping.
+  // Phone width fills the canvas with a 9px margin each side. Height is
+  // deliberately taller than the canvas: the top 9px matches that same
+  // small side margin, and the extra height at the bottom simply runs off
+  // the edge of the fixed-size canvas and gets cropped there — no rounded
+  // bottom corner ever renders, no bottom margin, and the visible portion
+  // works out to ~85% of the full phone.
   const PHONE_W = 612;
-  const PHONE_H = 1020;
+  const VISIBLE_H = 1200 - 9; // canvas height minus the top margin
+  const PHONE_H = Math.round(VISIBLE_H / 0.85); // 85% of this is visible
   const BANNER_HEIGHT = 264;
   const LOGO_SIZE = 195;
 
@@ -114,19 +118,26 @@ export default async function Image({ params }) {
           width: "100%",
           height: "100%",
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
           justifyContent: "center",
+          paddingTop: 9,
           fontFamily: "sans-serif",
         }}
       >
-        {/* Phone bezel */}
+        {/* Phone bezel — extra height added only at the bottom (as a plain
+            black chin), so it's the part that runs off-canvas and crops
+            away, while the screen content above stays exactly where it
+            was and stays fully visible. */}
         <div
           style={{
             width: PHONE_W,
             height: PHONE_H,
             display: "flex",
             background: "#111318",
-            padding: 18,
+            paddingTop: 18,
+            paddingLeft: 18,
+            paddingRight: 18,
+            paddingBottom: PHONE_H - 18 - 984,
             borderRadius: 60,
             position: "relative",
             boxShadow: "0 30px 70px rgba(15,23,42,0.4)",
