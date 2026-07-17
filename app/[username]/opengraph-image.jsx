@@ -99,14 +99,15 @@ export default async function Image({ params }) {
   const nameFontSize = nameLen <= 18 ? 57 : nameLen <= 28 ? 44 : nameLen <= 40 ? 31 : 25;
   const subtitleMarginTop = nameLen > 28 ? 64 : 13;
 
-  // Phone width fills the canvas with a 9px margin each side. Height is
-  // deliberately taller than the canvas: the top 9px matches that same
-  // small side margin, and the extra height at the bottom simply runs off
-  // the edge of the fixed-size canvas and gets cropped there — no rounded
-  // bottom corner ever renders, no bottom margin, and the visible portion
-  // works out to ~85% of the full phone.
+  // Phone width fills the canvas with a 9px margin each side. Top margin
+  // is set a bit larger than the sides so the phone's top bezel edge reads
+  // clearly. Height is deliberately taller than the canvas: the extra
+  // height at the bottom simply runs off the edge of the fixed-size canvas
+  // and gets cropped there — no rounded bottom corner ever renders, no
+  // bottom margin, and the visible portion works out to ~85% of the phone.
   const PHONE_W = 612;
-  const VISIBLE_H = 1200 - 9; // canvas height minus the top margin
+  const TOP_MARGIN = 26;
+  const VISIBLE_H = 1200 - TOP_MARGIN; // canvas height minus the top margin
   const PHONE_H = Math.round(VISIBLE_H / 0.85); // 85% of this is visible
   const BANNER_HEIGHT = 264;
   const LOGO_SIZE = 195;
@@ -120,7 +121,7 @@ export default async function Image({ params }) {
           display: "flex",
           alignItems: "flex-start",
           justifyContent: "center",
-          paddingTop: 9,
+          paddingTop: TOP_MARGIN,
           fontFamily: "sans-serif",
         }}
       >
