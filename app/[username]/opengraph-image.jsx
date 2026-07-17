@@ -97,16 +97,13 @@ export default async function Image({ params }) {
   // with the wrapped second line.
   const subtitleMarginTop = nameLen > 28 ? 40 : 8;
 
-  // Real phone proportions (portrait, not stretched to landscape) — but the
-  // canvas AROUND it is transparent, not a colored fill. So instead of a
-  // wide stretched rectangle (previous attempt) or a visible gray box
-  // (before that), what actually renders is just the phone shape itself —
-  // WhatsApp/browsers show whatever's behind a transparent PNG (usually
-  // white), so there's no visible "extra background" at all.
-  const PHONE_W = 468;
-  const PHONE_H = 616;
-  const BANNER_HEIGHT = 203;
-  const LOGO_SIZE = 150;
+  // Real phone proportions (portrait, not stretched to landscape) — sized
+  // to the practical maximum the 1200x630 canvas allows without cropping
+  // or distorting the shape. Plain background, no extra decoration.
+  const PHONE_W = 478;
+  const PHONE_H = 628;
+  const BANNER_HEIGHT = 207;
+  const LOGO_SIZE = 153;
 
   return new ImageResponse(
     (
