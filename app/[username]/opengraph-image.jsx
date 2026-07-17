@@ -99,16 +99,15 @@ export default async function Image({ params }) {
   const nameFontSize = nameLen <= 18 ? 57 : nameLen <= 28 ? 44 : nameLen <= 40 ? 31 : 25;
   const subtitleMarginTop = nameLen > 28 ? 64 : 13;
 
-  // Phone width fills the canvas with a 9px margin each side. Top margin
-  // is set a bit larger than the sides so the phone's top bezel edge reads
-  // clearly. Height is deliberately taller than the canvas: the extra
-  // height at the bottom simply runs off the edge of the fixed-size canvas
-  // and gets cropped there — no rounded bottom corner ever renders, no
-  // bottom margin, and the visible portion works out to ~85% of the phone.
+  // Phone width fills the canvas with a small margin each side, height
+  // takes up most of the canvas — but stays a COMPLETE phone (proper
+  // rounded corner at the bottom too, matching the top), not an
+  // artificially truncated one. The canvas background is set explicitly
+  // (not left transparent) so it renders consistently as light/cream
+  // instead of showing as black in some browsers/viewers.
   const PHONE_W = 612;
   const TOP_MARGIN = 42;
-  const VISIBLE_H = 1200 - TOP_MARGIN; // canvas height minus the top margin
-  const PHONE_H = Math.round(VISIBLE_H / 0.85); // 85% of this is visible
+  const PHONE_H = 1020;
   const BANNER_HEIGHT = 264;
   const LOGO_SIZE = 195;
 
@@ -122,23 +121,19 @@ export default async function Image({ params }) {
           alignItems: "flex-start",
           justifyContent: "center",
           paddingTop: TOP_MARGIN,
+          background: "#f5f4f1",
           fontFamily: "sans-serif",
         }}
       >
-        {/* Phone bezel — extra height added only at the bottom (as a plain
-            black chin), so it's the part that runs off-canvas and crops
-            away, while the screen content above stays exactly where it
-            was and stays fully visible. */}
+        {/* Phone bezel — complete, with its natural rounded corners on
+            every side. */}
         <div
           style={{
             width: PHONE_W,
             height: PHONE_H,
             display: "flex",
             background: "#111318",
-            paddingTop: 18,
-            paddingLeft: 18,
-            paddingRight: 18,
-            paddingBottom: PHONE_H - 18 - 984,
+            padding: 18,
             borderRadius: 60,
             position: "relative",
             boxShadow: "0 30px 70px rgba(15,23,42,0.4)",
