@@ -103,10 +103,10 @@ export default async function Image({ params }) {
   // (before that), what actually renders is just the phone shape itself —
   // WhatsApp/browsers show whatever's behind a transparent PNG (usually
   // white), so there's no visible "extra background" at all.
-  const PHONE_W = 476;
-  const PHONE_H = 626;
-  const BANNER_HEIGHT = 206;
-  const LOGO_SIZE = 152;
+  const PHONE_W = 468;
+  const PHONE_H = 616;
+  const BANNER_HEIGHT = 203;
+  const LOGO_SIZE = 150;
 
   return new ImageResponse(
     (
