@@ -106,8 +106,8 @@ export default async function Image({ params }) {
   // (not left transparent) so it renders consistently as light/cream
   // instead of showing as black in some browsers/viewers.
   const PHONE_W = 612;
-  const TOP_MARGIN = 60;
-  const BOTTOM_MARGIN = 20;
+  const TOP_MARGIN = 80;
+  const BOTTOM_MARGIN = 120;
   const PHONE_H = 1200 - TOP_MARGIN - BOTTOM_MARGIN;
   const BANNER_HEIGHT = 264;
   const LOGO_SIZE = 195;
