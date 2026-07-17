@@ -11,6 +11,57 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
 
+// --- SVG icons (emojis don't render reliably inside next/og image generation) ---
+function PinIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ marginRight: 6 }}>
+      <path d="M12 22s7-7.05 7-12a7 7 0 10-14 0c0 4.95 7 12 7 12z" fill="#64748b" />
+      <circle cx="12" cy="10" r="2.5" fill="white" />
+    </svg>
+  );
+}
+
+function PhoneIconSmall() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#64748b" style={{ marginRight: 6 }}>
+      <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.57.57 1 1 0 011 1v3.5a1 1 0 01-1 1A18 18 0 013 5a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.57 1 1 0 01-.24 1.01l-2.2 2.2z" />
+    </svg>
+  );
+}
+
+function CallIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
+      <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.57.57 1 1 0 011 1v3.5a1 1 0 01-1 1A18 18 0 013 5a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.57 1 1 0 01-.24 1.01l-2.2 2.2z" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+      <path d="M12 2a10 10 0 00-8.94 14.5L2 22l5.5-1.06A10 10 0 1012 2zm0 18a8 8 0 01-4.06-1.11l-.29-.17-3 .58.58-2.94-.19-.3A8 8 0 1112 20zm4.5-5.66c-.24-.12-1.43-.7-1.65-.78s-.38-.12-.54.12-.62.78-.76.94-.28.18-.52.06a6.5 6.5 0 01-3.24-2.83c-.24-.42.24-.39.7-1.29a.44.44 0 000-.42c-.06-.12-.54-1.3-.74-1.78s-.4-.4-.54-.4h-.46a.9.9 0 00-.65.3 2.7 2.7 0 00-.84 2 4.7 4.7 0 001 2.5 10.8 10.8 0 004.14 3.66c1.45.63 2.02.68 2.75.57a2.35 2.35 0 001.55-1.1 1.94 1.94 0 00.14-1.1c-.06-.1-.22-.16-.46-.28z" />
+    </svg>
+  );
+}
+
+function SaveIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+      <circle cx="12" cy="8" r="4" fill="white" stroke="none" />
+      <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" />
+    </svg>
+  );
+}
+
+function WifiIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+      <path d="M12 20a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM8.46 15.46a5 5 0 017.08 0l-1.42 1.42a3 3 0 00-4.24 0zM5.64 12.64a9 9 0 0112.72 0l-1.42 1.42a7 7 0 00-9.88 0z" />
+    </svg>
+  );
+}
+
 export default async function Image({ params }) {
   const { username } = await params;
 
@@ -118,113 +169,122 @@ export default async function Image({ params }) {
                     borderRadius: "50%",
                     background: profile?.logo_url ? "white" : "#334155",
                     display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "5px solid white",
-                  boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
-                  overflow: "hidden",
-                }}
-              >
-                {profile?.logo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={profile.logo_url} width={LOGO_SIZE} height={LOGO_SIZE} style={{ objectFit: "cover" }} alt="" />
-                ) : (
-                  <span style={{ fontSize: 56, fontWeight: 800, color: "white" }}>{initial}</span>
-                )}
-              </div>
-              {profile?.is_verified && (
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 2,
-                    right: 2,
-                    width: 32,
-                    height: 32,
-                    borderRadius: "50%",
-                    background: "#2563eb",
-                    border: "4px solid white",
-                    display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    border: "5px solid white",
+                    boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
+                    overflow: "hidden",
                   }}
                 >
-                  <span style={{ color: "white", fontSize: 15, fontWeight: 900 }}>✓</span>
+                  {profile?.logo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={profile.logo_url} width={LOGO_SIZE} height={LOGO_SIZE} style={{ objectFit: "cover" }} alt="" />
+                  ) : (
+                    <span style={{ fontSize: 56, fontWeight: 800, color: "white" }}>{initial}</span>
+                  )}
                 </div>
-              )}
-            </div>
-
-            {/* Name — scales down for long names */}
-            <div
-              style={{
-                fontSize: nameFontSize,
-                fontWeight: 800,
-                color: "#0f172a",
-                textAlign: "center",
-                lineHeight: 1.15,
-                maxWidth: 1000,
-                marginTop: 14,
-              }}
-            >
-              {bigName}
-            </div>
-
-            {smallLine && (
-              <div style={{ fontSize: 20, fontWeight: 700, color: "#334155", marginTop: subtitleMarginTop, textAlign: "center" }}>
-                {smallLine}
+                {profile?.is_verified && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 2,
+                      right: 2,
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: "#2563eb",
+                      border: "4px solid white",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span style={{ color: "white", fontSize: 15, fontWeight: 900 }}>✓</span>
+                  </div>
+                )}
               </div>
-            )}
 
-            {location && (
-              <div style={{ display: "flex", alignItems: "center", fontSize: 17, color: "#64748b", fontWeight: 600, marginTop: 10 }}>
-                📍 {location}
-              </div>
-            )}
-
-            {profile?.category && (
+              {/* Name — scales down for long names */}
               <div
                 style={{
-                  display: "flex",
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: "#475569",
-                  background: "#f1f5f9",
-                  padding: "6px 18px",
-                  borderRadius: 999,
-                  marginTop: 12,
+                  fontSize: nameFontSize,
+                  fontWeight: 800,
+                  color: "#0f172a",
+                  textAlign: "center",
+                  lineHeight: 1.15,
+                  maxWidth: 1000,
+                  marginTop: 14,
                 }}
               >
-                {profile.category}
+                {bigName}
               </div>
-            )}
 
-            {/* Action buttons — mirrors the real Call / WhatsApp / Save
-                buttons on the actual Digital Card. */}
-            <div style={{ display: "flex", gap: 16, marginTop: 20 }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                <div style={{ width: 60, height: 60, borderRadius: 17, background: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>📞</div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>Call</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                <div style={{ width: 60, height: 60, borderRadius: 17, background: "#4ade80", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>💬</div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>WhatsApp</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-                <div style={{ width: 60, height: 60, borderRadius: 17, background: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>👤</div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>Save</span>
-              </div>
-            </div>
+              {smallLine && (
+                <div style={{ fontSize: 20, fontWeight: 700, color: "#334155", marginTop: subtitleMarginTop, textAlign: "center" }}>
+                  {smallLine}
+                </div>
+              )}
 
-            {profile?.phone && (
-              <div style={{ display: "flex", alignItems: "center", fontSize: 17, color: "#64748b", fontWeight: 600, marginTop: 18 }}>
-                📞 +91 {profile.phone}
-              </div>
-            )}
+              {location && (
+                <div style={{ display: "flex", alignItems: "center", fontSize: 17, color: "#64748b", fontWeight: 600, marginTop: 10 }}>
+                  <PinIcon />
+                  {location}
+                </div>
+              )}
 
-            {/* Branding footer, pinned to the bottom of the screen */}
-            <div style={{ display: "flex", alignItems: "center", fontSize: 17, marginTop: "auto", marginBottom: 4 }}>
-              <span style={{ fontWeight: 800, color: "#0f172a" }}>Smart</span>
-              <span style={{ fontWeight: 800, color: "#475569" }}>Profile</span>
-              <span style={{ marginLeft: 5, color: "#94a3b8", fontWeight: 400 }}>.in</span>
+              {profile?.category && (
+                <div
+                  style={{
+                    display: "flex",
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: "#475569",
+                    background: "#f1f5f9",
+                    padding: "6px 18px",
+                    borderRadius: 999,
+                    marginTop: 12,
+                  }}
+                >
+                  {profile.category}
+                </div>
+              )}
+
+              {/* Action buttons — mirrors the real Call / WhatsApp / Save
+                  buttons on the actual Digital Card. */}
+              <div style={{ display: "flex", gap: 16, marginTop: 20 }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+                  <div style={{ width: 60, height: 60, borderRadius: 17, background: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <CallIcon />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>Call</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+                  <div style={{ width: 60, height: 60, borderRadius: 17, background: "#4ade80", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <WhatsAppIcon />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>WhatsApp</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+                  <div style={{ width: 60, height: 60, borderRadius: 17, background: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <SaveIcon />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#475569" }}>Save</span>
+                </div>
+              </div>
+
+              {profile?.phone && (
+                <div style={{ display: "flex", alignItems: "center", fontSize: 17, color: "#64748b", fontWeight: 600, marginTop: 18 }}>
+                  <PhoneIconSmall />
+                  +91 {profile.phone}
+                </div>
+              )}
+
+              {/* Branding footer, pinned to the bottom of the screen */}
+              <div style={{ display: "flex", alignItems: "center", fontSize: 17, marginTop: "auto", marginBottom: 4 }}>
+                <span style={{ fontWeight: 800, color: "#0f172a" }}>Smart</span>
+                <span style={{ fontWeight: 800, color: "#475569" }}>Profile</span>
+                <span style={{ marginLeft: 5, color: "#94a3b8", fontWeight: 400 }}>.in</span>
+              </div>
             </div>
           </div>
 
@@ -249,7 +309,7 @@ export default async function Image({ params }) {
                   <div key={h} style={{ width: 3, height: h, background: "white", borderRadius: 1 }} />
                 ))}
               </div>
-              <span style={{ fontSize: 15, color: "white" }}>📶</span>
+              <WifiIcon />
               <div style={{ display: "flex", alignItems: "center" }}>
                 <div style={{ width: 25, height: 12, border: "1.5px solid white", borderRadius: 3, display: "flex", padding: 2 }}>
                   <div style={{ flex: 1, height: "100%", background: "white", borderRadius: 1 }} />
@@ -273,7 +333,6 @@ export default async function Image({ params }) {
             <div style={{ width: 130, height: 26, background: "#111318", borderRadius: 15, display: "flex" }} />
           </div>
         </div>
-      </div>
       </div>
     ),
     { ...size }
