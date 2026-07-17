@@ -106,7 +106,7 @@ export default async function Image({ params }) {
   // and gets cropped there — no rounded bottom corner ever renders, no
   // bottom margin, and the visible portion works out to ~85% of the phone.
   const PHONE_W = 612;
-  const TOP_MARGIN = 26;
+  const TOP_MARGIN = 42;
   const VISIBLE_H = 1200 - TOP_MARGIN; // canvas height minus the top margin
   const PHONE_H = Math.round(VISIBLE_H / 0.85); // 85% of this is visible
   const BANNER_HEIGHT = 264;
