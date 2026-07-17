@@ -81,6 +81,13 @@ export default async function Image({ params }) {
   const location = profile ? [profile.city, profile.state].filter(Boolean).join(", ") : "";
   const initial = (bigName || "?")[0]?.toUpperCase();
 
+  // Phone may already be saved with a "+91" or "91" prefix in the DB —
+  // strip any of that off first so we never show a doubled prefix like
+  // "+91 +918779981853".
+  const cleanPhone = profile?.phone
+    ? profile.phone.replace(/^\+?91[\s-]?/, "").replace(/\D/g, "")
+    : "";
+
   // Long business names would overflow at a fixed font size, so it scales
   // down automatically as the name gets longer.
   const nameLen = (bigName || "").length;
@@ -272,10 +279,10 @@ export default async function Image({ params }) {
                 </div>
               </div>
 
-              {profile?.phone && (
+              {cleanPhone && (
                 <div style={{ display: "flex", alignItems: "center", fontSize: 17, color: "#64748b", fontWeight: 600, marginTop: 18 }}>
                   <PhoneIconSmall />
-                  +91 {profile.phone}
+                  +91 {cleanPhone}
                 </div>
               )}
 
@@ -332,6 +339,17 @@ export default async function Image({ params }) {
           >
             <div style={{ width: 130, height: 26, background: "#111318", borderRadius: 15, display: "flex" }} />
           </div>
+
+          {/* Physical side buttons — real iPhones have these, without them the
+              mockup reads as a flat rounded rectangle instead of a phone. */}
+          {/* Mute switch (left) */}
+          <div style={{ position: "absolute", left: -3, top: 108, width: 4, height: 22, background: "#2a2d35", borderRadius: 2, display: "flex" }} />
+          {/* Volume up (left) */}
+          <div style={{ position: "absolute", left: -3, top: 148, width: 4, height: 52, background: "#2a2d35", borderRadius: 2, display: "flex" }} />
+          {/* Volume down (left) */}
+          <div style={{ position: "absolute", left: -3, top: 210, width: 4, height: 52, background: "#2a2d35", borderRadius: 2, display: "flex" }} />
+          {/* Power button (right) */}
+          <div style={{ position: "absolute", right: -3, top: 170, width: 4, height: 74, background: "#2a2d35", borderRadius: 2, display: "flex" }} />
         </div>
       </div>
     ),
