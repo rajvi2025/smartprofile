@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "edge";
 export const alt = "Digital Business Card";
-export const size = { width: 630, height: 1400 };
+export const size = { width: 630, height: 1300 };
 export const contentType = "image/png";
 
 const supabase = createClient(
@@ -108,7 +108,7 @@ export default async function Image({ params }) {
   const PHONE_W = 612;
   const TOP_MARGIN = 180;
   const BOTTOM_MARGIN = 150;
-  const PHONE_H = 1400 - TOP_MARGIN - BOTTOM_MARGIN;
+  const PHONE_H = 1300 - TOP_MARGIN - BOTTOM_MARGIN;
   const BANNER_HEIGHT = 264;
   const LOGO_SIZE = 195;
 
