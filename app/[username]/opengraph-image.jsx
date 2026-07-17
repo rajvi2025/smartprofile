@@ -348,6 +348,16 @@ export default async function Image({ params }) {
         </div>
       </div>
     ),
-    { ...size }
+    {
+      ...size,
+      // Cache aggressively so the CDN serves this image instantly on every
+      // repeat request (which is exactly what happens when a link is
+      // shared — WhatsApp/Facebook fetch the same URL). Cached for 1 hour,
+      // and can keep serving a cached copy for up to a day while quietly
+      // refreshing in the background if the profile changes.
+      headers: {
+        "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    }
   );
 }
