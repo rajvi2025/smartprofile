@@ -292,13 +292,6 @@ export default async function Image({ params }) {
                   +91 {cleanPhone}
                 </div>
               )}
-
-              {/* Branding footer, pinned to the bottom of the screen */}
-              <div style={{ display: "flex", alignItems: "center", fontSize: 22, marginTop: "auto", marginBottom: 5 }}>
-                <span style={{ fontWeight: 800, color: "#0f172a" }}>Smart</span>
-                <span style={{ fontWeight: 800, color: "#475569" }}>Profile</span>
-                <span style={{ marginLeft: 7, color: "#94a3b8", fontWeight: 400 }}>.in</span>
-              </div>
             </div>
           </div>
 

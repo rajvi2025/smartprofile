@@ -31,13 +31,11 @@ export async function generateMetadata({ params }) {
   }
 
   const name = profile.business_name || profile.full_name || username;
-  const description =
-    profile.tagline ||
-    (profile.about ? profile.about.slice(0, 150) : "View my Digital Business Card on SmartProfile.");
 
   return {
+    // Kept for the browser tab / accessibility only — this does not show
+    // up in the WhatsApp/social preview card below the image.
     title: `${name} | SmartProfile`,
-    description,
     // Digital Card URLs (smartprofile.in/username) are for NFC/QR/personal
     // sharing only. They must never be indexed by Google — the richer
     // Directory Listing page (smartprofile.in/directory/city/username) is
@@ -45,17 +43,17 @@ export async function generateMetadata({ params }) {
     // both indexed would look like duplicate content to Google.
     robots: { index: false, follow: false },
     ...(profile.city ? { alternates: { canonical: `https://smartprofile.in/directory/${slugifyCity(profile.city)}/${username}` } } : {}),
+    // No title/description here on purpose — the OG image itself already
+    // carries the business name, tagline, etc., so the text card below it
+    // in WhatsApp/social previews is left blank rather than duplicating
+    // the same info as plain text.
     openGraph: {
-      title: name,
-      description,
       url: `https://smartprofile.in/${username}`,
       siteName: "SmartProfile.in",
       type: "profile",
     },
     twitter: {
       card: "summary_large_image",
-      title: name,
-      description,
     },
   };
 }
