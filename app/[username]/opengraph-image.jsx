@@ -99,15 +99,15 @@ export default async function Image({ params }) {
   const nameFontSize = nameLen <= 18 ? 57 : nameLen <= 28 ? 44 : nameLen <= 40 ? 31 : 25;
   const subtitleMarginTop = nameLen > 28 ? 64 : 13;
 
-  // Phone width fills the canvas with a small margin each side, height
-  // takes up most of the canvas — but stays a COMPLETE phone (proper
-  // rounded corner at the bottom too, matching the top), not an
-  // artificially truncated one. The canvas background is set explicitly
-  // (not left transparent) so it renders consistently as light/cream
-  // instead of showing as black in some browsers/viewers.
+  // Phone width fills the canvas with a small margin each side. These are
+  // the confirmed-good proportions from earlier testing (200/200 margins,
+  // ratio ~0.70) — the taller 90/80 version was tried afterward but this
+  // one is the one that looked right. The canvas background is set
+  // explicitly (not left transparent) so it renders consistently as
+  // light/cream instead of showing as black in some browsers/viewers.
   const PHONE_W = 612;
-  const TOP_MARGIN = 200;
-  const BOTTOM_MARGIN = 200;
+  const TOP_MARGIN = 150;
+  const BOTTOM_MARGIN = 150;
   const PHONE_H = 1280 - TOP_MARGIN - BOTTOM_MARGIN;
   const BANNER_HEIGHT = 264;
   const LOGO_SIZE = 195;
