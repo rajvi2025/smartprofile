@@ -55,9 +55,10 @@ export default function HomePage() {
   ];
 
   const demoProfiles = [
-    { name: 'Rajesh Sharma', role: 'Real Estate Agent', location: 'Pune, Maharashtra', tags: ['Residential', 'Commercial', 'Plots'], avatar: 'RS', color1: '#3b82f6', color2: '#6366f1' },
-    { name: 'Kapoor Industries', role: 'Steel Manufacturer', location: 'Mumbai, Maharashtra', tags: ['Steel', 'Pipes', 'Export'], avatar: 'KI', color1: '#10b981', color2: '#059669' },
-    { name: 'Dr. Priya Desai', role: 'General Physician', location: 'Nashik, Maharashtra', tags: ['Consultation', 'OPD', 'Home Visit'], avatar: 'PD', color1: '#8b5cf6', color2: '#7c3aed' },
+    { name: 'Carnival Celebration', role: 'Banquet Hall / Event Venue', location: 'Mira Road, Maharashtra', price: '199', avatar: 'CC', color1: '#6366f1', color2: '#4f46e5', username: 'carnival-celebration' },
+    { name: 'Om Sai Fire', role: 'Fire Safety Services', location: 'Mumbai, Maharashtra', price: '399', avatar: 'OS', color1: '#ef4444', color2: '#dc2626', username: 'om-sai-fire' },
+    { name: 'CKI Industries', role: 'Hotelware Supply', location: 'Thane, Maharashtra', price: '599', avatar: 'CI', color1: '#3b82f6', color2: '#6366f1', username: 'cki-industries' },
+    { name: 'COPPERKING', role: 'Copper Exporter', location: 'Thane, Maharashtra', price: '999', avatar: 'CK', color1: '#f59e0b', color2: '#d97706', username: 'copperking' },
   ];
 
   const steps = [
@@ -167,7 +168,7 @@ export default function HomePage() {
                 Create Your Profile
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </Link>
-              <Link href="/rajesh-sharma" style={{ background: '#fff', color: '#334155', padding: '15px 32px', borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+              <Link href="/carnival-celebration" style={{ background: '#fff', color: '#334155', padding: '15px 32px', borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 View Demo Profile
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </Link>
@@ -285,37 +286,29 @@ export default function HomePage() {
             <h2 style={{ fontSize: isMobile ? '26px' : 'clamp(28px, 4vw, 42px)', fontWeight: 800, color: '#0f172a' }}>SmartProfile in Action</h2>
             <p style={{ color: '#64748b', fontSize: 15, marginTop: 10 }}>Real businesses, real profiles — see how SmartProfile looks</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 16 : 28, marginBottom: 36 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', gap: isMobile ? 16 : 20, marginBottom: 36 }}>
             {demoProfiles.map((p, i) => (
-              <div key={i} style={{ background: '#fff', borderRadius: 22, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.07)', border: '1px solid #f1f5f9' }}>
+              <Link key={i} href={`/${p.username}`} style={{ background: '#fff', borderRadius: 22, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.07)', border: '1px solid #f1f5f9', textDecoration: 'none', display: 'block' }}>
                 <div style={{ height: 90, background: `linear-gradient(135deg, ${p.color1}, ${p.color2})`, position: 'relative' }}>
-                  <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: '4px 12px', fontSize: 11, color: '#fff', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-                    Verified
+                  <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.25)', borderRadius: 20, padding: '4px 12px', fontSize: 11, color: '#fff', fontWeight: 800 }}>
+                    ₹{p.price}/yr
                   </div>
                 </div>
                 <div style={{ padding: '0 20px 24px', marginTop: -32 }}>
                   <div style={{ width: 58, height: 58, borderRadius: '50%', background: `linear-gradient(135deg, ${p.color1}, ${p.color2})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 16, border: '3px solid #fff', marginBottom: 12, boxShadow: `0 4px 16px ${p.color1}40` }}>{p.avatar}</div>
-                  <div style={{ fontWeight: 700, fontSize: 16, color: '#0f172a', marginBottom: 3 }}>{p.name}</div>
-                  <div style={{ fontSize: 13, color: '#64748b', marginBottom: 4 }}>{p.role}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 3 }}>{p.name}</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{p.role}</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     {p.location}
                   </div>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
-                    {p.tags.map((t,j) => <span key={j} style={{ background: '#f1f5f9', borderRadius: 20, padding: '4px 10px', fontSize: 11, color: '#475569', fontWeight: 600 }}>{t}</span>)}
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <div style={{ flex: 1, background: `linear-gradient(135deg, ${p.color1}, ${p.color2})`, borderRadius: 10, padding: '10px', textAlign: 'center', color: '#fff', fontSize: 13, fontWeight: 600 }}>Call</div>
-                    <div style={{ flex: 1, background: '#25d366', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#fff', fontSize: 13, fontWeight: 600 }}>WhatsApp</div>
-                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
           <div style={{ textAlign: 'center' }}>
-            <Link href="/rajesh-sharma" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff', padding: '14px 36px', borderRadius: 12, fontSize: 15, fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 20px rgba(59,130,246,0.3)' }}>
-              View Demo Profile
+            <Link href="/directory" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff', padding: '14px 36px', borderRadius: 12, fontSize: 15, fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 20px rgba(59,130,246,0.3)' }}>
+              Explore More Profiles
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </Link>
           </div>
