@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 
 const RESERVED_TOP_LEVEL = [
   '', 'admin', 'api', 'contact', 'dashboard', 'directory', 'free-listing',
-  'login', 'privacy', 'refund', 'register', 'shipping', 'terms', 'blog', 'pricing',
+  'login', 'privacy', 'refund', 'register', 'shipping', 'terms', 'blog', 'pricing', 'nfc-cards',
 ];
 
 function isDigitalCardRoute(pathname) {
