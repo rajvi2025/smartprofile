@@ -56,7 +56,7 @@ export default function HomePage() {
 
   const demoProfiles = [
     { name: 'Carnival Celebration', role: 'Banquet Hall / Event Venue', location: 'Mira Road, Maharashtra', price: '199', avatar: 'CC', color1: '#6366f1', color2: '#4f46e5', username: 'carnival-celebration' },
-    { name: 'Om Sai Fire', role: 'Fire Safety Services', location: 'Mumbai, Maharashtra', price: '399', avatar: 'OS', color1: '#ef4444', color2: '#dc2626', username: 'om-sai-fire' },
+    { name: 'Om Sai Fire Solutions', role: 'Fire Fighting & Alarm Systems', location: 'Mumbai, Maharashtra', price: '399', avatar: 'OS', color1: '#ef4444', color2: '#dc2626', username: 'om-sai-fire-solutions' },
     { name: 'CKI Industries', role: 'Hotelware Supply', location: 'Thane, Maharashtra', price: '599', avatar: 'CI', color1: '#3b82f6', color2: '#6366f1', username: 'cki-industries' },
     { name: 'COPPERKING', role: 'Copper Exporter', location: 'Thane, Maharashtra', price: '999', avatar: 'CK', color1: '#f59e0b', color2: '#d97706', username: 'copperking' },
   ];
