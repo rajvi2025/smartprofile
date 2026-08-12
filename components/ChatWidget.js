@@ -20,7 +20,7 @@ function stripMarkdown(text) {
 // QR/NFC visitors, not for platform-wide sales conversations.
 const RESERVED_TOP_LEVEL = [
   '', 'admin', 'api', 'contact', 'dashboard', 'directory', 'free-listing',
-  'login', 'privacy', 'refund', 'register', 'shipping', 'terms', 'blog', 'pricing', 'nfc-cards',
+  'login', 'privacy', 'refund', 'register', 'shipping', 'terms', 'blog', 'pricing', 'nfc-cards', 'demo',
 ];
 function isDigitalCardRoute(pathname) {
   const parts = pathname.split('/').filter(Boolean);
