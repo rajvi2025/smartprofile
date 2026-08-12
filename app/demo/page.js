@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const demoProfiles = [
   { name: 'COPPERKING', role: 'Copper Exporter', location: 'Thane, Maharashtra', price: '999', color1: '#f59e0b', color2: '#d97706', username: 'copperking' },
-  { name: 'CKI Industries', role: 'Hotelware Supply', location: 'Thane, Maharashtra', price: '599', color1: '#3b82f6', color2: '#6366f1', username: 'cki-industries' },
+  { name: 'Image Graphics', role: 'Designing & Printing', location: 'Thane, Maharashtra', price: '599', color1: '#3b82f6', color2: '#6366f1', username: 'image-graphics' },
   { name: 'Om Sai Fire Solutions', role: 'Fire Fighting & Alarm Systems', location: 'Mumbai, Maharashtra', price: '399', color1: '#ef4444', color2: '#dc2626', username: 'om-sai-fire-solutions' },
   { name: 'Carnival Celebration', role: 'Banquet Hall / Event Venue', location: 'Mira Road, Maharashtra', price: '199', color1: '#6366f1', color2: '#4f46e5', username: 'carnival-celebration' },
 ];
@@ -11,7 +11,7 @@ const demoProfiles = [
 // Real device viewport we render the live page at, then scale down to fit the phone frame.
 const DEVICE_W = 390;
 const DEVICE_H = 780;
-const FRAME_W = 230;
+const FRAME_W = 200;
 const SCALE = FRAME_W / DEVICE_W;
 const FRAME_H = Math.round(DEVICE_H * SCALE);
 
@@ -31,7 +31,7 @@ export default function DemoPage() {
       {/* PROFILE GRID */}
       <section style={{ padding: '48px 24px 64px', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 28, justifyItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 20, justifyItems: 'center', maxWidth: 1000, margin: '0 auto' }}>
             {demoProfiles.map((p, i) => (
               <Link key={i} href={`/${p.username}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                 {/* Phone frame */}
