@@ -99,20 +99,44 @@ export default function NFCCardsPage() {
         <div style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24, alignItems: 'start' }}>
 
           {/* WHAT'S INCLUDED */}
-          <div style={{ background: '#fff', borderRadius: 18, padding: '24px 26px', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 14 }}>What's Included</div>
-            {[
-              'NFC Smart Card in your chosen color',
-              'Custom logo/business name printed on card',
-              'QR code linked to your SmartProfile',
-              'Free Premium Digital Card profile (worth ₹599)',
-              'No upfront payment — pay after approving your design preview',
-            ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 10, fontSize: 13, color: '#334155' }}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="8" cy="8" r="8" fill="#6366f1" fillOpacity="0.12"/><path d="M5 8l2 2 4-4" stroke="#6366f1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                {item}
-              </div>
-            ))}
+          <div>
+            <div style={{ background: '#fff', borderRadius: 18, padding: '24px 26px', border: '1px solid #e2e8f0', marginBottom: 20 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 14 }}>What's Included</div>
+              {[
+                'NFC Smart Card in your chosen color',
+                'Custom logo/business name printed on card',
+                'QR code linked to your SmartProfile',
+                'Free Premium Digital Card profile (worth ₹599)',
+                'No upfront payment — pay after approving your design preview',
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 10, fontSize: 13, color: '#334155' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="8" cy="8" r="8" fill="#6366f1" fillOpacity="0.12"/><path d="M5 8l2 2 4-4" stroke="#6366f1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  {item}
+                </div>
+              ))}
+            </div>
+
+            {/* PROCESS STEPS */}
+            <div style={{ background: '#fff', borderRadius: 18, padding: '24px 26px', border: '1px solid #e2e8f0' }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 18 }}>How It Works</div>
+              {[
+                { title: 'Order', desc: 'Choose your color and place your order for ₹599.' },
+                { title: 'Upload Logo & Details', desc: 'Share your logo and business details. Your free Premium Digital Card profile gets created too.' },
+                { title: 'Card Creation & Dispatch', desc: 'We design and dispatch your NFC card within 72 working hours.' },
+                { title: 'Delivered to You', desc: 'Card arrives at your address — tap and share your profile instantly.' },
+              ].map((step, i, arr) => (
+                <div key={i} style={{ display: 'flex', gap: 14 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
+                    {i < arr.length - 1 && <div style={{ width: 2, flex: 1, background: '#e2e8f0', minHeight: 22 }} />}
+                  </div>
+                  <div style={{ paddingBottom: i < arr.length - 1 ? 16 : 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: '#0f172a', marginBottom: 3 }}>{step.title}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.6 }}>{step.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* ORDER FORM */}
