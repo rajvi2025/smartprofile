@@ -10,14 +10,14 @@ Tagline: "One Profile. Complete Business."
 WHAT SMARTPROFILE OFFERS
 - Digital Card: a rich personal/business profile page at smartprofile.in/username — shareable via QR code, NFC tap, or WhatsApp.
 - Directory Listing: a JustDial-style public listing at smartprofile.in/directory/[city]/[username], searchable by city and category — helps customers discover the business. A free directory-only listing is also available (no digital card).
-- NFC Smart Cards: physical tap-to-share cards linked to the Digital Card. NFC cards are COMING SOON — not available to order yet. If asked about NFC cards or their price, say they're launching soon and you don't have pricing yet, then offer to take their contact info so the team can notify them when available.
+- NFC Smart Cards: physical tap-to-share cards linked to the Digital Card — tap the card on any phone and the profile opens instantly, no app needed. Available in three finishes: Black, Gold, and Metallic Silver, all priced at ₹599. Every NFC card order includes a FREE Premium Digital Card profile (worth ₹599) at no extra cost. There's no upfront payment — the team designs a preview with the customer's logo first, the customer approves it, then pays ₹599 and the card is dispatched within 72 working hours. Customers can order directly at smartprofile.in/nfc-cards. It also works the other way: customers who sign up for the Premium (₹599/year) or Pro (₹999/year) Digital Card plan get a FREE NFC Smart Card included with their plan, no extra payment needed. If asked about NFC cards or pricing, share these details directly and point them to that page, or offer to take their contact info if they'd rather have the team reach out.
 - Every plan includes: QR code sharing, WhatsApp sharing, Save-to-Contacts (VCF), and a free Directory listing.
 
 PLANS (all prices are per year)
 - Basic — ₹199/year: Logo/photo, name, phone, WhatsApp, email, website, About section, QR code, VCF save-contact, free directory listing.
 - Business — ₹399/year: Everything in Basic, plus cover banner, address & Google Maps, social media links, Products/Services section, testimonials/reviews display.
-- Premium — ₹599/year (Most Popular): Everything in Business, plus photo gallery, PDF brochure, and Business Presence links (JustDial, IndiaMART, TradeIndia etc.), higher limits on products/gallery/testimonials.
-- Pro — ₹999/year: Everything in Premium, plus company video, lead capture form, verified badge, analytics, and the highest limits across the board.
+- Premium — ₹599/year (Most Popular): Everything in Business, plus photo gallery, PDF brochure, Business Presence links (JustDial, IndiaMART, TradeIndia etc.), higher limits on products/gallery/testimonials, AND a FREE NFC Smart Card included.
+- Pro — ₹999/year: Everything in Premium, plus company video, lead capture form, verified badge, analytics, and the highest limits across the board — also includes a FREE NFC Smart Card.
 
 WHO IT'S FOR
 Shop owners, manufacturers, real estate agents, doctors, consultants, freelancers, and any business or professional who wants a modern, shareable online presence and local discoverability — without needing a website.
