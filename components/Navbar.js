@@ -41,7 +41,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-8">
           <Link href="/" className="text-gray-600 hover:text-blue-600 transition text-sm font-medium">Home</Link>
           <Link href="/#features" className="text-gray-600 hover:text-blue-600 transition text-sm font-medium">Features</Link>
-          <Link href="/#nfc" className="text-gray-600 hover:text-blue-600 transition text-sm font-medium">NFC Cards</Link>
+          <Link href="/nfc-cards" className="text-gray-600 hover:text-blue-600 transition text-sm font-medium">NFC Cards</Link>
           <Link href="/directory" className="text-blue-600 font-medium text-sm border-b-2 border-blue-600 pb-0.5">Directory</Link>
           <Link href="/#pricing" className="text-gray-600 hover:text-blue-600 transition text-sm font-medium">Pricing</Link>
           <Link href="/blog" className="text-gray-600 hover:text-blue-600 transition text-sm font-medium">Blog</Link>
@@ -87,7 +87,7 @@ export default function Navbar() {
           </Link>
           <Link href="/" className="text-gray-600 text-sm font-medium" onClick={closeMenu}>Home</Link>
           <Link href="/#features" className="text-gray-600 text-sm font-medium" onClick={closeMenu}>Features</Link>
-          <Link href="/#nfc" className="text-gray-600 text-sm font-medium" onClick={closeMenu}>NFC Cards</Link>
+          <Link href="/nfc-cards" className="text-gray-600 text-sm font-medium" onClick={closeMenu}>NFC Cards</Link>
           <Link href="/directory" className="text-blue-600 text-sm font-medium" onClick={closeMenu}>Directory</Link>
           <Link href="/#pricing" className="text-gray-600 text-sm font-medium" onClick={closeMenu}>Pricing</Link>
           <Link href="/blog" className="text-gray-600 text-sm font-medium" onClick={closeMenu}>Blog</Link>
