@@ -79,8 +79,8 @@ export default function HomePage() {
   const plans = [
     { name: 'Basic', price: '199', color: '#6366f1', popular: false, desc: 'Perfect to get started', features: ['Logo & Business Name', 'Mobile, WhatsApp & Email', 'Save Contact (VCF)', 'QR Code', 'Free Directory Listing'] },
     { name: 'Business', price: '399', color: '#8b5cf6', popular: false, desc: 'For growing businesses', features: ['Everything in Basic', 'Cover Banner & About Us', 'Address & Google Maps', '2 Social Links', '2 Products/Services', '2 Testimonials'] },
-    { name: 'Premium', price: '599', color: '#3b82f6', popular: true, desc: 'Most popular choice', features: ['Everything in Business', '4 Social Links', '5 Products/Services', '10 Gallery Photos', 'PDF Brochure', '1 Video', '5 Testimonials'] },
-    { name: 'Pro', price: '999', color: '#f59e0b', popular: false, desc: 'Full power, no limits', features: ['Everything in Premium', 'Unlimited Social Links', '10 Products/Services', '20 Gallery Photos', 'Lead Capture Form', 'Analytics Dashboard', 'Verified Badge', 'Priority Support'] },
+    { name: 'Premium', price: '599', color: '#3b82f6', popular: true, desc: 'Most popular choice', features: ['Everything in Business', '4 Social Links', '5 Products/Services', '10 Gallery Photos', 'PDF Brochure', '1 Video', '5 Testimonials', 'Free NFC Smart Card'] },
+    { name: 'Pro', price: '999', color: '#f59e0b', popular: false, desc: 'Full power, no limits', features: ['Everything in Premium', 'Unlimited Social Links', '10 Products/Services', '20 Gallery Photos', 'Lead Capture Form', 'Analytics Dashboard', 'Verified Badge', 'Priority Support', 'Free NFC Smart Card'] },
   ];
 
   const comparisonRows = [
@@ -94,6 +94,7 @@ export default function HomePage() {
     { feature: 'Lead Capture Form', b: false, bu: false, p: false, pr: true },
     { feature: 'Analytics Dashboard', b: false, bu: false, p: false, pr: true },
     { feature: 'Verified Badge', b: false, bu: false, p: false, pr: true },
+    { feature: 'Free NFC Smart Card', b: false, bu: false, p: true, pr: true },
   ];
 
   const testimonials = [
