@@ -64,7 +64,6 @@ export default function NFCCardsPage() {
       {/* CARD SELECTION */}
       <section style={{ padding: '48px 24px 0', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <h2 style={{ textAlign: 'center', fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 28 }}>Choose Your Color</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
             {CARDS.map((card) => (
               <button
@@ -96,96 +95,99 @@ export default function NFCCardsPage() {
       </section>
 
       {/* WHAT'S INCLUDED */}
-      <section style={{ padding: '44px 24px', background: '#f8fafc' }}>
-        <div style={{ maxWidth: 700, margin: '0 auto', background: '#fff', borderRadius: 18, padding: '24px 26px', border: '1px solid #e2e8f0' }}>
-          <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 14 }}>What's Included</div>
-          {[
-            'NFC Smart Card in your chosen color',
-            'Custom logo/business name printed on card',
-            'QR code linked to your SmartProfile',
-            'Free Premium Digital Card profile (worth ₹599)',
-            'No upfront payment — pay after approving your design preview',
-          ].map((item, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 10, fontSize: 13, color: '#334155' }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="8" cy="8" r="8" fill="#6366f1" fillOpacity="0.12"/><path d="M5 8l2 2 4-4" stroke="#6366f1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              {item}
-            </div>
-          ))}
-        </div>
-      </section>
+      <section style={{ padding: '44px 24px 64px', background: '#f8fafc' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24, alignItems: 'start' }}>
 
-      {/* ORDER FORM */}
-      <section style={{ padding: '0 24px 64px', background: '#f8fafc' }}>
-        <div style={{ maxWidth: 560, margin: '0 auto' }}>
-          {submitted ? (
-            <div style={{ background: '#fff', borderRadius: 20, padding: '40px 28px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
-              <div style={{ width: 56, height: 56, background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          {/* WHAT'S INCLUDED */}
+          <div style={{ background: '#fff', borderRadius: 18, padding: '24px 26px', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 14 }}>What's Included</div>
+            {[
+              'NFC Smart Card in your chosen color',
+              'Custom logo/business name printed on card',
+              'QR code linked to your SmartProfile',
+              'Free Premium Digital Card profile (worth ₹599)',
+              'No upfront payment — pay after approving your design preview',
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 10, fontSize: 13, color: '#334155' }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="8" cy="8" r="8" fill="#6366f1" fillOpacity="0.12"/><path d="M5 8l2 2 4-4" stroke="#6366f1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                {item}
               </div>
-              <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Order Request Received!</h3>
-              <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7 }}>Hamari team 24 hours ke andar aapse contact karegi design preview aur delivery details ke liye. Dhanyavaad!</p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Order Details</h3>
-              <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>Selected: <strong style={{ color: '#0f172a' }}>{CARDS.find(c => c.id === selectedColor)?.name}</strong> — ₹{PRICE}</p>
+            ))}
+          </div>
 
-              {['name', 'phone', 'email', 'business'].map((field) => (
-                <div key={field} style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
-                    {field === 'name' && 'Full Name *'}
-                    {field === 'phone' && 'Phone Number *'}
-                    {field === 'email' && 'Email (optional)'}
-                    {field === 'business' && 'Business Name (optional)'}
-                  </label>
-                  <input
-                    type={field === 'email' ? 'email' : 'text'}
-                    name={field}
-                    value={form[field]}
+          {/* ORDER FORM */}
+          <div>
+            {submitted ? (
+              <div style={{ background: '#fff', borderRadius: 20, padding: '40px 28px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+                <div style={{ width: 56, height: 56, background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Order Request Received!</h3>
+                <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7 }}>Hamari team 24 hours ke andar aapse contact karegi design preview aur delivery details ke liye. Dhanyavaad!</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Order Details</h3>
+                <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>Selected: <strong style={{ color: '#0f172a' }}>{CARDS.find(c => c.id === selectedColor)?.name}</strong> — ₹{PRICE}</p>
+
+                {['name', 'phone', 'email', 'business'].map((field) => (
+                  <div key={field} style={{ marginBottom: 14 }}>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
+                      {field === 'name' && 'Full Name *'}
+                      {field === 'phone' && 'Phone Number *'}
+                      {field === 'email' && 'Email (optional)'}
+                      {field === 'business' && 'Business Name (optional)'}
+                    </label>
+                    <input
+                      type={field === 'email' ? 'email' : 'text'}
+                      name={field}
+                      value={form[field]}
+                      onChange={handleChange}
+                      style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none' }}
+                    />
+                  </div>
+                ))}
+
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>Delivery Address *</label>
+                  <textarea
+                    name="address"
+                    value={form.address}
                     onChange={handleChange}
-                    style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none' }}
+                    rows={3}
+                    style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
                   />
                 </div>
-              ))}
 
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>Delivery Address *</label>
-                <textarea
-                  name="address"
-                  value={form.address}
-                  onChange={handleChange}
-                  rows={3}
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
-                />
-              </div>
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>Notes / Logo details (optional)</label>
+                  <textarea
+                    name="notes"
+                    value={form.notes}
+                    onChange={handleChange}
+                    rows={2}
+                    placeholder="e.g. logo file link, special instructions"
+                    style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+                  />
+                </div>
 
-              <div style={{ marginBottom: 18 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>Notes / Logo details (optional)</label>
-                <textarea
-                  name="notes"
-                  value={form.notes}
-                  onChange={handleChange}
-                  rows={2}
-                  placeholder="e.g. logo file link, special instructions"
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
-                />
-              </div>
+                {error && <div style={{ background: '#fef2f2', color: '#dc2626', fontSize: 13, padding: '10px 14px', borderRadius: 10, marginBottom: 14 }}>{error}</div>}
 
-              {error && <div style={{ background: '#fef2f2', color: '#dc2626', fontSize: 13, padding: '10px 14px', borderRadius: 10, marginBottom: 14 }}>{error}</div>}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  style={{
+                    width: '100%', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', padding: '14px', borderRadius: 12,
+                    fontSize: 15, fontWeight: 700, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1,
+                  }}
+                >
+                  {submitting ? 'Submitting...' : 'Request Order'}
+                </button>
+                <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>No payment now — hamari team design preview approve hone ke baad payment link bhejegi.</p>
+              </form>
+            )}
+          </div>
 
-              <button
-                type="submit"
-                disabled={submitting}
-                style={{
-                  width: '100%', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', padding: '14px', borderRadius: 12,
-                  fontSize: 15, fontWeight: 700, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1,
-                }}
-              >
-                {submitting ? 'Submitting...' : 'Request Order'}
-              </button>
-              <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>No payment now — hamari team design preview approve hone ke baad payment link bhejegi.</p>
-            </form>
-          )}
         </div>
       </section>
     </div>
