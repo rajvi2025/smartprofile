@@ -55,10 +55,10 @@ export default function HomePage() {
   ];
 
   const demoProfiles = [
-    { name: 'COPPERKING', role: 'Copper Exporter', location: 'Thane, Maharashtra', price: '999', avatar: 'CK', color1: '#f59e0b', color2: '#d97706', username: 'copperking' },
-    { name: 'CKI Industries', role: 'Hotelware Supply', location: 'Thane, Maharashtra', price: '599', avatar: 'CI', color1: '#3b82f6', color2: '#6366f1', username: 'cki-industries' },
-    { name: 'Om Sai Fire Solutions', role: 'Fire Fighting & Alarm Systems', location: 'Mumbai, Maharashtra', price: '399', avatar: 'OS', color1: '#ef4444', color2: '#dc2626', username: 'om-sai-fire-solutions' },
-    { name: 'Carnival Celebration', role: 'Banquet Hall / Event Venue', location: 'Mira Road, Maharashtra', price: '199', avatar: 'CC', color1: '#6366f1', color2: '#4f46e5', username: 'carnival-celebration' },
+    { name: 'COPPERKING HOMEE INDIA', category: 'Copper Exporter', location: 'Thane, Maharashtra', phone: '918779981853', verified: false, img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/d98c6772-d9e1-4328-9a9a-34b8fb8e1d12-1783707231398.png', city: 'thane', username: 'copperking' },
+    { name: 'Image Graphics', category: 'Printing Service', location: 'Thane, Maharashtra', phone: '918652763064', verified: true, img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/88670e58-5ac4-4a08-bc43-b234c58306d3-1785415412484.png', city: 'thane', username: 'image-graphics' },
+    { name: 'Om Sai Fire Solutions', category: 'Fire Fighting & Alarm Systems', location: 'Mumbai, Maharashtra', phone: '919820229944', verified: true, img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/88670e58-5ac4-4a08-bc43-b234c58306d3-1784736010557.png', city: 'mumbai', username: 'om-sai-fire-solutions' },
+    { name: 'Carnival Celebration LLP', category: 'Banquet Hall / Event Venue', location: 'Mira Road, Maharashtra', phone: '917644907777', verified: false, img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/88670e58-5ac4-4a08-bc43-b234c58306d3-1784364927726.png', city: 'mira-road', username: 'carnival-celebration' },
   ];
 
   const steps = [
@@ -278,37 +278,44 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* LIVE DEMO PROFILES */}
+      {/* BUSINESS DIRECTORY SHOWCASE */}
       <section style={{ padding: isMobile ? '52px 16px' : '88px 24px', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: '#3b82f6', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>See It Live</p>
-            <h2 style={{ fontSize: isMobile ? '26px' : 'clamp(28px, 4vw, 42px)', fontWeight: 800, color: '#0f172a' }}>SmartProfile in Action</h2>
-            <p style={{ color: '#64748b', fontSize: 15, marginTop: 10 }}>Real businesses, real profiles — see how SmartProfile looks</p>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#3b82f6', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Business Directory</p>
+            <h2 style={{ fontSize: isMobile ? '26px' : 'clamp(28px, 4vw, 42px)', fontWeight: 800, color: '#0f172a' }}>List Your Business in Our Directory</h2>
+            <p style={{ color: '#64748b', fontSize: 15, marginTop: 10 }}>Get discovered by local customers searching for your services</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', gap: isMobile ? 16 : 20, marginBottom: 36 }}>
             {demoProfiles.map((p, i) => (
-              <Link key={i} href={`/${p.username}`} style={{ background: '#fff', borderRadius: 22, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.07)', border: '1px solid #f1f5f9', textDecoration: 'none', display: 'block' }}>
-                <div style={{ height: 90, background: `linear-gradient(135deg, ${p.color1}, ${p.color2})`, position: 'relative' }}>
-                  <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.25)', borderRadius: 20, padding: '4px 12px', fontSize: 11, color: '#fff', fontWeight: 800 }}>
-                    ₹{p.price}/yr
-                  </div>
+              <Link key={i} href={`/directory/${p.city}/${p.username}`} style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0', textDecoration: 'none', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ width: '100%', aspectRatio: '1 / 1', position: 'relative', background: '#f1f5f9' }}>
+                  <Image src={p.img} alt={p.name} fill sizes="(max-width: 768px) 100vw, 280px" style={{ objectFit: 'cover' }} />
                 </div>
-                <div style={{ padding: '0 20px 24px', marginTop: -32 }}>
-                  <div style={{ width: 58, height: 58, borderRadius: '50%', background: `linear-gradient(135deg, ${p.color1}, ${p.color2})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 16, border: '3px solid #fff', marginBottom: 12, boxShadow: `0 4px 16px ${p.color1}40` }}>{p.avatar}</div>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 3 }}>{p.name}</div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{p.role}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    {p.location}
+                <div style={{ padding: 14, display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: '#0f172a' }}>{p.name}</div>
+                    {p.verified && (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#3b82f6" style={{ flexShrink: 0 }}><path d="M12 2l2.4 2.4 3.4-.4.4 3.4L21 10l-2.8 2.6.4 3.4-3.4-.4L12 18l-2.4-2.4-3.4.4-.4-3.4L3 10l2.8-2.6-.4-3.4 3.4.4L12 2z"/><path d="M9.5 12l1.8 1.8 3.2-3.6" stroke="white" strokeWidth="1.5" fill="none"/></svg>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 3 }}>{p.category}</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 12 }}>📍 {p.location}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 'auto' }} onClick={e => e.stopPropagation()}>
+                    <a href={`tel:+${p.phone}`} style={{ padding: '9px 4px', background: '#16a34a', color: '#fff', borderRadius: 9, fontSize: 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none' }}>📞 Call</a>
+                    <a href={`https://wa.me/${p.phone}`} target="_blank" rel="noopener noreferrer" style={{ padding: '9px 4px', background: '#fff', color: '#16a34a', border: '1.5px solid #16a34a', borderRadius: 9, fontSize: 12, fontWeight: 600, textAlign: 'center', textDecoration: 'none' }}>WhatsApp</a>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <Link href="/directory" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: '#fff', padding: '14px 36px', borderRadius: 12, fontSize: 15, fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 20px rgba(59,130,246,0.3)' }}>
-              Explore More Profiles
+          <div style={{ textAlign: 'center', display: 'flex', gap: 14, justifyContent: 'center', flexDirection: isMobile ? 'column' : 'row' }}>
+            <Link href="/free-listing" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'linear-gradient(135deg, #f97316, #ef4444)', color: '#fff', padding: '14px 36px', borderRadius: 12, fontSize: 15, fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 20px rgba(249,115,22,0.3)' }}>
+              List Your Business Free
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </Link>
+            <Link href="/directory" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: '#fff', color: '#334155', padding: '14px 36px', borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: 'none', border: '1px solid #e2e8f0' }}>
+              Browse Directory
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </Link>
           </div>
