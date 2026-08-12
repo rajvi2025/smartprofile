@@ -122,8 +122,8 @@ export default function NFCCardsPage() {
               {[
                 { title: 'Order', desc: 'Choose your color and place your order for ₹599.' },
                 { title: 'Upload Logo & Details', desc: 'Share your logo and business details. Your free Premium Digital Card profile gets created too.' },
-                { title: 'Card Creation & Dispatch', desc: 'We design and dispatch your NFC card within 72 working hours.' },
-                { title: 'Delivered to You', desc: 'Card arrives at your address — tap and share your profile instantly.' },
+                { title: 'Card Creation & Dispatch', desc: 'Your card is dispatched from our Mumbai hub within 72 hours of order confirmation.' },
+                { title: 'Delivered to You', desc: 'Courier delivers to your address — typically 3-5 additional days depending on your location. Tap and share your profile instantly.' },
               ].map((step, i, arr) => (
                 <div key={i} style={{ display: 'flex', gap: 14 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
