@@ -1,5 +1,6 @@
 ﻿'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 
 export default function HomePage() {
@@ -231,20 +232,13 @@ export default function HomePage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 16 : 28, marginBottom: 44 }}>
             {[
-              { name: 'White Card', sub: 'Classic & Clean', bg: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', textColor: '#1e293b', shine: 'rgba(255,255,255,0.9)', border: '1px solid rgba(255,255,255,0.5)' },
-              { name: 'Black Card', sub: 'Bold & Premium', bg: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', textColor: '#fff', shine: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' },
-              { name: 'Metal Card', sub: 'Elite & Exclusive', bg: 'linear-gradient(135deg, #9ca3af 0%, #e5e7eb 40%, #9ca3af 60%, #d1d5db 100%)', textColor: '#1e293b', shine: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.6)' },
+              { name: 'Black Card', sub: 'Bold & Premium', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/NFC/black-nfc-card.webp' },
+              { name: 'Gold Card', sub: 'Elite & Exclusive', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/NFC/golden-nfc-card.webp' },
+              { name: 'Metallic Silver Card', sub: 'Premium & Sleek', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/NFC/silver-nfc-card.webp' },
             ].map((card, i) => (
               <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 20, padding: '28px 20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <div style={{ width: '100%', height: 160, background: card.bg, borderRadius: 18, marginBottom: 20, position: 'relative', overflow: 'hidden', border: card.border, boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: `linear-gradient(135deg, ${card.shine} 0%, transparent 55%)`, borderRadius: 18 }} />
-                  <div style={{ position: 'absolute', bottom: 16, left: 20 }}>
-                    <div style={{ fontSize: 9, color: card.textColor, opacity: 0.45, marginBottom: 4, fontWeight: 700, letterSpacing: '0.15em' }}>SMARTPROFILE.IN</div>
-                    <div style={{ fontSize: 13, color: card.textColor, fontWeight: 700 }}>Your Name Here</div>
-                  </div>
-                  <div style={{ position: 'absolute', top: 14, right: 14, opacity: 0.25 }}>
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={card.textColor} strokeWidth="1.5"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><path d="M8 2v16M16 6v16"/></svg>
-                  </div>
+                <div style={{ width: '100%', height: 220, borderRadius: 18, marginBottom: 20, position: 'relative', overflow: 'hidden', background: '#fff' }}>
+                  <Image src={card.img} alt={card.name} fill style={{ objectFit: 'contain', padding: 8 }} sizes="(max-width: 768px) 100vw, 33vw" />
                 </div>
                 <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 5 }}>{card.name}</div>
                 <div style={{ color: '#64748b', fontSize: 13 }}>{card.sub}</div>
