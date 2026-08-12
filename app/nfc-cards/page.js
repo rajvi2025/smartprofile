@@ -23,7 +23,7 @@ export default function NFCCardsPage() {
     e.preventDefault();
     setError('');
     if (!form.name.trim() || !form.phone.trim() || !form.address.trim()) {
-      setError('Naam, phone number aur delivery address zaroori hai.');
+      setError('Name, phone number and delivery address are required.');
       return;
     }
     setSubmitting(true);
@@ -43,7 +43,7 @@ export default function NFCCardsPage() {
       if (!res.ok) throw new Error('Failed');
       setSubmitted(true);
     } catch (err) {
-      setError('Kuch gadbad ho gayi. Please try again ya WhatsApp/Call karein.');
+      setError('Something went wrong. Please try again or reach us on WhatsApp/Call.');
     } finally {
       setSubmitting(false);
     }
@@ -147,7 +147,7 @@ export default function NFCCardsPage() {
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Order Request Received!</h3>
-                <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7 }}>Hamari team 24 hours ke andar aapse contact karegi design preview aur delivery details ke liye. Dhanyavaad!</p>
+                <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7 }}>Our team will contact you within 24 hours with your design preview and delivery details. Thank you!</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
@@ -207,7 +207,7 @@ export default function NFCCardsPage() {
                 >
                   {submitting ? 'Submitting...' : 'Request Order'}
                 </button>
-                <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>No payment now — hamari team design preview approve hone ke baad payment link bhejegi.</p>
+                <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>No payment now — we'll send a payment link once you approve your design preview.</p>
               </form>
             )}
           </div>
