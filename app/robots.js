@@ -13,6 +13,9 @@
         "/api/",
       ],
     },
-    sitemap: "https://smartprofile.in/sitemap.xml",
+    sitemap: [
+      "https://smartprofile.in/sitemap.xml",
+      "https://smartprofile.in/sitemap-images.xml",
+    ],
   };
 }

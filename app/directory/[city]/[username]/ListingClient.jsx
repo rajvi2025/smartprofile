@@ -44,6 +44,8 @@ const SOCIAL_DOMAINS = {
 function SocialIcon({ platform }) {
   const domain = SOCIAL_DOMAINS[(platform || '').toLowerCase()];
   if (!domain) return <span className="text-gray-400 text-xs font-bold">{(platform || "?")[0]?.toUpperCase()}</span>;
+  // Decorative favicon next to a visible platform-name label — empty alt is
+  // correct here (not a content image), unlike the business photos below.
   return <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-5 h-5 rounded-sm" />;
 }
 
@@ -128,6 +130,14 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
   const displayName = profile.business_name || profile.full_name;
   const subtitleParts = [profile.full_name, profile.designation].filter(Boolean);
 
+  // Image SEO: every content image gets a description that includes the
+  // business name plus category/city context, so Google Images has real
+  // keywords to index instead of a bare filename. Built once here and
+  // reused across banner/logo/product/gallery alt text below — never leave
+  // an alt empty for a real (non-decorative) photo.
+  const locationBit = [profile.category, profile.city].filter(Boolean).join(" in ");
+  const seoSuffix = locationBit ? ` - ${displayName} - ${locationBit}` : ` - ${displayName}`;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Banner */}
@@ -135,7 +145,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
         {profile.banner_url ? (
           <Image
             src={profile.banner_url}
-            alt={`${profile.business_name || profile.full_name || "Business"} banner`}
+            alt={`${displayName || "Business"} banner${locationBit ? ` - ${locationBit}` : ""}`}
             fill
             sizes="100vw"
             priority
@@ -153,7 +163,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
             {profile.logo_url ? (
               <Image
                 src={profile.logo_url}
-                alt={`${profile.business_name || "Business"} logo`}
+                alt={`${displayName || "Business"} logo${locationBit ? ` - ${locationBit}` : ""}`}
                 fill
                 sizes="112px"
                 className="object-cover"
@@ -268,7 +278,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
                           <div className="relative w-full h-28">
                             <Image
                               src={p.image_url}
-                              alt={p.name || "Product"}
+                              alt={`${p.name || "Product"}${seoSuffix}`}
                               fill
                               sizes="(max-width: 768px) 33vw, 200px"
                               className="object-cover"
@@ -298,7 +308,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
                       <div key={g.id} className="relative w-full h-28 rounded-xl overflow-hidden border border-gray-200">
                         <Image
                           src={g.image_url}
-                          alt={g.caption || ""}
+                          alt={g.caption ? `${g.caption}${seoSuffix}` : `Photo${seoSuffix}`}
                           fill
                           sizes="(max-width: 768px) 33vw, 200px"
                           className="object-cover"
@@ -383,7 +393,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
                     {r.logo_url ? (
                       <Image
                         src={r.logo_url}
-                        alt={r.business_name || r.full_name || "Business"}
+                        alt={`${r.business_name || r.full_name || "Business"} logo${r.category || r.city ? ` - ${[r.category, r.city].filter(Boolean).join(" in ")}` : ""}`}
                         fill
                         sizes="48px"
                         className="object-cover"
