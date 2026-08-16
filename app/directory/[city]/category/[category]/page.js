@@ -1,26 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import ComboClient from "./ComboClient";
+import { slugifyCity, slugifyCategory, titleCaseFromSlug } from "@/lib/slugify";
 
 const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
-
-function slugifyCity(city) {
-  return (city || "").toLowerCase().trim().replace(/\s+/g, "-");
-}
-
-function slugifyCategory(category) {
-  return (category || "").toLowerCase().trim().replace(/\s+/g, "-");
-}
-
-function titleCaseFromSlug(slug) {
-  return (slug || "")
-    .split("-")
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
 
 // This is the highest-intent URL pattern in the directory — "electrician in
 // Thane" style searches — so it applies the same approved-only rule as the

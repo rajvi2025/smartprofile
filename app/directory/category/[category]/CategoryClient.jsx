@@ -4,22 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
-
-function slugifyCategory(category) {
-  return (category || "").toLowerCase().trim().replace(/\s+/g, "-");
-}
-
-function slugifyCity(city) {
-  return (city || "").toLowerCase().trim().replace(/\s+/g, "-");
-}
-
-function titleCaseFromSlug(slug) {
-  return (slug || "")
-    .split("-")
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
+import { slugifyCity, slugifyCategory, titleCaseFromSlug } from '@/lib/slugify';
 
 function cleanPhone(raw) {
   if (!raw) return '';
@@ -53,10 +38,13 @@ export default function CategoryClient({ categorySlug }) {
 
   useEffect(() => {
     async function fetchCategoryBusinesses() {
+      // Only admin-approved, active listings appear here — matches the
+      // same rule generateMetadata uses for this page's robots tag.
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .eq('status', 'approved');
       if (error || !data) { setLoading(false); return; }
 
       const matched = data.filter(p => slugifyCategory(p.category) === categorySlug);
@@ -140,7 +128,7 @@ export default function CategoryClient({ categorySlug }) {
                 <div style={{ width: isMobile ? '44%' : '42%', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: 14, alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
                     {biz.img ? (
-                      <Image src={biz.img} alt={biz.name} fill sizes="(max-width: 768px) 44vw, 280px" style={{ objectFit: 'cover' }} />
+                      <Image src={biz.img} alt={`${biz.name} - ${biz.category} in ${biz.city}`} fill sizes="(max-width: 768px) 44vw, 280px" style={{ objectFit: 'cover' }} />
                     ) : (
                       <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #3b82f625, #3b82f610)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ fontWeight: 800, color: '#3b82f6', fontSize: 28 }}>{biz.initials}</span>

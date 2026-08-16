@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
-import { slugifyCity, slugifyCategory, titleCaseFromSlug } from '@/lib/slugify';
+import { slugifyCity, slugifyState, titleCaseFromSlug } from '@/lib/slugify';
 
 function cleanPhone(raw) {
   if (!raw) return '';
@@ -22,11 +22,11 @@ function extractLocation(address, city, state) {
   return parts.slice(-3).join(', ') || cityState || 'India';
 }
 
-export default function ComboClient({ citySlug, categorySlug }) {
+export default function StateClient({ stateSlug }) {
   const router = useRouter();
   const [businesses, setBusinesses] = useState([]);
-  const [cityName, setCityName] = useState(titleCaseFromSlug(citySlug));
-  const [categoryName, setCategoryName] = useState(titleCaseFromSlug(categorySlug));
+  const [cities, setCities] = useState([]);
+  const [stateName, setStateName] = useState(titleCaseFromSlug(stateSlug));
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -38,7 +38,7 @@ export default function ComboClient({ citySlug, categorySlug }) {
   }, []);
 
   useEffect(() => {
-    async function fetchComboBusinesses() {
+    async function fetchStateBusinesses() {
       // Only admin-approved, active listings appear here — matches the
       // same rule generateMetadata uses for this page's robots tag.
       const { data, error } = await supabase
@@ -48,13 +48,22 @@ export default function ComboClient({ citySlug, categorySlug }) {
         .eq('status', 'approved');
       if (error || !data) { setLoading(false); return; }
 
-      const matched = data.filter(
-        p => slugifyCity(p.city) === citySlug && slugifyCategory(p.category) === categorySlug
+      const matched = data.filter(p => slugifyState(p.state) === stateSlug);
+      if (matched.length > 0) setStateName(matched[0].state);
+
+      // Cities within this state, each with a business count — powers the
+      // "browse by city" section so a broad state page still gives people
+      // a fast path to something local, not just a long flat list.
+      const cityCounts = {};
+      matched.forEach((p) => {
+        if (!p.city) return;
+        cityCounts[p.city] = (cityCounts[p.city] || 0) + 1;
+      });
+      setCities(
+        Object.entries(cityCounts)
+          .map(([city, count]) => ({ city, count, slug: slugifyCity(city) }))
+          .sort((a, b) => b.count - a.count)
       );
-      if (matched.length > 0) {
-        setCityName(matched[0].city);
-        setCategoryName(matched[0].category);
-      }
 
       const profileIds = matched.map(p => p.id);
       const { data: allTestimonials } = await supabase
@@ -87,8 +96,8 @@ export default function ComboClient({ citySlug, categorySlug }) {
       }));
       setLoading(false);
     }
-    fetchComboBusinesses();
-  }, [citySlug, categorySlug]);
+    fetchStateBusinesses();
+  }, [stateSlug]);
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", background: '#f0f4f8', minHeight: '100vh' }}>
@@ -100,21 +109,48 @@ export default function ComboClient({ citySlug, categorySlug }) {
           <span>/</span>
           <Link href="/directory" style={{ color: '#64748b', textDecoration: 'none' }}>Directory</Link>
           <span>/</span>
-          <Link href={`/directory/${citySlug}`} style={{ color: '#64748b', textDecoration: 'none' }}>{cityName}</Link>
-          <span>/</span>
-          <span style={{ color: '#0f172a', fontWeight: 600 }}>{categoryName}</span>
+          <span style={{ color: '#0f172a', fontWeight: 600 }}>{stateName}</span>
         </nav>
       </div>
 
       {/* Header */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 24px 8px' }}>
         <h1 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 800, color: '#0f172a', margin: '0 0 6px' }}>
-          {categoryName} in {cityName}
+          Business Directory in {stateName}
         </h1>
         <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>
-          {loading ? 'Loading businesses...' : `${businesses.length} verified business${businesses.length === 1 ? '' : 'es'} found`}
+          {loading ? 'Loading businesses...' : `${businesses.length} verified business${businesses.length === 1 ? '' : 'es'} across ${cities.length} cit${cities.length === 1 ? 'y' : 'ies'} in ${stateName}`}
         </p>
       </div>
+
+      {/* Browse by city */}
+      {!loading && cities.length > 1 && (
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 24px 0' }}>
+          <div style={{ background: 'white', borderRadius: 16, border: '1px solid #f1f5f9', padding: 16 }}>
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', margin: '0 0 10px' }}>Browse by City</h2>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {cities.map((c) => (
+                <Link
+                  key={c.slug}
+                  href={`/directory/${c.slug}`}
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: '#1e40af',
+                    background: '#eff6ff',
+                    border: '1px solid #dbeafe',
+                    borderRadius: 999,
+                    padding: '6px 14px',
+                    textDecoration: 'none',
+                  }}
+                >
+                  {c.city} ({c.count})
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Grid */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 24px 48px' }}>
@@ -122,7 +158,7 @@ export default function ComboClient({ citySlug, categorySlug }) {
           <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>Loading...</div>
         ) : businesses.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 24px', background: 'white', borderRadius: 16, border: '1px dashed #e2e8f0' }}>
-            <p style={{ color: '#64748b', fontSize: 15, marginBottom: 16 }}>No {categoryName} listed in {cityName} yet.</p>
+            <p style={{ color: '#64748b', fontSize: 15, marginBottom: 16 }}>No businesses listed in {stateName} yet.</p>
             <Link href="/register" style={{ display: 'inline-block', padding: '10px 24px', background: '#3b82f6', color: 'white', borderRadius: 10, fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
               List Your Business →
             </Link>

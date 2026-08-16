@@ -4,16 +4,12 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@supabase/supabase-js";
 import QRCode from "qrcode";
+import { slugifyCity } from "@/lib/slugify";
 
 const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
-
-// Converts a city name like "New Delhi" into a URL-safe slug like "new-delhi"
-function slugifyCity(city) {
-  return (city || "").toLowerCase().trim().replace(/\s+/g, "-");
-}
 
 function QRSection({ username }) {
   const [qrUrl, setQrUrl] = useState("");

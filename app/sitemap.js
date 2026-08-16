@@ -1,4 +1,5 @@
 ﻿import { supabase } from "@/lib/supabase";
+import { slugifyCity, slugifyCategory, slugifyState } from "@/lib/slugify";
 
 export default async function sitemap() {
   const baseUrl = "https://smartprofile.in";
@@ -23,12 +24,10 @@ export default async function sitemap() {
   // page, so the sitemap never advertises a URL that's set to noindex.
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("username, city, category")
+    .select("username, city, category, state")
     .eq("is_active", true)
     .eq("status", "approved");
 
-  const slugifyCity = (city) => (city || "").toLowerCase().trim().replace(/\s+/g, "-");
-  const slugifyCategory = (category) => (category || "").toLowerCase().trim().replace(/\s+/g, "-");
   const directoryPages = (profiles || [])
     .filter((p) => p.city)
     .map((p) => ({
@@ -47,6 +46,18 @@ export default async function sitemap() {
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.7,
+  }));
+
+  // State landing pages (smartprofile.in/directory/state/xyz) — one per
+  // distinct state with active, approved businesses. States with zero
+  // businesses are noindexed on the page itself, same reasoning as city
+  // and category pages, so they're deliberately left out here.
+  const stateSlugs = [...new Set((profiles || []).filter((p) => p.state).map((p) => slugifyState(p.state)))];
+  const statePages = stateSlugs.map((slug) => ({
+    url: `${baseUrl}/directory/state/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.65,
   }));
 
   // Category landing pages (smartprofile.in/directory/category/xyz) — same
@@ -81,5 +92,5 @@ export default async function sitemap() {
     };
   });
 
-  return [...staticPages, ...cityPages, ...categoryPages, ...comboPages, ...directoryPages];
+  return [...staticPages, ...cityPages, ...statePages, ...categoryPages, ...comboPages, ...directoryPages];
 }

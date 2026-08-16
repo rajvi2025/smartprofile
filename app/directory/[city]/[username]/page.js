@@ -1,15 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import ListingClient from "./ListingClient";
+import { slugifyCity } from "@/lib/slugify";
 
 const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
-
-// Converts a city name like "New Delhi" into a URL-safe slug like "new-delhi"
-function slugifyCity(city) {
-  return (city || "").toLowerCase().trim().replace(/\s+/g, "-");
-}
 
 // Maps SmartProfile's business categories to the closest schema.org
 // LocalBusiness subtype, so Google gets a more specific entity type than

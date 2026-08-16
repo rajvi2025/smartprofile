@@ -1,25 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import CityClient from "./CityClient";
+import { slugifyCity, titleCaseFromSlug } from "@/lib/slugify";
 
 const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
-
-// Converts a city name like "New Delhi" into a URL-safe slug like "new-delhi"
-function slugifyCity(city) {
-  return (city || "").toLowerCase().trim().replace(/\s+/g, "-");
-}
-
-// Fallback display name if no business with this city slug exists yet —
-// turns "new-delhi" into "New Delhi" so the page still reads naturally.
-function titleCaseFromSlug(slug) {
-  return (slug || "")
-    .split("-")
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
 
 export async function generateMetadata({ params }) {
   const { city } = await params;
@@ -27,7 +13,8 @@ export async function generateMetadata({ params }) {
   const { data: profiles } = await supabase
     .from("profiles")
     .select("city")
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .eq("status", "approved");
 
   const cityBusinesses = (profiles || []).filter((p) => slugifyCity(p.city) === city);
   const cityName = cityBusinesses[0]?.city || titleCaseFromSlug(city);
@@ -74,7 +61,8 @@ export default async function Page({ params }) {
   const { data: profiles } = await supabase
     .from("profiles")
     .select("*")
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .eq("status", "approved");
 
   const cityBusinesses = (profiles || []).filter((p) => slugifyCity(p.city) === city);
 

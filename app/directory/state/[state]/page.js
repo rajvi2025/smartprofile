@@ -1,45 +1,49 @@
 import { createClient } from "@supabase/supabase-js";
-import CategoryClient from "./CategoryClient";
-import { slugifyCity, slugifyCategory, titleCaseFromSlug } from "@/lib/slugify";
+import StateClient from "./StateClient";
+import { slugifyCity, slugifyState, titleCaseFromSlug } from "@/lib/slugify";
 
 const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
 
+// Same approved-only rule as every other directory page (see
+// [username]/page.js) — a pending listing shouldn't count toward a state
+// page's business count or its indexability.
 export async function generateMetadata({ params }) {
-  const { category } = await params;
+  const { state } = await params;
 
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("category")
+    .select("state")
     .eq("is_active", true)
     .eq("status", "approved");
 
-  const categoryBusinesses = (profiles || []).filter((p) => slugifyCategory(p.category) === category);
-  const categoryName = categoryBusinesses[0]?.category || titleCaseFromSlug(category);
-  const count = categoryBusinesses.length;
+  const stateBusinesses = (profiles || []).filter((p) => slugifyState(p.state) === state);
+  const stateName = stateBusinesses[0]?.state || titleCaseFromSlug(state);
+  const count = stateBusinesses.length;
 
-  // No businesses in this category yet — keep the page live but noindex it,
-  // same reasoning as empty city pages: thin/empty content shouldn't
+  // No businesses in this state yet — keep the page live (so it doesn't
+  // 404 and future links to it don't break), but noindex it. Same
+  // reasoning as empty city/category pages: thin content shouldn't
   // compete for rankings until it has real listings.
   if (count === 0) {
     return {
-      title: `${categoryName} - Business Directory | SmartProfile`,
-      description: `${categoryName} listings are coming soon on SmartProfile Directory.`,
+      title: `${stateName} Business Directory | SmartProfile`,
+      description: `Business listings in ${stateName} are coming soon on SmartProfile Directory.`,
       robots: { index: false, follow: true },
     };
   }
 
-  const canonicalUrl = `https://smartprofile.in/directory/category/${category}`;
-  const description = `Find ${count} verified ${categoryName}${count === 1 ? "" : "es"} across India — contact details, reviews, products and services, all on SmartProfile Directory.`;
+  const canonicalUrl = `https://smartprofile.in/directory/state/${state}`;
+  const description = `Find ${count} verified business${count === 1 ? "" : "es"} across ${stateName} — contact details, reviews, products and services, all on SmartProfile Directory.`;
 
   return {
-    title: `${categoryName} - ${count} Verified Business${count === 1 ? "" : "es"} | SmartProfile Directory`,
+    title: `Business Directory in ${stateName} - ${count} Verified Business${count === 1 ? "" : "es"} | SmartProfile`,
     description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: `${categoryName} - SmartProfile Directory`,
+      title: `Business Directory in ${stateName}`,
       description,
       url: canonicalUrl,
       siteName: "SmartProfile Directory",
@@ -47,14 +51,14 @@ export async function generateMetadata({ params }) {
     },
     twitter: {
       card: "summary",
-      title: `${categoryName} - SmartProfile Directory`,
+      title: `Business Directory in ${stateName}`,
       description,
     },
   };
 }
 
 export default async function Page({ params }) {
-  const { category } = await params;
+  const { state } = await params;
 
   const { data: profiles } = await supabase
     .from("profiles")
@@ -62,17 +66,24 @@ export default async function Page({ params }) {
     .eq("is_active", true)
     .eq("status", "approved");
 
-  const categoryBusinesses = (profiles || []).filter((p) => slugifyCategory(p.category) === category);
+  const stateBusinesses = (profiles || []).filter((p) => slugifyState(p.state) === state);
 
   let jsonLd = null;
 
-  if (categoryBusinesses.length > 0) {
-    const categoryName = categoryBusinesses[0].category;
-    const pageUrl = `https://smartprofile.in/directory/category/${category}`;
+  if (stateBusinesses.length > 0) {
+    const stateName = stateBusinesses[0].state;
+    const pageUrl = `https://smartprofile.in/directory/state/${state}`;
+
+    // Cities within this state — used both for schema breadth and so the
+    // page can offer real "browse by city" links, not just a flat business
+    // list. Deduplicated and sorted for a stable render.
+    const citiesInState = [
+      ...new Set(stateBusinesses.filter((p) => p.city).map((p) => p.city)),
+    ].sort();
 
     const itemListNode = {
       "@type": "ItemList",
-      itemListElement: categoryBusinesses.slice(0, 50).map((p, i) => ({
+      itemListElement: stateBusinesses.slice(0, 50).map((p, i) => ({
         "@type": "ListItem",
         position: i + 1,
         url: `https://smartprofile.in/directory/${slugifyCity(p.city)}/${p.username}`,
@@ -83,7 +94,7 @@ export default async function Page({ params }) {
     const collectionNode = {
       "@type": "CollectionPage",
       "@id": `${pageUrl}#collection`,
-      name: `${categoryName} - SmartProfile Directory`,
+      name: `Business Directory in ${stateName}`,
       url: pageUrl,
       mainEntity: itemListNode,
     };
@@ -93,7 +104,7 @@ export default async function Page({ params }) {
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "Home", item: "https://smartprofile.in" },
         { "@type": "ListItem", position: 2, name: "Directory", item: "https://smartprofile.in/directory" },
-        { "@type": "ListItem", position: 3, name: categoryName },
+        { "@type": "ListItem", position: 3, name: stateName },
       ],
     };
 
@@ -112,7 +123,7 @@ export default async function Page({ params }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
-      <CategoryClient categorySlug={category} />
+      <StateClient stateSlug={state} />
     </>
   );
 }
