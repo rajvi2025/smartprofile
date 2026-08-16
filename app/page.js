@@ -54,44 +54,43 @@ export default function HomePage() {
     { title: 'Verified Badge', desc: 'Build trust instantly. Verified businesses get more clicks and more leads.', color: '#0ea5e9', bg: '#f0f9ff', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="26" height="26"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> },
   ];
 
-  const demoProfiles = [
-    { name: 'COPPERKING HOMEE INDIA', category: 'Copper Exporter', location: 'Thane, Maharashtra', phone: '918779981853', verified: false, img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/d98c6772-d9e1-4328-9a9a-34b8fb8e1d12-1783707231398.png', city: 'thane', username: 'copperking' },
-    { name: 'Image Graphics', category: 'Printing Service', location: 'Thane, Maharashtra', phone: '918652763064', verified: true, img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/88670e58-5ac4-4a08-bc43-b234c58306d3-1785415412484.png', city: 'thane', username: 'image-graphics' },
-    { name: 'Om Sai Fire Solutions', category: 'Fire Fighting & Alarm Systems', location: 'Mumbai, Maharashtra', phone: '919820229944', verified: true, img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/88670e58-5ac4-4a08-bc43-b234c58306d3-1784736010557.png', city: 'mumbai', username: 'om-sai-fire-solutions' },
-    { name: 'Jupiter Finserve', category: 'Financial Services', location: 'Thane, Maharashtra', phone: '917977743745', verified: true, img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/88670e58-5ac4-4a08-bc43-b234c58306d3-1784225261733.png', city: 'thane', username: 'jupiter-finserve' },
+  const steps = [
+    { num: 1, title: 'Create Profile', desc: 'Fill your business details in minutes', color: '#3b82f6' },
+    { num: 2, title: 'Get Your Link', desc: 'Receive your unique smartprofile.in link', color: '#8b5cf6' },
+    { num: 3, title: 'Share Everywhere', desc: 'QR, NFC, WhatsApp, social media', color: '#f59e0b' },
+    { num: 4, title: 'Grow Business', desc: 'Get leads, calls, and more customers', color: '#10b981' },
   ];
 
-  const steps = [
-    { num: '01', title: 'Create Your Profile', desc: 'Add business details and customize in minutes.', color: '#6366f1' },
-    { num: '02', title: 'Share Everywhere', desc: 'Share via QR, NFC card, WhatsApp or direct link.', color: '#8b5cf6' },
-    { num: '03', title: 'Get Discovered', desc: 'Appear in SmartProfile directory by city and category.', color: '#3b82f6' },
-    { num: '04', title: 'Grow Your Business', desc: 'Capture leads, track analytics, build trust.', color: '#10b981' },
+  const demoProfiles = [
+    { name: 'COPPERKING', city: 'thane', username: 'copperking', category: 'Copper Exporter', location: 'Mira Road, Thane', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/copperking.png', phone: '9999999999', verified: true },
+    { name: 'Image Graphics', city: 'thane', username: 'image-graphics', category: 'Printing Service', location: 'Thane', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/image-graphics.png', phone: '9999999999', verified: true },
+    { name: 'Om Sai Fire Solutions', city: 'mumbai', username: 'om-sai-fire-solutions', category: 'Fire Fighting & Alarm System Contractors', location: 'Ghatkopar', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/om-sai-fire-solutions.png', phone: '9999999999', verified: true },
+    { name: 'Jupiter Finserve', city: 'thane', username: 'jupiter-finserve', category: 'Financial Services', location: 'Thane', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/jupiter-finserve.png', phone: '9999999999', verified: true },
   ];
 
   const plans = [
-    { name: 'Basic', price: '199', color: '#6366f1', popular: false, desc: 'Perfect to get started', features: ['Logo & Business Name', 'Mobile, WhatsApp & Email', 'Save Contact (VCF)', 'QR Code', 'Free Directory Listing'] },
+    { name: 'Basic', price: '199', color: '#3b82f6', popular: false, desc: 'Get started digitally', features: ['Digital Profile Link', 'QR + WhatsApp + VCF', 'Free Directory Listing'] },
     { name: 'Business', price: '399', color: '#8b5cf6', popular: false, desc: 'For growing businesses', features: ['Everything in Basic', 'Cover Banner & About Us', 'Address & Google Maps', '2 Social Links', '2 Products/Services', '2 Testimonials'] },
-    { name: 'Premium', price: '599', color: '#3b82f6', popular: true, desc: 'Most popular choice', features: ['Everything in Business', '4 Social Links', '5 Products/Services', '10 Gallery Photos', 'PDF Brochure', '1 Video', '5 Testimonials', 'Free NFC Smart Card'] },
+    { name: 'Premium', price: '599', color: '#3b82f6', popular: true, desc: 'Most complete profile', features: ['Everything in Business', '5 Social Links', '5 Products/Services', '5 Testimonials', '10 Gallery Photos', 'Free NFC Smart Card'] },
     { name: 'Pro', price: '999', color: '#f59e0b', popular: false, desc: 'Full power, no limits', features: ['Everything in Premium', 'Unlimited Social Links', '10 Products/Services', '20 Gallery Photos', 'Lead Capture Form', 'Analytics Dashboard', 'Verified Badge', 'Priority Support', 'Free NFC Smart Card'] },
   ];
 
   const comparisonRows = [
-    { feature: 'Digital Profile', b: true, bu: true, p: true, pr: true },
-    { feature: 'QR Code', b: true, bu: true, p: true, pr: true },
-    { feature: 'Directory Listing', b: true, bu: true, p: true, pr: true },
+    { feature: 'Digital Profile Link', b: true, bu: true, p: true, pr: true },
+    { feature: 'QR + WhatsApp + VCF', b: true, bu: true, p: true, pr: true },
+    { feature: 'Free Directory Listing', b: true, bu: true, p: true, pr: true },
     { feature: 'Cover Banner', b: false, bu: true, p: true, pr: true },
-    { feature: 'Google Maps', b: false, bu: true, p: true, pr: true },
-    { feature: 'Gallery Photos', b: false, bu: false, p: true, pr: true },
-    { feature: 'PDF Brochure', b: false, bu: false, p: true, pr: true },
+    { feature: 'Products/Services', b: false, bu: true, p: true, pr: true },
+    { feature: 'Testimonials', b: false, bu: true, p: true, pr: true },
+    { feature: 'NFC Smart Card', b: false, bu: false, p: true, pr: true },
     { feature: 'Lead Capture Form', b: false, bu: false, p: false, pr: true },
     { feature: 'Analytics Dashboard', b: false, bu: false, p: false, pr: true },
     { feature: 'Verified Badge', b: false, bu: false, p: false, pr: true },
-    { feature: 'Free NFC Smart Card', b: false, bu: false, p: true, pr: true },
   ];
 
   const testimonials = [
-    { name: 'Rohit Sharma', role: 'Founder, Digital Agency — Pune', text: 'SmartProfile completely changed how I share my business. One link and clients see everything — services, gallery, contact. Extremely professional.', avatar: 'RS', color: '#6366f1' },
-    { name: 'Priya Kapoor', role: 'Real Estate Agent — Mumbai', text: 'I used to spend thousands printing visiting cards. Now I share my SmartProfile QR code and get leads the same day. Totally worth it!', avatar: 'PK', color: '#10b981' },
+    { name: 'Rajesh Sharma', role: 'Real Estate Agent — Pune', text: 'SmartProfile completely changed how I share my business. One link has everything — my listings, contact, reviews. Clients are impressed every time.', avatar: 'RS', color: '#3b82f6' },
+    { name: 'Priya Mehta', role: 'Boutique Owner — Mumbai', text: 'The NFC card is a game changer. I just tap it on customer phones and my whole catalog opens up instantly. Sales have gone up noticeably.', avatar: 'PM', color: '#f59e0b' },
     { name: 'Dr. Amit Verma', role: 'General Physician — Nashik', text: 'My patients connect directly via WhatsApp from my profile. Appointment booking became so simple. I highly recommend SmartProfile.', avatar: 'AV', color: '#8b5cf6' },
   ];
 
@@ -112,24 +111,51 @@ export default function HomePage() {
         .float-anim { animation: float 4s ease-in-out infinite; }
         .fade-in { animation: fadeInUp 0.7s ease forwards; }
         .hero-card { animation: fadeInUp 0.5s ease forwards; }
+
+        /* Hero layout: CSS media queries instead of a JS isMobile check.
+           Server-rendered HTML and the first client paint now always
+           agree on mobile, so there's no post-hydration flip (which was
+           swapping the desktop phone mockup in/out and hurting mobile
+           LCP + adding extra layout work). */
+        .hero-section {
+          background: linear-gradient(180deg, #f0f4ff 0%, #e8f0ff 100%);
+          min-height: auto;
+          padding: 32px 16px 48px;
+        }
+        .hero-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .hero-phone-mockup {
+          display: none;
+        }
+        @media (min-width: 768px) {
+          .hero-section {
+            background: linear-gradient(120deg, #f8fafc 0%, #eff6ff 45%, #1e3a8a 45%, #1d4ed8 100%);
+            min-height: 92vh;
+            padding: 60px 24px;
+          }
+          .hero-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+          }
+          .hero-phone-mockup {
+            display: flex;
+            justify-content: center;
+            position: relative;
+          }
+        }
       `}</style>
 
       {/* HERO */}
-      <section style={{
-        background: isMobile
-          ? 'linear-gradient(180deg, #f0f4ff 0%, #e8f0ff 100%)'
-          : 'linear-gradient(120deg, #f8fafc 0%, #eff6ff 45%, #1e3a8a 45%, #1d4ed8 100%)',
-        minHeight: isMobile ? 'auto' : '92vh',
+      <section className="hero-section" style={{
         display: 'flex', alignItems: 'center',
-        padding: isMobile ? '32px 16px 48px' : '60px 24px',
         position: 'relative', overflow: 'hidden'
       }}>
         <div style={{ position: 'absolute', top: -150, right: -150, width: 600, height: 600, background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }} />
-        <div style={{
+        <div className="hero-grid" style={{
           maxWidth: 1200, margin: '0 auto', width: '100%',
-          display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-          gap: isMobile ? 0 : 50,
           alignItems: 'center', position: 'relative', zIndex: 1
         }}>
           <div className="fade-in">
@@ -166,51 +192,53 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Phone mockup — desktop only */}
-          {!isMobile && (
-            <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
-              <div className="hero-card" style={{ position: 'absolute', left: -20, top: '32%', background: '#fff', borderRadius: 18, padding: '18px', boxShadow: '0 12px 40px rgba(0,0,0,0.18)', zIndex: 11, textAlign: 'center' }}>
-                <div style={{ width: 90, height: 90, background: '#fff', display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 2, padding: 4, border: '1px solid #f1f5f9' }}>
-                  {[1,1,1,0,1,1,1,1,0,1,0,1,0,1,1,1,1,0,0,0,1,0,0,0,1,1,1,0,1,0,1,0,0,1,0,0,1,1,1,0,1,1,1,0,1,0,1,1,0].map((v,i)=>(<div key={i} style={{background:v?'#0f172a':'#fff',aspectRatio:'1'}}/>))}
+          {/* Phone mockup — desktop only. Always rendered in the DOM and
+              hidden via CSS (.hero-phone-mockup) instead of a JS isMobile
+              check, so the server and first client paint always agree —
+              no post-hydration mount/unmount flip that was hurting mobile
+              LCP and adding extra layout work. */}
+          <div className="hero-phone-mockup">
+            <div className="hero-card" style={{ position: 'absolute', left: -20, top: '32%', background: '#fff', borderRadius: 18, padding: '18px', boxShadow: '0 12px 40px rgba(0,0,0,0.18)', zIndex: 11, textAlign: 'center' }}>
+              <div style={{ width: 90, height: 90, background: '#fff', display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 2, padding: 4, border: '1px solid #f1f5f9' }}>
+                {[1,1,1,0,1,1,1,1,0,1,0,1,0,1,1,1,1,0,0,0,1,0,0,0,1,1,1,0,1,0,1,0,0,1,0,0,1,1,1,0,1,1,1,0,1,0,1,1,0].map((v,i)=>(<div key={i} style={{background:v?'#0f172a':'#fff',aspectRatio:'1'}}/>))}
+              </div>
+              <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginTop: 8 }}>Scan to Connect</div>
+            </div>
+            <div className="hero-card" style={{ position: 'absolute', top: 10, right: -25, background: 'rgba(255,255,255,0.97)', borderRadius: 16, padding: '14px 18px', boxShadow: '0 8px 28px rgba(0,0,0,0.2)', zIndex: 12, minWidth: 150 }}>
+              <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, marginBottom: 4 }}>Profile Views</div>
+              <div style={{ fontSize: 26, fontWeight: 800, color: '#1e293b', marginBottom: 2 }}>1,250+</div>
+              <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>↑ +18% this week</div>
+            </div>
+            <div className="hero-card" style={{ position: 'absolute', bottom: 40, right: -25, background: 'rgba(255,255,255,0.97)', borderRadius: 16, padding: '14px 18px', boxShadow: '0 8px 28px rgba(0,0,0,0.2)', zIndex: 12, minWidth: 150 }}>
+              <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, marginBottom: 4 }}>Leads Captured</div>
+              <div style={{ fontSize: 26, fontWeight: 800, color: '#1e293b', marginBottom: 2 }}>320+</div>
+              <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>↑ +24% this week</div>
+            </div>
+            <div className="float-anim" style={{ width: 285, height: 575, background: '#0a0f1e', borderRadius: 44, padding: '13px', boxShadow: '0 40px 100px rgba(0,0,0,0.4)' }}>
+              <div style={{ background: 'linear-gradient(160deg, #1e40af 0%, #312e81 50%, #1e1b4b 100%)', borderRadius: 34, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 18px 20px', overflow: 'hidden' }}>
+                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, #60a5fa, #a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: '#fff', marginBottom: 12, border: '4px solid rgba(255,255,255,0.25)' }}>RS</div>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: 17, marginBottom: 3 }}>Rajesh Sharma</div>
+                <div style={{ color: '#cbd5e1', fontSize: 12, marginBottom: 4 }}>Real Estate Agent</div>
+                <div style={{ color: '#94a3b8', fontSize: 11, marginBottom: 16 }}>Pune, Maharashtra</div>
+                <div style={{ display: 'flex', gap: 9, marginBottom: 18 }}>
+                  {[['#E4405F','ig'],['#0A66C2','in'],['#1DA1F2','tw'],['#FF0000','yt']].map(([c,s],i) => (
+                    <div key={i} style={{ width: 30, height: 30, borderRadius: '50%', background: c, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#fff', fontWeight: 700 }}>{s}</div>
+                  ))}
                 </div>
-                <div style={{ fontSize: 11, color: '#64748b', fontWeight: 600, marginTop: 8 }}>Scan to Connect</div>
-              </div>
-              <div className="hero-card" style={{ position: 'absolute', top: 10, right: -25, background: 'rgba(255,255,255,0.97)', borderRadius: 16, padding: '14px 18px', boxShadow: '0 8px 28px rgba(0,0,0,0.2)', zIndex: 12, minWidth: 150 }}>
-                <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, marginBottom: 4 }}>Profile Views</div>
-                <div style={{ fontSize: 26, fontWeight: 800, color: '#1e293b', marginBottom: 2 }}>1,250+</div>
-                <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>↑ +18% this week</div>
-              </div>
-              <div className="hero-card" style={{ position: 'absolute', bottom: 40, right: -25, background: 'rgba(255,255,255,0.97)', borderRadius: 16, padding: '14px 18px', boxShadow: '0 8px 28px rgba(0,0,0,0.2)', zIndex: 12, minWidth: 150 }}>
-                <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, marginBottom: 4 }}>Leads Captured</div>
-                <div style={{ fontSize: 26, fontWeight: 800, color: '#1e293b', marginBottom: 2 }}>320+</div>
-                <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>↑ +24% this week</div>
-              </div>
-              <div className="float-anim" style={{ width: 285, height: 575, background: '#0a0f1e', borderRadius: 44, padding: '13px', boxShadow: '0 40px 100px rgba(0,0,0,0.4)' }}>
-                <div style={{ background: 'linear-gradient(160deg, #1e40af 0%, #312e81 50%, #1e1b4b 100%)', borderRadius: 34, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 18px 20px', overflow: 'hidden' }}>
-                  <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, #60a5fa, #a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: '#fff', marginBottom: 12, border: '4px solid rgba(255,255,255,0.25)' }}>RS</div>
-                  <div style={{ color: '#fff', fontWeight: 700, fontSize: 17, marginBottom: 3 }}>Rajesh Sharma</div>
-                  <div style={{ color: '#cbd5e1', fontSize: 12, marginBottom: 4 }}>Real Estate Agent</div>
-                  <div style={{ color: '#94a3b8', fontSize: 11, marginBottom: 16 }}>Pune, Maharashtra</div>
-                  <div style={{ display: 'flex', gap: 9, marginBottom: 18 }}>
-                    {[['#E4405F','ig'],['#0A66C2','in'],['#1DA1F2','tw'],['#FF0000','yt']].map(([c,s],i) => (
-                      <div key={i} style={{ width: 30, height: 30, borderRadius: '50%', background: c, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#fff', fontWeight: 700 }}>{s}</div>
-                    ))}
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ flex: 1, background: '#3b82f6', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#fff', fontSize: 12, fontWeight: 600 }}>Call</div>
+                    <div style={{ flex: 1, background: '#25d366', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#fff', fontSize: 12, fontWeight: 600 }}>WhatsApp</div>
                   </div>
-                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <div style={{ flex: 1, background: '#3b82f6', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#fff', fontSize: 12, fontWeight: 600 }}>Call</div>
-                      <div style={{ flex: 1, background: '#25d366', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#fff', fontSize: 12, fontWeight: 600 }}>WhatsApp</div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#cbd5e1', fontSize: 12, fontWeight: 600 }}>Email</div>
-                      <div style={{ flex: 1, background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#fff', fontSize: 12, fontWeight: 600 }}>Website</div>
-                    </div>
-                    <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#fff', fontSize: 12, fontWeight: 700, marginTop: 2 }}>Save Contact</div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#cbd5e1', fontSize: 12, fontWeight: 600 }}>Email</div>
+                    <div style={{ flex: 1, background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#fff', fontSize: 12, fontWeight: 600 }}>Website</div>
                   </div>
+                  <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, padding: '10px', textAlign: 'center', color: '#fff', fontSize: 12, fontWeight: 700, marginTop: 2 }}>Save Contact</div>
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </section>
 
