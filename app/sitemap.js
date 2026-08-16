@@ -18,10 +18,14 @@ export default async function sitemap() {
     },
   ];
 
+  // Only approved + active listings count toward the sitemap — matches the
+  // same rule used by generateMetadata's robots tag on every directory
+  // page, so the sitemap never advertises a URL that's set to noindex.
   const { data: profiles } = await supabase
     .from("profiles")
     .select("username, city, category")
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .eq("status", "approved");
 
   const slugifyCity = (city) => (city || "").toLowerCase().trim().replace(/\s+/g, "-");
   const slugifyCategory = (category) => (category || "").toLowerCase().trim().replace(/\s+/g, "-");
@@ -56,5 +60,26 @@ export default async function sitemap() {
     priority: 0.7,
   }));
 
-  return [...staticPages, ...cityPages, ...categoryPages, ...directoryPages];
+  // City + Category combo pages (smartprofile.in/directory/{city}/category/{category})
+  // — the highest search-intent URL pattern (e.g. "electrician in Thane").
+  // One per distinct city+category pair that has at least one active,
+  // approved business; empty combos stay noindexed on the page itself.
+  const comboKeys = [
+    ...new Set(
+      (profiles || [])
+        .filter((p) => p.city && p.category)
+        .map((p) => `${slugifyCity(p.city)}::${slugifyCategory(p.category)}`)
+    ),
+  ];
+  const comboPages = comboKeys.map((key) => {
+    const [citySlug, categorySlug] = key.split("::");
+    return {
+      url: `${baseUrl}/directory/${citySlug}/category/${categorySlug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.75,
+    };
+  });
+
+  return [...staticPages, ...cityPages, ...categoryPages, ...comboPages, ...directoryPages];
 }
