@@ -60,7 +60,7 @@ export async function generateMetadata({ params }) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("business_name, full_name, tagline, about, category, city, state, logo_url, banner_url, directory_image_url, is_active")
+    .select("business_name, full_name, tagline, about, category, city, state, logo_url, banner_url, directory_image_url, is_active, status")
     .eq("username", username)
     .single();
 
@@ -83,10 +83,22 @@ export async function generateMetadata({ params }) {
   const image = profile.directory_image_url || profile.banner_url || profile.logo_url;
   const titleLocation = profile.city ? `${profile.category ? `${profile.category} in ` : ""}${profile.city}` : "";
 
+  // Golden Rule for indexing: only listings an admin has explicitly
+  // approved are eligible to be indexed by Google. Anything still
+  // 'pending' (or rejected) renders normally for the owner/admin to
+  // preview, but carries a noindex so incomplete or unvetted listings
+  // never reach Google search results. Flip to indexable automatically
+  // the moment admin approval happens — no manual SEO step required.
+  const isApproved = profile.status === "approved";
+
   return {
     title: `${name}${titleLocation ? ` - ${titleLocation}` : ""} | SmartProfile Directory`,
     description,
     alternates: { canonical: canonicalUrl },
+    robots: {
+      index: isApproved,
+      follow: true,
+    },
     openGraph: {
       title: name,
       description,
