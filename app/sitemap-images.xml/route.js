@@ -18,10 +18,16 @@ function escapeXml(str) {
     .replace(/'/g, "&apos;");
 }
 
+// Google Images sitemap (sitemap-image/1.1 extension). Only approved +
+// active listings are included, matching the same indexing rule used for
+// generateMetadata's robots tag — a pending listing's images shouldn't be
+// offered to Google either. Runs entirely off live database data, so any
+// image uploaded for any business (existing or future) shows up here
+// automatically on next crawl, with no manual step per listing.
 export async function GET() {
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("id, username, city, category, business_name, full_name, banner_url, logo_url, is_active, status")
+    .select("id, username, city, category, business_name, full_name, banner_url, logo_url, directory_image_url, is_active, status")
     .eq("is_active", true)
     .eq("status", "approved");
 
@@ -54,14 +60,27 @@ export async function GET() {
       const locationBit = [p.category, p.city].filter(Boolean).join(" in ");
       const suffix = locationBit ? ` - ${locationBit}` : "";
 
+      // Track URLs already added so the same image (e.g. directory_image_url
+      // reused as the banner) never gets listed twice under different labels.
+      const seenUrls = new Set();
       const images = [];
-      if (p.banner_url) images.push({ url: p.banner_url, title: `${name} banner${suffix}` });
-      if (p.logo_url) images.push({ url: p.logo_url, title: `${name} logo${suffix}` });
+      const addImage = (url, title) => {
+        if (!url || seenUrls.has(url)) return;
+        seenUrls.add(url);
+        images.push({ url, title });
+      };
+
+      addImage(p.banner_url, `${name} banner${suffix}`);
+      addImage(p.logo_url, `${name} logo${suffix}`);
+      // Directory listing thumbnail — a separate field from banner/logo,
+      // shown on category/city grid cards (see ComboClient.jsx). Only
+      // added if it's a genuinely different image from the two above.
+      addImage(p.directory_image_url, `${name}${suffix}`);
       (productsByProfile[p.id] || []).forEach((prod) => {
-        images.push({ url: prod.image_url, title: `${prod.name || "Product"} - ${name}${suffix}` });
+        addImage(prod.image_url, `${prod.name || "Product"} - ${name}${suffix}`);
       });
       (galleryByProfile[p.id] || []).forEach((g) => {
-        images.push({ url: g.image_url, title: `${g.caption || "Photo"} - ${name}${suffix}` });
+        addImage(g.image_url, `${g.caption || "Photo"} - ${name}${suffix}`);
       });
 
       if (images.length === 0) return null;
