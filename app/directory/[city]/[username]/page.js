@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { cache } from "react";
 import ListingClient from "./ListingClient";
 import { slugifyCity } from "@/lib/slugify";
 
@@ -6,6 +7,21 @@ const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"
 );
+
+// Both generateMetadata() and the Page component below need the same
+// profile row. Without this, Next.js runs two full sequential DB
+// round-trips before it can even start streaming HTML — that's what was
+// showing up in Ahrefs as ~1.5s Time To First Byte on listing pages.
+// React's cache() memoizes the result per request, so the second caller
+// gets it for free instead of hitting Supabase again.
+const getProfile = cache(async (username) => {
+  const { data } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("username", username)
+    .single();
+  return data;
+});
 
 // Maps SmartProfile's business categories to the closest schema.org
 // LocalBusiness subtype, so Google gets a more specific entity type than
@@ -54,11 +70,7 @@ function getSchemaType(category) {
 export async function generateMetadata({ params }) {
   const { username } = await params;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("business_name, full_name, tagline, about, category, city, state, logo_url, banner_url, directory_image_url, is_active, status")
-    .eq("username", username)
-    .single();
+  const profile = await getProfile(username);
 
   if (!profile || !profile.is_active) {
     return {
@@ -114,11 +126,7 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const { city, username } = await params;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("username", username)
-    .single();
+  const profile = await getProfile(username);
 
   let jsonLd = null;
 
