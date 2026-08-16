@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import CategoryAutocomplete from '@/components/CategoryAutocomplete';
 
 const FIELDS = [
   ['business_name', 'Business Name'],
@@ -36,6 +37,8 @@ const TEXTAREA_FIELDS = [
   ['about', 'About'],
   ['bio', 'Bio'],
 ];
+
+const editInputStyle = { width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14 };
 
 export default function EditProfilePage() {
   const { data: session, status } = useSession();
@@ -209,12 +212,21 @@ export default function EditProfilePage() {
                 <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 4 }}>
                   {label}
                 </label>
-                <input
-                  type="text"
-                  value={form[key] || ''}
-                  onChange={e => handleChange(key, e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14 }}
-                />
+                {key === 'category' ? (
+                  <CategoryAutocomplete
+                    value={form[key] || ''}
+                    onChange={v => handleChange(key, v)}
+                    placeholder="Start typing e.g. Electrician"
+                    inputStyle={editInputStyle}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={form[key] || ''}
+                    onChange={e => handleChange(key, e.target.value)}
+                    style={editInputStyle}
+                  />
+                )}
               </div>
             ))}
           </div>

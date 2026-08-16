@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
+import CategoryAutocomplete from '@/components/CategoryAutocomplete';
 
 const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
@@ -658,7 +659,7 @@ export default function EditProfilePage() {
                 <div><label className={lbl}>Business Name *</label><input value={form.business_name} onChange={e=>update('business_name',e.target.value)} className={inp}/></div>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className={lbl}>Tagline</label><input value={form.tagline} onChange={e=>update('tagline',e.target.value)} className={inp}/></div>
-                  <div><label className={lbl}>Category</label><input value={form.category} onChange={e=>update('category',e.target.value)} className={inp}/></div>
+                  <div><label className={lbl}>Category</label><CategoryAutocomplete value={form.category} onChange={v=>update('category',v)} placeholder="Start typing e.g. Electrician" inputClassName={inp}/></div>
                 </div>
                 <div>
                   <label className={lbl}>This Digital Card is for</label>

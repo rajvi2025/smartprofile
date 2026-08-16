@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase';
 // a suggestion fills the field. Free text is still allowed if nothing
 // matches — this never blocks submission, it's a helper, not a strict
 // enum — so a business type not yet in the taxonomy doesn't get stuck.
-export default function CategoryAutocomplete({ value, onChange, placeholder, inputClassName }) {
+export default function CategoryAutocomplete({ value, onChange, placeholder, inputClassName, inputStyle }) {
   const [allCategories, setAllCategories] = useState([]);
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -61,6 +61,7 @@ export default function CategoryAutocomplete({ value, onChange, placeholder, inp
         onFocus={() => setOpen(true)}
         placeholder={placeholder || 'Start typing e.g. Electrician'}
         className={inputClassName}
+        style={inputStyle}
         autoComplete="off"
       />
       {open && matches.length > 0 && (
