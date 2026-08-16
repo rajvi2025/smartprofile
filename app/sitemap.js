@@ -2,7 +2,7 @@
 import { slugifyCity, slugifyCategory, slugifyState } from "@/lib/slugify";
 
 export default async function sitemap() {
-  const baseUrl = "https://smartprofile.in";
+  const baseUrl = "https://www.smartprofile.in";
 
   const staticPages = [
     {
@@ -17,6 +17,19 @@ export default async function sitemap() {
       changeFrequency: "daily",
       priority: 0.9,
     },
+    // Static marketing/info pages — previously missing from the sitemap
+    // entirely (flagged by Ahrefs as "Indexable page not in sitemap").
+    // Login/Register are deliberately excluded here since robots.js
+    // already disallows and noindexes them.
+    { url: `${baseUrl}/demo`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
+    { url: `${baseUrl}/nfc-cards`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${baseUrl}/free-listing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
+    { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.4 },
+    { url: `${baseUrl}/shipping`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${baseUrl}/privacy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${baseUrl}/refund`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${baseUrl}/terms`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${baseUrl}/spin`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.4 },
   ];
 
   // Only approved + active listings count toward the sitemap — matches the

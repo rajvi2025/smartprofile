@@ -14,8 +14,8 @@
       ],
     },
     sitemap: [
-      "https://smartprofile.in/sitemap.xml",
-      "https://smartprofile.in/sitemap-images.xml",
+      "https://www.smartprofile.in/sitemap.xml",
+      "https://www.smartprofile.in/sitemap-images.xml",
     ],
   };
 }

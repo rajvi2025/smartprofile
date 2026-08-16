@@ -1,4 +1,22 @@
-﻿export default function PrivacyPolicy() {
+﻿export const metadata = {
+  title: "Privacy Policy | SmartProfile",
+  description: "Read SmartProfile's Privacy Policy to understand how we collect, use, and protect your personal and business information.",
+  alternates: { canonical: "https://www.smartprofile.in/privacy" },
+  openGraph: {
+    title: "Privacy Policy | SmartProfile",
+    description: "How SmartProfile collects, uses, and protects your personal and business information.",
+    url: "https://www.smartprofile.in/privacy",
+    siteName: "SmartProfile",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Privacy Policy | SmartProfile",
+    description: "How SmartProfile collects, uses, and protects your information.",
+  },
+};
+
+export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm p-8 md:p-12">
@@ -65,5 +83,3 @@
     </div>
   );
 }
-
-

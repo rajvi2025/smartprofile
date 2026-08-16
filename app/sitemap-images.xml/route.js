@@ -53,7 +53,7 @@ export async function GET() {
     .map((p) => {
       const name = p.business_name || p.full_name || p.username;
       const citySlug = slugifyCity(p.city);
-      const pageUrl = `https://smartprofile.in/directory/${citySlug}/${p.username}`;
+      const pageUrl = `https://www.smartprofile.in/directory/${citySlug}/${p.username}`;
       const locationBit = [p.category, p.city].filter(Boolean).join(" in ");
       const suffix = locationBit ? ` - ${locationBit}` : "";
 

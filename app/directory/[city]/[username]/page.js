@@ -70,7 +70,7 @@ export async function generateMetadata({ params }) {
 
   const name = profile.business_name || profile.full_name || username;
   const citySlug = slugifyCity(profile.city);
-  const canonicalUrl = `https://smartprofile.in/directory/${citySlug}/${username}`;
+  const canonicalUrl = `https://www.smartprofile.in/directory/${citySlug}/${username}`;
   const description =
     profile.tagline ||
     (profile.about
@@ -131,7 +131,7 @@ export default async function Page({ params }) {
 
     const name = profile.business_name || profile.full_name || username;
     const citySlug = slugifyCity(profile.city);
-    const pageUrl = `https://smartprofile.in/directory/${citySlug}/${username}`;
+    const pageUrl = `https://www.smartprofile.in/directory/${citySlug}/${username}`;
 
     const reviewCount = testimonials ? testimonials.length : 0;
     const avgRating =
@@ -188,15 +188,15 @@ export default async function Page({ params }) {
     // text-only and was removed for failing Google's validator (every
     // breadcrumb item except the last one needs a working URL).
     const breadcrumbItems = [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://smartprofile.in" },
-      { "@type": "ListItem", position: 2, name: "Directory", item: "https://smartprofile.in/directory" },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.smartprofile.in" },
+      { "@type": "ListItem", position: 2, name: "Directory", item: "https://www.smartprofile.in/directory" },
     ];
     if (profile.city) {
       breadcrumbItems.push({
         "@type": "ListItem",
         position: 3,
         name: profile.city,
-        item: `https://smartprofile.in/directory/${citySlug}`,
+        item: `https://www.smartprofile.in/directory/${citySlug}`,
       });
     }
     breadcrumbItems.push({ "@type": "ListItem", position: breadcrumbItems.length + 1, name });

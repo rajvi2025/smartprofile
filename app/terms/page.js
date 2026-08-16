@@ -1,4 +1,22 @@
-﻿export default function TermsOfService() {
+﻿export const metadata = {
+  title: "Terms of Service | SmartProfile",
+  description: "Read the Terms of Service governing your use of SmartProfile's digital business profile, directory, and NFC card services.",
+  alternates: { canonical: "https://www.smartprofile.in/terms" },
+  openGraph: {
+    title: "Terms of Service | SmartProfile",
+    description: "Terms of Service governing your use of SmartProfile's services.",
+    url: "https://www.smartprofile.in/terms",
+    siteName: "SmartProfile",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Terms of Service | SmartProfile",
+    description: "Terms of Service governing your use of SmartProfile's services.",
+  },
+};
+
+export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm p-8 md:p-12">
@@ -70,4 +88,3 @@
     </div>
   );
 }
-

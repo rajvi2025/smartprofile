@@ -35,7 +35,7 @@ export async function generateMetadata({ params }) {
     };
   }
 
-  const canonicalUrl = `https://smartprofile.in/directory/state/${state}`;
+  const canonicalUrl = `https://www.smartprofile.in/directory/state/${state}`;
   const description = `Find ${count} verified business${count === 1 ? "" : "es"} across ${stateName} — contact details, reviews, products and services, all on SmartProfile Directory.`;
 
   return {
@@ -72,7 +72,7 @@ export default async function Page({ params }) {
 
   if (stateBusinesses.length > 0) {
     const stateName = stateBusinesses[0].state;
-    const pageUrl = `https://smartprofile.in/directory/state/${state}`;
+    const pageUrl = `https://www.smartprofile.in/directory/state/${state}`;
 
     // Cities within this state — used both for schema breadth and so the
     // page can offer real "browse by city" links, not just a flat business
@@ -86,7 +86,7 @@ export default async function Page({ params }) {
       itemListElement: stateBusinesses.slice(0, 50).map((p, i) => ({
         "@type": "ListItem",
         position: i + 1,
-        url: `https://smartprofile.in/directory/${slugifyCity(p.city)}/${p.username}`,
+        url: `https://www.smartprofile.in/directory/${slugifyCity(p.city)}/${p.username}`,
         name: p.business_name || p.full_name || p.username,
       })),
     };
@@ -102,8 +102,8 @@ export default async function Page({ params }) {
     const breadcrumbNode = {
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://smartprofile.in" },
-        { "@type": "ListItem", position: 2, name: "Directory", item: "https://smartprofile.in/directory" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://www.smartprofile.in" },
+        { "@type": "ListItem", position: 2, name: "Directory", item: "https://www.smartprofile.in/directory" },
         { "@type": "ListItem", position: 3, name: stateName },
       ],
     };

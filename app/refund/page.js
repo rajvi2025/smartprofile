@@ -1,4 +1,22 @@
-﻿export default function RefundPolicy() {
+﻿export const metadata = {
+  title: "Refund & Cancellation Policy | SmartProfile",
+  description: "Read SmartProfile's refund and cancellation policy for digital plans and NFC Smart Card orders.",
+  alternates: { canonical: "https://www.smartprofile.in/refund" },
+  openGraph: {
+    title: "Refund & Cancellation Policy | SmartProfile",
+    description: "Refund and cancellation policy for digital plans and NFC Smart Card orders.",
+    url: "https://www.smartprofile.in/refund",
+    siteName: "SmartProfile",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Refund & Cancellation Policy | SmartProfile",
+    description: "Refund and cancellation policy for digital plans and NFC Smart Card orders.",
+  },
+};
+
+export default function RefundPolicy() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm p-8 md:p-12">
@@ -47,5 +65,3 @@
     </div>
   );
 }
-
-

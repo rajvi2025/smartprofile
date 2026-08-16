@@ -1,3 +1,21 @@
+export const metadata = {
+  title: "Shipping & Delivery Policy | SmartProfile",
+  description: "Read SmartProfile's shipping and delivery policy for NFC Smart Card orders — processing time, delivery timelines, and tracking.",
+  alternates: { canonical: "https://www.smartprofile.in/shipping" },
+  openGraph: {
+    title: "Shipping & Delivery Policy | SmartProfile",
+    description: "Shipping and delivery policy for NFC Smart Card orders — processing time, delivery timelines, and tracking.",
+    url: "https://www.smartprofile.in/shipping",
+    siteName: "SmartProfile",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Shipping & Delivery Policy | SmartProfile",
+    description: "Shipping and delivery policy for NFC Smart Card orders.",
+  },
+};
+
 export default function ShippingPolicy() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
