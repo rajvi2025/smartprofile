@@ -37,23 +37,18 @@ export const metadata = {
 const MAX_ITEMLIST_ENTRIES = 100;
 
 export default async function Page() {
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("username, business_name, full_name, city")
-    .eq("is_active", true)
-    .limit(MAX_ITEMLIST_ENTRIES);
-
-  // Full profile list for the actual page content — server-fetched so real
-  // business cards (and their links to individual listing pages) are
-  // present in the initial HTML, not only after client JS runs. This is
-  // what fixes the orphan-page issue for crawlers that don't execute JS.
+  // Single query for everything this page needs — the JSON-LD itemList and
+  // the actual business cards both derive from this. Previously this ran
+  // two sequential Supabase round-trips, which is what Ahrefs was flagging
+  // as a ~2.1s slow page.
   const { data: allProfiles } = await supabase
     .from("profiles")
     .select("*")
     .eq("is_active", true);
 
-  const itemListElements = (profiles || [])
+  const itemListElements = (allProfiles || [])
     .filter((p) => p.city)
+    .slice(0, MAX_ITEMLIST_ENTRIES)
     .map((p, index) => ({
       "@type": "ListItem",
       position: index + 1,

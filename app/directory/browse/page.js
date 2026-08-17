@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import BrowseClient from "./BrowseClient";
 
+export const revalidate = 3600;
+
 export const metadata = {
   title: "Browse All Cities & Categories | SmartProfile Directory",
   description:
