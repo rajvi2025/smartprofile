@@ -8,7 +8,7 @@ export async function GET(request) {
     return new Response('Username required', { status: 400 });
   }
 
-  const profileUrl = `https://smartprofile.in/${username}`;
+  const profileUrl = `https://smartprofile.in/${username}?src=qr`;
   
   const qrDataUrl = await QRCode.toDataURL(profileUrl, {
     width: 300,
