@@ -20,6 +20,7 @@ const BUILT_ITEMS = [
   { key: 'leads', href: '/admin/leads', label: 'Leads (CRM)', icon: '🎯' },
   { key: 'integrations', href: '/admin/integrations', label: 'Integrations', icon: '🔌' },
   { key: 'cms', href: '/admin/cms', label: 'CMS', icon: '📝' },
+  { key: 'performance', href: '/admin/performance', label: 'Performance', icon: '🏆' },
   { key: 'staff', href: '/admin/staff', label: 'Staff', icon: '🧑\u200d💼', adminOnly: true },
 ];
 
@@ -52,6 +53,7 @@ function keyForPath(pathname) {
   if (pathname.startsWith('/admin/reviews')) return 'reviews';
   if (pathname.startsWith('/admin/integrations')) return 'integrations';
   if (pathname.startsWith('/admin/cms')) return 'cms';
+  if (pathname.startsWith('/admin/performance')) return 'performance';
   if (pathname.startsWith('/admin/coupons')) return 'coupons';
   if (pathname.startsWith('/admin/payment-issues')) return 'payment-issues';
   if (pathname.startsWith('/admin/leads')) return 'leads';

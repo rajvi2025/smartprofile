@@ -16,6 +16,7 @@ const PERMISSION_OPTIONS = [
   { key: 'leads', label: 'Leads (CRM)' },
   { key: 'integrations', label: 'Integrations' },
   { key: 'cms', label: 'CMS' },
+  { key: 'performance', label: 'Performance' },
 ];
 
 function emptyForm() {
