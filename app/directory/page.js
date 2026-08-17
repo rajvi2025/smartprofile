@@ -38,6 +38,15 @@ export default async function Page() {
     .eq("is_active", true)
     .limit(MAX_ITEMLIST_ENTRIES);
 
+  // Full profile list for the actual page content — server-fetched so real
+  // business cards (and their links to individual listing pages) are
+  // present in the initial HTML, not only after client JS runs. This is
+  // what fixes the orphan-page issue for crawlers that don't execute JS.
+  const { data: allProfiles } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("is_active", true);
+
   const itemListElements = (profiles || [])
     .filter((p) => p.city)
     .map((p, index) => ({
@@ -81,7 +90,7 @@ export default async function Page() {
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <DirectoryClient />
+      <DirectoryClient initialProfiles={allProfiles || []} />
     </>
   );
 }

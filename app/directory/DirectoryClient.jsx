@@ -61,7 +61,34 @@ function extractLocation(address, city, state) {
   return lastThree || cityState || 'India';
 }
 
-export default function DirectoryClient() {
+// Shared mapping used both for the server-rendered initial list (so real
+// business cards + links exist in the raw HTML for crawlers that don't run
+// JS) and for the client-side refresh that layers in ratings/tags.
+function mapProfileToBusiness(p, ratingMap = {}, servicesMap = {}) {
+  const r = ratingMap[p.id];
+  const avgRating = r ? (r.sum / r.count) : 0;
+  const reviewCount = r ? r.count : 0;
+  return {
+    id: p.id,
+    name: p.business_name || p.full_name || p.username,
+    category: p.category || 'General',
+    city: p.city || '',
+    state: p.state || '',
+    address: p.address || '',
+    location: extractLocation(p.address, p.city, p.state),
+    rating: avgRating,
+    reviews: reviewCount,
+    verified: !!p.is_active,
+    initials: (p.business_name || p.full_name || '?').substring(0, 2).toUpperCase(),
+    color: '#3b82f6',
+    img: p.directory_image_url || p.banner_url || p.logo_url || null,
+    username: p.username,
+    phone: cleanPhone(p.phone),
+    tags: (servicesMap[p.id] || []).slice(0, 4),
+  };
+}
+
+export default function DirectoryClient({ initialProfiles = [] }) {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
@@ -69,7 +96,9 @@ export default function DirectoryClient() {
   const [nearbyCity, setNearbyCity] = useState('');
   const [isMobile, setIsMobile] = useState(false);
 
-  const [businesses, setBusinesses] = useState([]);
+  const [businesses, setBusinesses] = useState(
+    () => initialProfiles.map(p => mapProfileToBusiness(p))
+  );
 
   // Track viewport width so key layouts can stack on small screens.
   useEffect(() => {
@@ -137,32 +166,7 @@ export default function DirectoryClient() {
         servicesMap = {};
       }
 
-      setBusinesses(data.map(p => {
-        const r = ratingMap[p.id];
-        const avgRating = r ? (r.sum / r.count) : 0;
-        const reviewCount = r ? r.count : 0;
-        return {
-          id: p.id,
-          name: p.business_name || p.full_name || p.username,
-          category: p.category || 'General',
-          city: p.city || '',
-          state: p.state || '',
-          address: p.address || '',
-          location: extractLocation(p.address, p.city, p.state),
-          rating: avgRating,
-          reviews: reviewCount,
-          verified: !!p.is_active,
-          initials: (p.business_name || p.full_name || '?').substring(0,2).toUpperCase(),
-          color: '#3b82f6',
-          // Priority: Directory Main Image → Banner → Logo → initials fallback
-          img: p.directory_image_url || p.banner_url || p.logo_url || null,
-          username: p.username,
-          // NOTE: assuming column name is "phone" — tell me if it's actually
-          // "mobile" or "contact_number" and I'll fix this in one line.
-          phone: cleanPhone(p.phone),
-          tags: (servicesMap[p.id] || []).slice(0, 4),
-        };
-      }));
+      setBusinesses(data.map(p => mapProfileToBusiness(p, ratingMap, servicesMap)));
     }
     fetchProfiles();
   }, []);
