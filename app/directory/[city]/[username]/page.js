@@ -83,13 +83,22 @@ export async function generateMetadata({ params }) {
   const name = profile.business_name || profile.full_name || username;
   const citySlug = slugifyCity(profile.city);
   const canonicalUrl = `https://www.smartprofile.in/directory/${citySlug}/${username}`;
-  const description =
-    profile.tagline ||
-    (profile.about
-      ? profile.about.slice(0, 155)
-      : `${name}${profile.category ? ` - ${profile.category}` : ""}${profile.city ? ` in ${profile.city}` : ""}. Contact details, reviews, products and services on SmartProfile Directory.`);
+  const fallbackDescription = `${name}${profile.category ? ` - ${profile.category}` : ""}${profile.city ? ` in ${profile.city}` : ""}. Contact details, reviews, products and services on SmartProfile Directory.`;
+  let description = profile.tagline || (profile.about ? profile.about.slice(0, 155) : "");
+  // A short tagline (e.g. one punchy line) makes a fine headline but too
+  // thin a meta description on its own — pad it with the fallback context
+  // so search snippets always have enough substance.
+  if (!description || description.length < 70) {
+    description = description ? `${description} ${fallbackDescription}` : fallbackDescription;
+  }
+  description = description.slice(0, 160);
   const image = profile.directory_image_url || profile.banner_url || profile.logo_url;
   const titleLocation = profile.city ? `${profile.category ? `${profile.category} in ` : ""}${profile.city}` : "";
+  const fullTitle = `${name}${titleLocation ? ` - ${titleLocation}` : ""} | SmartProfile`;
+  // Long business/category names were pushing titles past 90 characters —
+  // fall back to just the name once the full version runs too long. The
+  // category/city detail is still fully present in the meta description.
+  const title = fullTitle.length > 60 ? `${name} | SmartProfile` : fullTitle;
 
   // Golden Rule for indexing: only listings an admin has explicitly
   // approved are eligible to be indexed by Google. Anything still
@@ -100,7 +109,7 @@ export async function generateMetadata({ params }) {
   const isApproved = profile.status === "approved";
 
   return {
-    title: `${name}${titleLocation ? ` - ${titleLocation}` : ""} | SmartProfile Directory`,
+    title,
     description,
     alternates: { canonical: canonicalUrl },
     robots: {
@@ -113,7 +122,7 @@ export async function generateMetadata({ params }) {
       url: canonicalUrl,
       siteName: "SmartProfile Directory",
       type: "website",
-      ...(image ? { images: [{ url: image }] } : {}),
+      ...(image ? { images: [{ url: image }] } : { images: [{ url: "https://www.smartprofile.in/logo-icon.png", width: 512, height: 512 }] }),
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",

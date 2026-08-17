@@ -43,7 +43,7 @@ export async function generateMetadata({ params }) {
   const description = `Find ${count} verified ${categoryName}${count === 1 ? "" : "es"} in ${cityName} — contact details, reviews, products and services, all on SmartProfile Directory.`;
 
   return {
-    title: `${categoryName} in ${cityName} - ${count} Verified Business${count === 1 ? "" : "es"} | SmartProfile`,
+    title: `${categoryName} in ${cityName} | SmartProfile Directory`,
     description,
     alternates: { canonical: canonicalUrl },
     robots: { index: true, follow: true },
@@ -53,6 +53,7 @@ export async function generateMetadata({ params }) {
       url: canonicalUrl,
       siteName: "SmartProfile Directory",
       type: "website",
+      images: [{ url: "https://www.smartprofile.in/logo-icon.png", width: 512, height: 512 }],
     },
     twitter: {
       card: "summary",

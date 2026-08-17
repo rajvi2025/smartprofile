@@ -6,7 +6,7 @@ function slugifyCity(city) {
 }
 
 export const metadata = {
-  title: "Business Directory - Find Verified Businesses Across India | SmartProfile",
+  title: "Business Directory | SmartProfile",
   description:
     "Search and discover verified businesses, professionals and services across India. Browse listings by city and category on SmartProfile Directory.",
   alternates: { canonical: "https://www.smartprofile.in/directory" },
@@ -14,7 +14,7 @@ export const metadata = {
     title: "SmartProfile Business Directory",
     description:
       "Search and discover verified businesses, professionals and services across India.",
-    url: "https://smartprofile.in/directory",
+    url: "https://www.smartprofile.in/directory",
     siteName: "SmartProfile Directory",
     type: "website",
   },
@@ -52,7 +52,7 @@ export default async function Page() {
     .map((p, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `https://smartprofile.in/directory/${slugifyCity(p.city)}/${p.username}`,
+      url: `https://www.smartprofile.in/directory/${slugifyCity(p.city)}/${p.username}`,
       name: p.business_name || p.full_name || p.username,
     }));
 
@@ -61,11 +61,11 @@ export default async function Page() {
     "@graph": [
       {
         "@type": "CollectionPage",
-        "@id": "https://smartprofile.in/directory#collection",
+        "@id": "https://www.smartprofile.in/directory#collection",
         name: "SmartProfile Business Directory",
         description:
           "Search and discover verified businesses, professionals and services across India.",
-        url: "https://smartprofile.in/directory",
+        url: "https://www.smartprofile.in/directory",
       },
       // Lightweight references only (url + name) — each listing's own page
       // carries its full LocalBusiness/AggregateRating schema. Google
@@ -75,7 +75,7 @@ export default async function Page() {
         ? [
             {
               "@type": "ItemList",
-              "@id": "https://smartprofile.in/directory#itemlist",
+              "@id": "https://www.smartprofile.in/directory#itemlist",
               itemListElement: itemListElements,
             },
           ]

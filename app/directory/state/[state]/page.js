@@ -39,7 +39,7 @@ export async function generateMetadata({ params }) {
   const description = `Find ${count} verified business${count === 1 ? "" : "es"} across ${stateName} — contact details, reviews, products and services, all on SmartProfile Directory.`;
 
   return {
-    title: `Business Directory in ${stateName} - ${count} Verified Business${count === 1 ? "" : "es"} | SmartProfile`,
+    title: `Business Directory in ${stateName} | SmartProfile`,
     description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
@@ -48,6 +48,7 @@ export async function generateMetadata({ params }) {
       url: canonicalUrl,
       siteName: "SmartProfile Directory",
       type: "website",
+      images: [{ url: "https://www.smartprofile.in/logo-icon.png", width: 512, height: 512 }],
     },
     twitter: {
       card: "summary",

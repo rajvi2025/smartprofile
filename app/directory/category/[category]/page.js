@@ -35,7 +35,7 @@ export async function generateMetadata({ params }) {
   const description = `Find ${count} verified ${categoryName}${count === 1 ? "" : "es"} across India — contact details, reviews, products and services, all on SmartProfile Directory.`;
 
   return {
-    title: `${categoryName} - ${count} Verified Business${count === 1 ? "" : "es"} | SmartProfile Directory`,
+    title: `${categoryName} | SmartProfile Directory`,
     description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
@@ -44,6 +44,7 @@ export async function generateMetadata({ params }) {
       url: canonicalUrl,
       siteName: "SmartProfile Directory",
       type: "website",
+      images: [{ url: "https://www.smartprofile.in/logo-icon.png", width: 512, height: 512 }],
     },
     twitter: {
       card: "summary",
