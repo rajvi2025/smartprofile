@@ -10,6 +10,7 @@ export const metadata = {
     url: "https://www.smartprofile.in/spin",
     siteName: "SmartProfile",
     type: "website",
+    images: [{ url: "https://www.smartprofile.in/logo-icon.png", width: 512, height: 512 }],
   },
   twitter: {
     card: "summary",

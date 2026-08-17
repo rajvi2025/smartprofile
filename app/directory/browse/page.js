@@ -13,6 +13,7 @@ export const metadata = {
     url: "https://www.smartprofile.in/directory/browse",
     siteName: "SmartProfile Directory",
     type: "website",
+    images: [{ url: "https://www.smartprofile.in/logo-icon.png", width: 512, height: 512 }],
   },
 };
 

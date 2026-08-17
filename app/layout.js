@@ -22,6 +22,19 @@ export const metadata = {
   metadataBase: new URL("https://www.smartprofile.in"),
   title: "SmartProfile.in",
   description: "One Link. Complete Business.",
+  openGraph: {
+    title: "SmartProfile.in",
+    description: "One Link. Complete Business.",
+    url: "https://www.smartprofile.in",
+    siteName: "SmartProfile",
+    type: "website",
+    images: [{ url: "https://www.smartprofile.in/logo-icon.png", width: 512, height: 512 }],
+  },
+  twitter: {
+    card: "summary",
+    title: "SmartProfile.in",
+    description: "One Link. Complete Business.",
+  },
 };
 
 export default async function RootLayout({ children }) {

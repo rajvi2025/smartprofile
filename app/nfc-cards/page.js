@@ -10,6 +10,7 @@ export const metadata = {
     url: "https://www.smartprofile.in/nfc-cards",
     siteName: "SmartProfile",
     type: "website",
+    images: [{ url: "https://www.smartprofile.in/logo-icon.png", width: 512, height: 512 }],
   },
   twitter: {
     card: "summary",
