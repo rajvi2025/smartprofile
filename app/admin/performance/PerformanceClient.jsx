@@ -3,10 +3,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 const RANGES = [
+  { key: 'today', label: 'Today' },
   { key: '7d', label: '7 Days' },
   { key: '28d', label: '28 Days' },
   { key: '90d', label: '3 Months' },
   { key: '1y', label: '1 Year' },
+];
+
+const OVERALL_CARDS = [
+  { key: 'view', label: 'Total Views', icon: '👁️', color: '#005DFF' },
+  { key: 'whatsapp_click', label: 'WhatsApp Clicks', icon: '💬', color: '#166534' },
+  { key: 'call_click', label: 'Call Clicks', icon: '📞', color: '#b45309' },
+  { key: 'qr_scan', label: 'QR Scans', icon: '📱', color: '#7e22ce' },
+  { key: 'product_click', label: 'Product Views', icon: '🛍️', color: '#ca8a04' },
+  { key: 'save_contact', label: 'Contact Saves', icon: '💾', color: '#0891b2' },
 ];
 
 const PLAN_COLORS = {
@@ -29,6 +39,7 @@ export default function PerformanceClient() {
   const router = useRouter();
   const [range, setRange] = useState('28d');
   const [rows, setRows] = useState([]);
+  const [overall, setOverall] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -40,6 +51,7 @@ export default function PerformanceClient() {
       if (!res.ok) { setError('Failed to load performance data.'); setLoading(false); return; }
       const data = await res.json();
       setRows(data.rows || []);
+      setOverall(data.overall || {});
     } catch (e) {
       setError('Failed to load performance data.');
     }
@@ -75,6 +87,19 @@ export default function PerformanceClient() {
         Businesses ranked by profile views — see who's performing well and who might need a nudge.
       </p>
 
+      {/* Platform-wide totals for the selected range */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 24 }}>
+        {OVERALL_CARDS.map(c => (
+          <div key={c.key} style={{ background: 'white', border: '1px solid #f1f5f9', borderRadius: 10, padding: '12px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+            <div style={{ fontSize: 15, marginBottom: 4 }}>{c.icon}</div>
+            <div style={{ fontSize: 19, fontWeight: 800, color: c.color }}>{overall[c.key] || 0}</div>
+            <div style={{ fontSize: 10.5, color: '#94a3b8', marginTop: 2, lineHeight: 1.3 }}>{c.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Leaderboard</div>
+
       {error && <p style={{ color: '#dc2626', fontSize: 13, marginBottom: 16 }}>{error}</p>}
 
       {!loading && rows.length === 0 && (
@@ -90,7 +115,7 @@ export default function PerformanceClient() {
           rows.map((r, i) => (
             <div
               key={r.id}
-              onClick={() => router.push(`/admin/edit/${r.id}`)}
+              onClick={() => router.push(`/admin/performance/${r.id}`)}
               style={{ background: 'white', border: '1px solid #f1f5f9', borderRadius: 12, padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 16 }}
             >
               <div style={{ fontSize: 14, fontWeight: 800, color: i < 3 ? '#005DFF' : '#cbd5e1', width: 28, flexShrink: 0 }}>#{i + 1}</div>

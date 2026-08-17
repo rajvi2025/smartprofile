@@ -19,10 +19,11 @@ export async function GET(request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const range = searchParams.get('range') || '28d'; // '7d' | '28d' | '90d' | '1y'
+    const range = searchParams.get('range') || '28d'; // 'today' | '7d' | '28d' | '90d' | '1y'
 
     const since = new Date();
-    if (range === '7d') since.setDate(since.getDate() - 6);
+    if (range === 'today') { /* since stays today, zeroed below */ }
+    else if (range === '7d') since.setDate(since.getDate() - 6);
     else if (range === '90d') since.setDate(since.getDate() - 89);
     else if (range === '1y') since.setDate(since.getDate() - 364);
     else since.setDate(since.getDate() - 27);
@@ -38,6 +39,16 @@ export async function GET(request) {
       return Response.json({ error: 'Failed to load performance data' }, { status: 500 });
     }
 
+    // Platform-wide totals across every business, broken down by event
+    // type — "how many WhatsApp clicks did everyone get today", etc.
+    const overall = {
+      view: 0, qr_scan: 0, whatsapp_click: 0, call_click: 0, save_contact: 0, directions_click: 0, product_click: 0,
+      email_click: 0, website_click: 0, share_click: 0, social_click: 0, business_presence_click: 0,
+    };
+    (events || []).forEach(e => {
+      if (overall[e.event_type] !== undefined) overall[e.event_type] += 1;
+    });
+
     // Aggregate per profile: total views + total engagement (every event
     // type that isn't a plain view — calls, whatsapp, clicks, etc).
     const byProfile = {};
@@ -47,15 +58,13 @@ export async function GET(request) {
       else byProfile[e.profile_id].engagement += 1;
     });
 
-    const profileIds = Object.keys(byProfile);
-    if (profileIds.length === 0) {
-      return Response.json({ rows: [] });
-    }
-
+    // Only paid customers — free-tier directory-only listings aren't
+    // meaningful to rank here (they never had a digital card to track).
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, username, business_name, full_name, city, plan, is_active')
-      .in('id', profileIds);
+      .eq('is_active', true)
+      .in('plan', ['basic', 'business', 'premium', 'pro']);
 
     const rows = (profiles || [])
       .map(p => ({
@@ -71,7 +80,7 @@ export async function GET(request) {
       }))
       .sort((a, b) => b.views - a.views);
 
-    return Response.json({ rows });
+    return Response.json({ rows, overall });
   } catch (err) {
     console.error('Performance route error:', err);
     return Response.json({ error: 'Server error' }, { status: 500 });
