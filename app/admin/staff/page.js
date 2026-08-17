@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 const PERMISSION_OPTIONS = [
   { key: 'approvals', label: 'Profile Approvals' },
   { key: 'reports', label: 'Reports' },
+  { key: 'payments', label: 'Payments' },
   { key: 'coupons', label: 'Coupons' },
   { key: 'payment-issues', label: 'Payment Issues' },
   { key: 'leads', label: 'Leads (CRM)' },
