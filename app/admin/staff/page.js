@@ -7,6 +7,8 @@ const PERMISSION_OPTIONS = [
   { key: 'approvals', label: 'Profile Approvals' },
   { key: 'reports', label: 'Reports' },
   { key: 'payments', label: 'Payments' },
+  { key: 'nfc', label: 'NFC Management' },
+  { key: 'qr', label: 'QR Management' },
   { key: 'coupons', label: 'Coupons' },
   { key: 'payment-issues', label: 'Payment Issues' },
   { key: 'leads', label: 'Leads (CRM)' },

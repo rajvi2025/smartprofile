@@ -11,6 +11,8 @@ const BUILT_ITEMS = [
   { key: 'approvals', href: '/admin', label: 'Dashboard', icon: '📊' },
   { key: 'reports', href: '/admin/reports', label: 'Reports', icon: '📈' },
   { key: 'payments', href: '/admin/payments', label: 'Payments', icon: '💰' },
+  { key: 'nfc', href: '/admin/nfc', label: 'NFC Management', icon: '📶' },
+  { key: 'qr', href: '/admin/qr', label: 'QR Management', icon: '📱' },
   { key: 'coupons', href: '/admin/coupons', label: 'Coupons', icon: '🏷️' },
   { key: 'payment-issues', href: '/admin/payment-issues', label: 'Payment Issues', icon: '⚠️' },
   { key: 'leads', href: '/admin/leads', label: 'Leads (CRM)', icon: '🎯' },
@@ -26,8 +28,6 @@ const COMING_SOON_ITEMS = [
   { label: 'Business Profiles', icon: '🏢' },
   { label: 'Directory', icon: '📁' },
   { label: 'Plans & Pricing', icon: '💳' },
-  { label: 'QR Management', icon: '📱' },
-  { label: 'NFC Management', icon: '📶' },
   { label: 'Reviews', icon: '⭐' },
   { section: 'Marketing' },
   { label: 'Email Center', icon: '✉️' },
@@ -48,6 +48,8 @@ function keyForPath(pathname) {
   if (pathname.startsWith('/admin/staff')) return 'staff';
   if (pathname.startsWith('/admin/reports')) return 'reports';
   if (pathname.startsWith('/admin/payments')) return 'payments';
+  if (pathname.startsWith('/admin/nfc')) return 'nfc';
+  if (pathname.startsWith('/admin/qr')) return 'qr';
   if (pathname.startsWith('/admin/coupons')) return 'coupons';
   if (pathname.startsWith('/admin/payment-issues')) return 'payment-issues';
   if (pathname.startsWith('/admin/leads')) return 'leads';

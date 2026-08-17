@@ -28,16 +28,17 @@ export default function NfcCardsClient() {
     }
     setSubmitting(true);
     try {
-      const cardLabel = CARDS.find(c => c.id === selectedColor)?.name || selectedColor;
-      const message = `NFC Card Order\nColor: ${cardLabel}\nBusiness: ${form.business || '(not given)'}\nDelivery Address: ${form.address}\nNotes: ${form.notes || '(none)'}\nPrice: ₹${PRICE} + Free Premium Digital Card Profile`;
-      const res = await fetch('/api/leads/create', {
+      const res = await fetch('/api/nfc-orders/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name,
-          contact: form.phone + (form.email ? ` / ${form.email}` : ''),
-          message,
-          source: 'nfc_card_order',
+          phone: form.phone,
+          email: form.email || null,
+          business_name: form.business || null,
+          delivery_address: form.address,
+          notes: form.notes || null,
+          card_color: selectedColor,
         }),
       });
       if (!res.ok) throw new Error('Failed');
