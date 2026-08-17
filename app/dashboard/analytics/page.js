@@ -8,6 +8,14 @@ const CARDS = [
   { key: 'qr_scan', label: 'QR Scans', icon: '📱', color: '#7e22ce' },
   { key: 'whatsapp_click', label: 'WhatsApp Clicks', icon: '💬', color: '#166534' },
   { key: 'call_click', label: 'Call Clicks', icon: '📞', color: '#b45309' },
+  { key: 'save_contact', label: 'Contact Saves', icon: '💾', color: '#0891b2' },
+  { key: 'directions_click', label: 'Directions Clicks', icon: '📍', color: '#dc2626' },
+  { key: 'product_click', label: 'Product Views', icon: '🛍️', color: '#ca8a04' },
+  { key: 'email_click', label: 'Email Clicks', icon: '✉️', color: '#0284c7' },
+  { key: 'website_click', label: 'Website Clicks', icon: '🌐', color: '#4338ca' },
+  { key: 'share_click', label: 'Profile Shares', icon: '🔗', color: '#ea580c' },
+  { key: 'social_click', label: 'Social Media Clicks', icon: '📸', color: '#c026d3' },
+  { key: 'business_presence_click', label: 'Other Listing Clicks', icon: '🏬', color: '#65a30d' },
 ];
 
 function formatDay(dateStr) {
@@ -17,7 +25,10 @@ function formatDay(dateStr) {
 export default function AnalyticsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [summary, setSummary] = useState({ view: 0, qr_scan: 0, whatsapp_click: 0, call_click: 0 });
+  const [summary, setSummary] = useState({
+    view: 0, qr_scan: 0, whatsapp_click: 0, call_click: 0, save_contact: 0, directions_click: 0, product_click: 0,
+    email_click: 0, website_click: 0, share_click: 0, social_click: 0, business_presence_click: 0,
+  });
   const [daily, setDaily] = useState([]);
   const [hasProfile, setHasProfile] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -37,7 +48,10 @@ export default function AnalyticsPage() {
       const res = await fetch('/api/dashboard/analytics');
       if (res.ok) {
         const data = await res.json();
-        setSummary(data.summary || { view: 0, qr_scan: 0, whatsapp_click: 0, call_click: 0 });
+        setSummary(data.summary || {
+          view: 0, qr_scan: 0, whatsapp_click: 0, call_click: 0, save_contact: 0, directions_click: 0, product_click: 0,
+          email_click: 0, website_click: 0, share_click: 0, social_click: 0, business_presence_click: 0,
+        });
         setDaily(data.daily || []);
         setHasProfile(data.hasProfile !== false);
       }

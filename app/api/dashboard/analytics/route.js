@@ -16,7 +16,13 @@ export async function GET() {
 
     const { data: profile } = await supabase.from('profiles').select('id').eq('user_id', session.user.id).single();
     if (!profile) {
-      return Response.json({ summary: { view: 0, qr_scan: 0, whatsapp_click: 0, call_click: 0 }, daily: [], hasProfile: false });
+      return Response.json({
+        summary: {
+          view: 0, qr_scan: 0, whatsapp_click: 0, call_click: 0, save_contact: 0, directions_click: 0, product_click: 0,
+          email_click: 0, website_click: 0, share_click: 0, social_click: 0, business_presence_click: 0,
+        },
+        daily: [], hasProfile: false,
+      });
     }
 
     const since = new Date();
@@ -34,7 +40,10 @@ export async function GET() {
       return Response.json({ error: 'Failed to load analytics' }, { status: 500 });
     }
 
-    const summary = { view: 0, qr_scan: 0, whatsapp_click: 0, call_click: 0 };
+    const summary = {
+      view: 0, qr_scan: 0, whatsapp_click: 0, call_click: 0, save_contact: 0, directions_click: 0, product_click: 0,
+      email_click: 0, website_click: 0, share_click: 0, social_click: 0, business_presence_click: 0,
+    };
     const dayMap = {};
     (events || []).forEach(e => {
       if (summary[e.event_type] !== undefined) summary[e.event_type] += 1;

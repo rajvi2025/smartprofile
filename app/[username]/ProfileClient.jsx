@@ -163,6 +163,7 @@ function BasicProfile({ profile }) {
     }
   };
   const saveContact = () => {
+    trackEvent(profile.id, 'save_contact');
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${profile.business_name}.vcf`; a.click();
@@ -261,6 +262,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
     }
   };
   const saveContact = () => {
+    trackEvent(profile.id, 'save_contact');
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${profile.business_name}.vcf`; a.click();
@@ -307,7 +309,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
             </span>
             <span className="text-[11px] font-semibold text-gray-600">Save</span>
           </button>
-          <a href={profile.maps_url || "#"} className="flex flex-col items-center gap-1.5">
+          <a href={profile.maps_url || "#"} onClick={() => trackEvent(profile.id, 'directions_click')} className="flex flex-col items-center gap-1.5">
             <span className="w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center shadow-md">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             </span>
@@ -343,7 +345,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
             <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             <span className="text-sm text-gray-700 flex-1">{profile.address}</span>
           </div>}
-          {profile.maps_url && <a href={profile.maps_url} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
+          {profile.maps_url && <a href={profile.maps_url} onClick={() => trackEvent(profile.id, 'directions_click')} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
             <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#4285F4"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>
             <span className="text-sm text-blue-600 font-medium flex-1">View on Google Maps</span>
             <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
@@ -366,11 +368,11 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
           <div className="mx-4 mb-4">
             <div className="flex justify-between items-center mb-3">
               <p className="text-sm font-bold text-gray-800">Our Products / Services ({products.length})</p>
-              <button onClick={() => setProductsOpen(true)} className="text-xs text-blue-600 font-medium">View All &gt;</button>
+              <button onClick={() => { trackEvent(profile.id, 'product_click'); setProductsOpen(true); }} className="text-xs text-blue-600 font-medium">View All &gt;</button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {products.slice(0, 2).map((p) => (
-                <div key={p.id} onClick={() => setProductsOpen(true)} className="rounded-2xl overflow-hidden border border-gray-200 cursor-pointer active:opacity-80">
+                <div key={p.id} onClick={() => { trackEvent(profile.id, 'product_click'); setProductsOpen(true); }} className="rounded-2xl overflow-hidden border border-gray-200 cursor-pointer active:opacity-80">
                   {p.image_url ? <div className="relative w-full h-24 bg-gray-50 flex items-center justify-center"><Image src={p.image_url} alt={p.name || "Product"} fill sizes="150px" className="object-contain" /></div> : <div className="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
                   <div className="p-2"><p className="text-xs font-bold text-gray-800">{p.name}</p><p className="text-xs text-gray-500 line-clamp-2">{p.description}</p></div>
                 </div>

@@ -94,6 +94,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
   const [activeTab, setActiveTab] = useState("overview");
 
   const saveContact = () => {
+    trackEvent(profile.id, 'save_contact');
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${profile.business_name}.vcf`; a.click();
@@ -216,7 +217,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
           {tabs.map((t) => (
             <button
               key={t.id}
-              onClick={() => setActiveTab(t.id)}
+              onClick={() => { if (t.id === 'products') trackEvent(profile.id, 'product_click'); setActiveTab(t.id); }}
               className={`pb-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
                 activeTab === t.id ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500"
               }`}
@@ -349,7 +350,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
                   <h4 className="font-bold text-gray-800 text-sm mb-2">Address</h4>
                   <p className="text-sm text-gray-600 leading-relaxed">{profile.address}</p>
                   {profile.maps_url && (
-                    <a href={profile.maps_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-blue-600 text-sm font-semibold mt-2">
+                    <a href={profile.maps_url} target="_blank" rel="noreferrer" onClick={() => trackEvent(profile.id, 'directions_click')} className="inline-flex items-center gap-1 text-blue-600 text-sm font-semibold mt-2">
                       Get Directions →
                     </a>
                   )}
