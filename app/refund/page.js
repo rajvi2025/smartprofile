@@ -1,6 +1,6 @@
 ﻿export const metadata = {
   title: "Refund & Cancellation Policy | SmartProfile",
-  description: "Read SmartProfile's refund and cancellation policy for digital plans and NFC Smart Card orders.",
+  description: "Read SmartProfile's refund and cancellation policy for digital plans and NFC Smart Card orders, including eligibility, timelines, and how to request one.",
   alternates: { canonical: "https://www.smartprofile.in/refund" },
   openGraph: {
     title: "Refund & Cancellation Policy | SmartProfile",

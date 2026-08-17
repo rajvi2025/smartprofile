@@ -21,10 +21,10 @@ const geistMono = Geist_Mono({
 export const metadata = {
   metadataBase: new URL("https://www.smartprofile.in"),
   title: "SmartProfile.in",
-  description: "One Link. Complete Business.",
+  description: "One Link. Complete Business. Create your digital business card, get listed in our directory, and grow with SmartProfile — India's smart business platform.",
   openGraph: {
     title: "SmartProfile.in",
-    description: "One Link. Complete Business.",
+    description: "One Link. Complete Business. Create your digital business card, get listed in our directory, and grow with SmartProfile — India's smart business platform.",
     url: "https://www.smartprofile.in",
     siteName: "SmartProfile",
     type: "website",
@@ -33,7 +33,7 @@ export const metadata = {
   twitter: {
     card: "summary",
     title: "SmartProfile.in",
-    description: "One Link. Complete Business.",
+    description: "One Link. Complete Business. Create your digital business card, get listed in our directory, and grow with SmartProfile — India's smart business platform.",
   },
 };
 

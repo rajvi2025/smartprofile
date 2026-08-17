@@ -2,7 +2,7 @@ import SpinClient from "./SpinClient";
 
 export const metadata = {
   title: "Spin & Win | SmartProfile",
-  description: "Spin the wheel and win exclusive discount coupons on your SmartProfile digital business card plan.",
+  description: "Spin the wheel and win exclusive discount coupons on your SmartProfile digital business card plan — limited-time offer, first 100 spins only.",
   alternates: { canonical: "https://www.smartprofile.in/spin" },
   openGraph: {
     title: "Spin & Win | SmartProfile",
