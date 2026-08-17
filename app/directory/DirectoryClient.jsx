@@ -221,22 +221,22 @@ export default function DirectoryClient() {
       )}
 
       {/* HERO SECTION */}
-      <section style={{ background: 'linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 50%, #e8f4fd 100%)', padding: '48px 24px 40px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: 'linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 50%, #e8f4fd 100%)', padding: '28px 24px 24px', position: 'relative', overflow: 'hidden' }}>
         
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 40, alignItems: 'center' }}>
           
           {/* LEFT SIDE */}
           <div style={{ position: 'relative', zIndex: 2 }}>
-            <h1 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 800, color: '#0f172a', margin: '0 0 12px', lineHeight: 1.15 }}>
+            <h1 style={{ fontSize: 'clamp(22px, 3vw, 36px)', fontWeight: 800, color: '#0f172a', margin: '0 0 8px', lineHeight: 1.15 }}>
               Find Trusted<br />
               Businesses <span style={{ color: '#3b82f6' }}>Across India</span>
             </h1>
-            <p style={{ color: '#64748b', fontSize: 16, marginBottom: 28, lineHeight: 1.6 }}>
+            <p style={{ color: '#64748b', fontSize: 14, marginBottom: 16, lineHeight: 1.5 }}>
               Search, discover and connect with verified businesses<br />and professionals in your city.
             </p>
 
             {/* Search Bar */}
-            <div style={{ display: 'flex', gap: 8, background: 'white', borderRadius: 14, padding: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', marginBottom: 20, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 8, background: 'white', borderRadius: 14, padding: 6, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', marginBottom: 14, flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 2, minWidth: 160, padding: '6px 12px' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 <input type="text" placeholder="Search business or service..." value={search} onChange={e => setSearch(e.target.value)}
@@ -266,13 +266,13 @@ export default function DirectoryClient() {
             </div>
 
             {/* Trust Badges */}
-            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
               {[
                 { icon: '🛡️', text: 'Verified Businesses' },
                 { icon: '📞', text: 'Direct Contact' },
                 { icon: '✅', text: '100% Trusted' },
               ].map(b => (
-                <div key={b.text} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#475569', fontWeight: 500 }}>
+                <div key={b.text} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#475569', fontWeight: 500 }}>
                   <span>{b.icon}</span><span>{b.text}</span>
                 </div>
               ))}
@@ -281,7 +281,7 @@ export default function DirectoryClient() {
 
           {/* RIGHT SIDE - India Map + Floating Card (desktop only) */}
           {!isMobile && (
-          <div style={{ position: 'relative', height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'relative', height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             
             <svg viewBox="0 0 500 350" style={{ width: '95%', position: 'absolute', bottom: 0, opacity: 0.12 }} fill="#3b82f6" xmlns="http://www.w3.org/2000/svg">
               <rect x="200" y="200" width="100" height="80" rx="2"/>
@@ -381,63 +381,55 @@ export default function DirectoryClient() {
           Purely for discoverability (SEO + navigation); doesn't affect the
           search/filter UI above. */}
       {(uniqueCities.length > 0 || uniqueCategories.length > 0) && (
-        <section id="browse-directory" style={{ padding: '32px 24px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+        <section id="browse-directory" style={{ padding: '16px 24px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }}>Browse Directory</h2>
+            <h2 style={{ fontSize: 13, fontWeight: 700, color: '#64748b', margin: '0 0 10px' }}>Browse Directory</h2>
 
             {uniqueCities.length > 0 && (
-              <div style={{ marginBottom: 18 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 8 }}>By City</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {uniqueCities.map(city => (
-                    <Link key={city} href={`/directory/${slugifyCity(city)}`}
-                      style={{ fontSize: 13, color: '#334155', background: 'white', border: '1px solid #e2e8f0', padding: '6px 14px', borderRadius: 999, textDecoration: 'none' }}>
-                      {city}
-                    </Link>
-                  ))}
-                </div>
+              <div style={{ marginBottom: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>Cities:</span>
+                {uniqueCities.map(city => (
+                  <Link key={city} href={`/directory/${slugifyCity(city)}`}
+                    style={{ fontSize: 12, color: '#3b82f6', textDecoration: 'none' }}>
+                    {city}
+                  </Link>
+                ))}
               </div>
             )}
 
             {uniqueCategories.length > 0 && (
-              <div style={{ marginBottom: 18 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 8 }}>By Category</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {uniqueCategories.map(cat => (
-                    <Link key={cat} href={`/directory/category/${slugifyCategory(cat)}`}
-                      style={{ fontSize: 13, color: '#334155', background: 'white', border: '1px solid #e2e8f0', padding: '6px 14px', borderRadius: 999, textDecoration: 'none' }}>
-                      {cat}
-                    </Link>
-                  ))}
-                </div>
+              <div style={{ marginBottom: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>Categories:</span>
+                {uniqueCategories.map(cat => (
+                  <Link key={cat} href={`/directory/category/${slugifyCategory(cat)}`}
+                    style={{ fontSize: 12, color: '#3b82f6', textDecoration: 'none' }}>
+                    {cat}
+                  </Link>
+                ))}
               </div>
             )}
 
             {cityCategoryPairs.length > 0 && (
-              <div style={{ marginBottom: 18 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 8 }}>By City &amp; Category</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {cityCategoryPairs.map(({ city, category }) => (
-                    <Link key={`${city}-${category}`} href={`/directory/${slugifyCity(city)}/category/${slugifyCategory(category)}`}
-                      style={{ fontSize: 13, color: '#334155', background: 'white', border: '1px solid #e2e8f0', padding: '6px 14px', borderRadius: 999, textDecoration: 'none' }}>
-                      {category} in {city}
-                    </Link>
-                  ))}
-                </div>
+              <div style={{ marginBottom: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>Popular:</span>
+                {cityCategoryPairs.map(({ city, category }) => (
+                  <Link key={`${city}-${category}`} href={`/directory/${slugifyCity(city)}/category/${slugifyCategory(category)}`}
+                    style={{ fontSize: 12, color: '#3b82f6', textDecoration: 'none' }}>
+                    {category} in {city}
+                  </Link>
+                ))}
               </div>
             )}
 
             {uniqueStates.length > 0 && (
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 8 }}>By State</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {uniqueStates.map(state => (
-                    <Link key={state} href={`/directory/state/${slugifyState(state)}`}
-                      style={{ fontSize: 13, color: '#334155', background: 'white', border: '1px solid #e2e8f0', padding: '6px 14px', borderRadius: 999, textDecoration: 'none' }}>
-                      {state}
-                    </Link>
-                  ))}
-                </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>States:</span>
+                {uniqueStates.map(state => (
+                  <Link key={state} href={`/directory/state/${slugifyState(state)}`}
+                    style={{ fontSize: 12, color: '#3b82f6', textDecoration: 'none' }}>
+                    {state}
+                  </Link>
+                ))}
               </div>
             )}
           </div>
