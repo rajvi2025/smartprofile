@@ -10,9 +10,12 @@ const PERMISSION_OPTIONS = [
   { key: 'payments', label: 'Payments' },
   { key: 'nfc', label: 'NFC Management' },
   { key: 'qr', label: 'QR Management' },
+  { key: 'reviews', label: 'Reviews' },
   { key: 'coupons', label: 'Coupons' },
   { key: 'payment-issues', label: 'Payment Issues' },
   { key: 'leads', label: 'Leads (CRM)' },
+  { key: 'integrations', label: 'Integrations' },
+  { key: 'cms', label: 'CMS' },
 ];
 
 function emptyForm() {

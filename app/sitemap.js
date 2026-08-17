@@ -23,6 +23,7 @@ export default async function sitemap() {
     // already disallows and noindexes them.
     { url: `${baseUrl}/demo`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
     { url: `${baseUrl}/nfc-cards`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
     { url: `${baseUrl}/free-listing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
     { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.4 },
     { url: `${baseUrl}/shipping`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
@@ -105,5 +106,17 @@ export default async function sitemap() {
     };
   });
 
-  return [...staticPages, ...cityPages, ...statePages, ...categoryPages, ...comboPages, ...directoryPages];
+  // Published blog posts.
+  const { data: blogPosts } = await supabase
+    .from("blog_posts")
+    .select("slug, updated_at")
+    .eq("status", "published");
+  const blogPages = (blogPosts || []).map((p) => ({
+    url: `${baseUrl}/blog/${p.slug}`,
+    lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  return [...staticPages, ...cityPages, ...statePages, ...categoryPages, ...comboPages, ...directoryPages, ...blogPages];
 }

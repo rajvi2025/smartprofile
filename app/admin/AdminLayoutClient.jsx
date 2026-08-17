@@ -14,9 +14,12 @@ const BUILT_ITEMS = [
   { key: 'payments', href: '/admin/payments', label: 'Payments', icon: '💰' },
   { key: 'nfc', href: '/admin/nfc', label: 'NFC Management', icon: '📶' },
   { key: 'qr', href: '/admin/qr', label: 'QR Management', icon: '📱' },
+  { key: 'reviews', href: '/admin/reviews', label: 'Reviews', icon: '⭐' },
   { key: 'coupons', href: '/admin/coupons', label: 'Coupons', icon: '🏷️' },
   { key: 'payment-issues', href: '/admin/payment-issues', label: 'Payment Issues', icon: '⚠️' },
   { key: 'leads', href: '/admin/leads', label: 'Leads (CRM)', icon: '🎯' },
+  { key: 'integrations', href: '/admin/integrations', label: 'Integrations', icon: '🔌' },
+  { key: 'cms', href: '/admin/cms', label: 'CMS', icon: '📝' },
   { key: 'staff', href: '/admin/staff', label: 'Staff', icon: '🧑\u200d💼', adminOnly: true },
 ];
 
@@ -25,19 +28,15 @@ const BUILT_ITEMS = [
 // up into BUILT_ITEMS (with a real href) the day it ships.
 const COMING_SOON_ITEMS = [
   { section: 'Business' },
-  { label: 'Directory', icon: '📁' },
   { label: 'Plans & Pricing', icon: '💳' },
-  { label: 'Reviews', icon: '⭐' },
   { section: 'Marketing' },
   { label: 'Email Center', icon: '✉️' },
   { label: 'WhatsApp Center', icon: '💬' },
   { label: 'Advertisements', icon: '📢' },
   { section: 'Platform' },
-  { label: 'CMS', icon: '📝' },
   { label: 'AI Center', icon: '🤖' },
   { label: 'Support System', icon: '🎧' },
   { section: 'System' },
-  { label: 'Integrations', icon: '🔌' },
   { label: 'Security', icon: '🛡️' },
   { label: 'Settings', icon: '⚙️' },
   { label: 'System Logs', icon: '🗂️' },
@@ -50,6 +49,9 @@ function keyForPath(pathname) {
   if (pathname.startsWith('/admin/payments')) return 'payments';
   if (pathname.startsWith('/admin/nfc')) return 'nfc';
   if (pathname.startsWith('/admin/qr')) return 'qr';
+  if (pathname.startsWith('/admin/reviews')) return 'reviews';
+  if (pathname.startsWith('/admin/integrations')) return 'integrations';
+  if (pathname.startsWith('/admin/cms')) return 'cms';
   if (pathname.startsWith('/admin/coupons')) return 'coupons';
   if (pathname.startsWith('/admin/payment-issues')) return 'payment-issues';
   if (pathname.startsWith('/admin/leads')) return 'leads';
