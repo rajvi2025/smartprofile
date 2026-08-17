@@ -9,7 +9,7 @@ export const metadata = {
   title: "Business Directory - Find Verified Businesses Across India | SmartProfile",
   description:
     "Search and discover verified businesses, professionals and services across India. Browse listings by city and category on SmartProfile Directory.",
-  alternates: { canonical: "https://smartprofile.in/directory" },
+  alternates: { canonical: "https://www.smartprofile.in/directory" },
   openGraph: {
     title: "SmartProfile Business Directory",
     description:
