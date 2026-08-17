@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import CategoryClient from "./CategoryClient";
 import { slugifyCity, slugifyCategory, titleCaseFromSlug } from "@/lib/slugify";
 
+export const revalidate = 3600;
+
 const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"

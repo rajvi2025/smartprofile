@@ -2,6 +2,11 @@ import { createClient } from "@supabase/supabase-js";
 import CityClient from "./CityClient";
 import { slugifyCity, titleCaseFromSlug } from "@/lib/slugify";
 
+// Cache each rendered city page for an hour instead of hitting Supabase on
+// every single request — this is what was showing up in Ahrefs as slow
+// pages (1.3s-24s cold Supabase round-trip per visit/crawl).
+export const revalidate = 3600;
+
 const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"

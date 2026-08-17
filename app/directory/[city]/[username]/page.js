@@ -3,6 +3,11 @@ import { cache } from "react";
 import ListingClient from "./ListingClient";
 import { slugifyCity } from "@/lib/slugify";
 
+// Shorter cache window than other directory pages (5 min vs 1 hour) — a
+// business's own listing should reflect admin approval / edits quickly,
+// while still avoiding a live Supabase round-trip on every single visit.
+export const revalidate = 300;
+
 const supabase = createClient(
   "https://lekyzsyadanghxafpjmh.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxla3l6c3lhZGFuZ2h4YWZwam1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzMwMzYsImV4cCI6MjA5NjU0OTAzNn0.cOjvzvuLi2oUloTr6ceIU2O7ZCr-jMcG0phDnmHTSrw"

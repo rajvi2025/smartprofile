@@ -1,4 +1,9 @@
 import { supabase } from "@/lib/supabase";
+
+// Cache the rendered page for an hour instead of hitting Supabase on every
+// single request — this is what was showing up in Ahrefs as pages taking
+// 1.3s-24s to respond (cold Supabase round-trip on every crawl/visit).
+export const revalidate = 3600;
 import DirectoryClient from "./DirectoryClient";
 
 function slugifyCity(city) {
