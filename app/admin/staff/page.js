@@ -5,10 +5,10 @@ import { supabase } from '@/lib/supabase';
 // Add new permission keys here as new admin sections get built.
 const PERMISSION_OPTIONS = [
   { key: 'approvals', label: 'Profile Approvals' },
+  { key: 'reports', label: 'Reports' },
   { key: 'coupons', label: 'Coupons' },
   { key: 'payment-issues', label: 'Payment Issues' },
   { key: 'leads', label: 'Leads (CRM)' },
-  // { key: 'reports', label: 'Reports' }, // future
 ];
 
 function emptyForm() {

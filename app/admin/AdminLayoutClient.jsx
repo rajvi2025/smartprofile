@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 // `adminOnly: true` means staff can never see or access this section, no matter their permissions.
 const BUILT_ITEMS = [
   { key: 'approvals', href: '/admin', label: 'Dashboard', icon: '📊' },
+  { key: 'reports', href: '/admin/reports', label: 'Reports', icon: '📈' },
   { key: 'coupons', href: '/admin/coupons', label: 'Coupons', icon: '🏷️' },
   { key: 'payment-issues', href: '/admin/payment-issues', label: 'Payment Issues', icon: '⚠️' },
   { key: 'leads', href: '/admin/leads', label: 'Leads (CRM)', icon: '🎯' },
@@ -34,7 +35,6 @@ const COMING_SOON_ITEMS = [
   { label: 'Advertisements', icon: '📢' },
   { section: 'Platform' },
   { label: 'CMS', icon: '📝' },
-  { label: 'Reports & Analytics', icon: '📈' },
   { label: 'AI Center', icon: '🤖' },
   { label: 'Support System', icon: '🎧' },
   { section: 'System' },
@@ -46,6 +46,7 @@ const COMING_SOON_ITEMS = [
 
 function keyForPath(pathname) {
   if (pathname.startsWith('/admin/staff')) return 'staff';
+  if (pathname.startsWith('/admin/reports')) return 'reports';
   if (pathname.startsWith('/admin/coupons')) return 'coupons';
   if (pathname.startsWith('/admin/payment-issues')) return 'payment-issues';
   if (pathname.startsWith('/admin/leads')) return 'leads';
