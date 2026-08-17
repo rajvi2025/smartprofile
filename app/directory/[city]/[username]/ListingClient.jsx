@@ -409,16 +409,16 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, re
   );
 }
 
-export default function ListingClient({ username, cityParam }) {
+export default function ListingClient({ username, cityParam, initialProfile = null }) {
   const router = useRouter();
 
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState(initialProfile);
   const [products, setProducts] = useState([]);
   const [socials, setSocials] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [gallery, setGallery] = useState([]);
   const [related, setRelated] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialProfile);
 
   useEffect(() => {
     async function fetchProfile() {

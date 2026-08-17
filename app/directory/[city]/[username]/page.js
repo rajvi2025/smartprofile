@@ -238,7 +238,7 @@ export default async function Page({ params }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
-      <ListingClient username={username} cityParam={city} />
+      <ListingClient username={username} cityParam={city} initialProfile={profile} />
     </>
   );
 }
