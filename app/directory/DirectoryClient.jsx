@@ -362,7 +362,7 @@ export default function DirectoryClient() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0 }}>Browse by Categories</h2>
-            <a href="#browse-directory" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all categories →</a>
+            <Link href="/directory/browse" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all categories →</Link>
           </div>
           <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 8 }}>
             {categories.map(cat => (
@@ -376,62 +376,23 @@ export default function DirectoryClient() {
         </div>
       </section>
 
-      {/* BROWSE DIRECTORY — real crawlable links to every city, category,
-          city+category combo, and state page that has actual listings.
-          Purely for discoverability (SEO + navigation); doesn't affect the
-          search/filter UI above. */}
-      {(uniqueCities.length > 0 || uniqueCategories.length > 0) && (
-        <section id="browse-directory" style={{ padding: '16px 24px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-            <h2 style={{ fontSize: 13, fontWeight: 700, color: '#64748b', margin: '0 0 10px' }}>Browse Directory</h2>
-
-            {uniqueCities.length > 0 && (
-              <div style={{ marginBottom: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>Cities:</span>
-                {uniqueCities.map(city => (
-                  <Link key={city} href={`/directory/${slugifyCity(city)}`}
-                    style={{ fontSize: 12, color: '#3b82f6', textDecoration: 'none' }}>
-                    {city}
-                  </Link>
-                ))}
-              </div>
-            )}
-
-            {uniqueCategories.length > 0 && (
-              <div style={{ marginBottom: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>Categories:</span>
-                {uniqueCategories.map(cat => (
-                  <Link key={cat} href={`/directory/category/${slugifyCategory(cat)}`}
-                    style={{ fontSize: 12, color: '#3b82f6', textDecoration: 'none' }}>
-                    {cat}
-                  </Link>
-                ))}
-              </div>
-            )}
-
-            {cityCategoryPairs.length > 0 && (
-              <div style={{ marginBottom: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>Popular:</span>
-                {cityCategoryPairs.map(({ city, category }) => (
-                  <Link key={`${city}-${category}`} href={`/directory/${slugifyCity(city)}/category/${slugifyCategory(category)}`}
-                    style={{ fontSize: 12, color: '#3b82f6', textDecoration: 'none' }}>
-                    {category} in {city}
-                  </Link>
-                ))}
-              </div>
-            )}
-
-            {uniqueStates.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 6 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>States:</span>
-                {uniqueStates.map(state => (
-                  <Link key={state} href={`/directory/state/${slugifyState(state)}`}
-                    style={{ fontSize: 12, color: '#3b82f6', textDecoration: 'none' }}>
-                    {state}
-                  </Link>
-                ))}
-              </div>
-            )}
+      {/* BROWSE DIRECTORY TEASER — small, fixed-size (top 6 cities only),
+          links out to /directory/browse which holds the full, ever-growing
+          list of cities/categories/combos. Keeps this page's size constant
+          no matter how many businesses get added. */}
+      {uniqueCities.length > 0 && (
+        <section style={{ padding: '16px 24px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 6 }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>Popular cities:</span>
+            {uniqueCities.slice(0, 6).map(city => (
+              <Link key={city} href={`/directory/${slugifyCity(city)}`}
+                style={{ fontSize: 12, color: '#3b82f6', textDecoration: 'none' }}>
+                {city}
+              </Link>
+            ))}
+            <Link href="/directory/browse" style={{ fontSize: 12, color: '#0f172a', fontWeight: 600, textDecoration: 'none', marginLeft: 4 }}>
+              Browse All Cities &amp; Categories →
+            </Link>
           </div>
         </section>
       )}
@@ -446,7 +407,7 @@ export default function DirectoryClient() {
                 <p style={{ fontSize: 12, color: '#3b82f6', margin: '4px 0 0', fontWeight: 500 }}>📍 Showing businesses near {nearbyCity} first</p>
               )}
             </div>
-            <a href="#browse-directory" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all businesses →</a>
+            <Link href="/directory/browse" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all businesses →</Link>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1fr) 280px', gap: 24, alignItems: 'start' }}>
