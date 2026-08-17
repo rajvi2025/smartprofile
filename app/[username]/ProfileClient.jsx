@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { createClient } from "@supabase/supabase-js";
 import QRCode from "qrcode";
+import { useSession } from "next-auth/react";
 import { trackEvent } from "@/lib/trackEvent";
 
 const supabase = createClient(
@@ -149,6 +150,7 @@ function TestimonialsSection({ testimonials, username }) {
 function BasicProfile({ profile }) {
   const { displayName, line2, line3 } = getCardIdentity(profile);
   const shareProfile = async () => {
+    track('share_click');
     const url = `https://smartprofile.in/${profile.username}`;
     const shareData = { title: profile.business_name || profile.full_name, text: `Check out ${profile.business_name || profile.full_name} on SmartProfile`, url };
     if (navigator.share) {
@@ -163,7 +165,7 @@ function BasicProfile({ profile }) {
     }
   };
   const saveContact = () => {
-    trackEvent(profile.id, 'save_contact');
+    track('save_contact');
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${profile.business_name}.vcf`; a.click();
@@ -193,11 +195,11 @@ function BasicProfile({ profile }) {
           ))}
         </div>
         <div className="grid grid-cols-3 gap-3 px-4 mb-4">
-          <a href={`tel:${profile.phone}`} onClick={() => trackEvent(profile.id, 'call_click')} className="flex flex-col items-center justify-center bg-green-500 text-white py-3 rounded-2xl shadow font-semibold text-sm gap-1">
+          <a href={`tel:${profile.phone}`} onClick={() => track('call_click')} className="flex flex-col items-center justify-center bg-green-500 text-white py-3 rounded-2xl shadow font-semibold text-sm gap-1">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
             Call
           </a>
-          <a href={`https://wa.me/${profile.whatsapp || profile.phone}`} onClick={() => trackEvent(profile.id, 'whatsapp_click')} className="flex flex-col items-center justify-center bg-green-400 text-white py-3 rounded-2xl shadow font-semibold text-sm gap-1">
+          <a href={`https://wa.me/${profile.whatsapp || profile.phone}`} onClick={() => track('whatsapp_click')} className="flex flex-col items-center justify-center bg-green-400 text-white py-3 rounded-2xl shadow font-semibold text-sm gap-1">
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             WhatsApp
           </a>
@@ -207,11 +209,11 @@ function BasicProfile({ profile }) {
           </button>
         </div>
         <div className="grid grid-cols-3 gap-3 px-4 mb-4">
-          {profile.email && <a href={`mailto:${profile.email}`} className="flex flex-col items-center justify-center bg-gray-50 border border-gray-200 py-3 rounded-2xl text-gray-600 text-sm gap-1">
+          {profile.email && <a href={`mailto:${profile.email}`} onClick={() => track('email_click')} className="flex flex-col items-center justify-center bg-gray-50 border border-gray-200 py-3 rounded-2xl text-gray-600 text-sm gap-1">
             <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
             Email
           </a>}
-          {profile.website && <a href={profile.website} className="flex flex-col items-center justify-center bg-gray-50 border border-gray-200 py-3 rounded-2xl text-gray-600 text-sm gap-1">
+          {profile.website && <a href={profile.website} onClick={() => track('website_click')} className="flex flex-col items-center justify-center bg-gray-50 border border-gray-200 py-3 rounded-2xl text-gray-600 text-sm gap-1">
             <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
             Website
           </a>}
@@ -248,6 +250,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
   const [productsOpen, setProductsOpen] = useState(false);
   const touchStartY = useRef(0);
   const shareProfile = async () => {
+    track('share_click');
     const url = `https://smartprofile.in/${profile.username}`;
     const shareData = { title: profile.business_name || profile.full_name, text: `Check out ${profile.business_name || profile.full_name} on SmartProfile`, url };
     if (navigator.share) {
@@ -262,7 +265,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
     }
   };
   const saveContact = () => {
-    trackEvent(profile.id, 'save_contact');
+    track('save_contact');
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${profile.full_name || profile.business_name}\nORG:${profile.business_name}\nTEL:${profile.phone}\nEMAIL:${profile.email || ""}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: "text/vcard" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${profile.business_name}.vcf`; a.click();
@@ -291,13 +294,13 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
           {profile.city && <p className="text-gray-500 text-sm mt-1">📍 {profile.city}{profile.state ? `, ${profile.state}` : ""}</p>}
         </div>
         <div className="grid grid-cols-4 gap-2 px-6 mb-4">
-          <a href={`tel:${profile.phone}`} onClick={() => trackEvent(profile.id, 'call_click')} className="flex flex-col items-center gap-1.5">
+          <a href={`tel:${profile.phone}`} onClick={() => track('call_click')} className="flex flex-col items-center gap-1.5">
             <span className="w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
             </span>
             <span className="text-[11px] font-semibold text-gray-600">Call</span>
           </a>
-          <a href={`https://wa.me/${profile.whatsapp || profile.phone}`} onClick={() => trackEvent(profile.id, 'whatsapp_click')} className="flex flex-col items-center gap-1.5">
+          <a href={`https://wa.me/${profile.whatsapp || profile.phone}`} onClick={() => track('whatsapp_click')} className="flex flex-col items-center gap-1.5">
             <span className="w-12 h-12 rounded-full bg-green-400 text-white flex items-center justify-center shadow-md">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             </span>
@@ -309,7 +312,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
             </span>
             <span className="text-[11px] font-semibold text-gray-600">Save</span>
           </button>
-          <a href={profile.maps_url || "#"} onClick={() => trackEvent(profile.id, 'directions_click')} className="flex flex-col items-center gap-1.5">
+          <a href={profile.maps_url || "#"} onClick={() => track('directions_click')} className="flex flex-col items-center gap-1.5">
             <span className="w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center shadow-md">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             </span>
@@ -326,17 +329,17 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
           </div>
         )}
         <div className="mx-4 mb-4 space-y-1">
-          {profile.phone && <a href={`tel:${profile.phone}`} onClick={() => trackEvent(profile.id, 'call_click')} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
+          {profile.phone && <a href={`tel:${profile.phone}`} onClick={() => track('call_click')} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
             <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
             <span className="text-sm text-gray-700 flex-1">+91 {profile.phone}</span>
             <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
           </a>}
-          {profile.email && <a href={`mailto:${profile.email}`} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
+          {profile.email && <a href={`mailto:${profile.email}`} onClick={() => track('email_click')} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
             <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
             <span className="text-sm text-gray-700 flex-1">{profile.email}</span>
             <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
           </a>}
-          {profile.website && <a href={profile.website} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
+          {profile.website && <a href={profile.website} onClick={() => track('website_click')} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
             <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
             <span className="text-sm text-gray-700 flex-1">{profile.website}</span>
             <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
@@ -345,7 +348,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
             <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             <span className="text-sm text-gray-700 flex-1">{profile.address}</span>
           </div>}
-          {profile.maps_url && <a href={profile.maps_url} onClick={() => trackEvent(profile.id, 'directions_click')} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
+          {profile.maps_url && <a href={profile.maps_url} onClick={() => track('directions_click')} className="flex items-center gap-3 py-3 px-3 bg-gray-50 rounded-xl border border-gray-100">
             <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#4285F4"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>
             <span className="text-sm text-blue-600 font-medium flex-1">View on Google Maps</span>
             <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
@@ -356,7 +359,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
             <p className="text-sm font-bold text-gray-700 mb-3 text-center">Connect With Us</p>
             <div className="flex justify-center gap-4">
               {socials.map((s) => (
-                <a key={s.id} href={s.url} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
+                <a key={s.id} href={s.url} target="_blank" rel="noreferrer" onClick={() => track('social_click')} className="flex flex-col items-center gap-1">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center shadow bg-gray-100 border border-gray-200"><SocialIcon platform={s.platform} /></div>
                   <span className="text-xs text-gray-500">{s.platform}</span>
                 </a>
@@ -368,11 +371,11 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
           <div className="mx-4 mb-4">
             <div className="flex justify-between items-center mb-3">
               <p className="text-sm font-bold text-gray-800">Our Products / Services ({products.length})</p>
-              <button onClick={() => { trackEvent(profile.id, 'product_click'); setProductsOpen(true); }} className="text-xs text-blue-600 font-medium">View All &gt;</button>
+              <button onClick={() => { track('product_click'); setProductsOpen(true); }} className="text-xs text-blue-600 font-medium">View All &gt;</button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {products.slice(0, 2).map((p) => (
-                <div key={p.id} onClick={() => { trackEvent(profile.id, 'product_click'); setProductsOpen(true); }} className="rounded-2xl overflow-hidden border border-gray-200 cursor-pointer active:opacity-80">
+                <div key={p.id} onClick={() => { track('product_click'); setProductsOpen(true); }} className="rounded-2xl overflow-hidden border border-gray-200 cursor-pointer active:opacity-80">
                   {p.image_url ? <div className="relative w-full h-24 bg-gray-50 flex items-center justify-center"><Image src={p.image_url} alt={p.name || "Product"} fill sizes="150px" className="object-contain" /></div> : <div className="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>}
                   <div className="p-2"><p className="text-xs font-bold text-gray-800">{p.name}</p><p className="text-xs text-gray-500 line-clamp-2">{p.description}</p></div>
                 </div>
@@ -483,7 +486,7 @@ function BusinessProfile({ profile, products, socials, testimonials, gallery, bi
             <p className="text-sm font-bold text-gray-800 mb-3">Business Presence</p>
             <div className="flex gap-3 flex-wrap">
               {bizPresence.map((b) => (
-                <a key={b.id} href={b.url} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1">
+                <a key={b.id} href={b.url} target="_blank" rel="noreferrer" onClick={() => track('business_presence_click')} className="flex flex-col items-center gap-1">
                   <div className="w-11 h-11 rounded-full flex items-center justify-center shadow bg-gray-100 border border-gray-200">
                     <BizIcon platform={b.platform} />
                   </div>
@@ -540,6 +543,7 @@ function NoDigitalCard({ profile }) {
 }
 
 export default function ProfileClient({ username, initialProfile = null }) {
+  const { data: session, status: sessionStatus } = useSession();
   const [profile, setProfile] = useState(initialProfile);
   const [products, setProducts] = useState([]);
   const [socials, setSocials] = useState([]);
@@ -548,14 +552,30 @@ export default function ProfileClient({ username, initialProfile = null }) {
   const [bizPresence, setBizPresence] = useState([]);
   const [loading, setLoading] = useState(!initialProfile);
 
+  // Don't count the business owner viewing their own live profile, or any
+  // admin/staff account browsing it — that's not real customer traffic.
+  const isOwnerOrStaff = !!(
+    session?.user && (
+      session.user.id === profile?.user_id ||
+      session.user.role === 'admin' ||
+      session.user.role === 'staff'
+    )
+  );
+
+  function track(eventType) {
+    if (isOwnerOrStaff) return;
+    trackEvent(profile?.id, eventType);
+  }
+
   // Fire a view (or qr_scan, if opened from the generated QR code) once we
-  // know which profile this is — works whether the profile came from SSR
-  // (initialProfile) or the client fetch below.
+  // know which profile this is AND once we know whether the viewer is the
+  // owner/staff (waiting for sessionStatus to resolve avoids a brief flash
+  // of tracking before that's known).
   useEffect(() => {
-    if (!profile?.id) return;
+    if (!profile?.id || sessionStatus === 'loading') return;
     const isFromQr = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('src') === 'qr';
-    trackEvent(profile.id, isFromQr ? 'qr_scan' : 'view');
-  }, [profile?.id]);
+    track(isFromQr ? 'qr_scan' : 'view');
+  }, [profile?.id, sessionStatus, isOwnerOrStaff]);
 
   useEffect(() => {
     async function fetchProfile() {
