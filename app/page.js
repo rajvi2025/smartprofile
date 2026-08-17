@@ -62,10 +62,10 @@ export default function HomePage() {
   ];
 
   const demoProfiles = [
-    { name: 'COPPERKING', city: 'thane', username: 'copperking', category: 'Copper Exporter', location: 'Mira Road, Thane', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/copperking.png', phone: '9999999999', verified: true },
-    { name: 'Image Graphics', city: 'thane', username: 'image-graphics', category: 'Printing Service', location: 'Thane', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/image-graphics.png', phone: '9999999999', verified: true },
-    { name: 'Om Sai Fire Solutions', city: 'mumbai', username: 'om-sai-fire-solutions', category: 'Fire Fighting & Alarm System Contractors', location: 'Ghatkopar', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/om-sai-fire-solutions.png', phone: '9999999999', verified: true },
-    { name: 'Jupiter Finserve', city: 'thane', username: 'jupiter-finserve', category: 'Financial Services', location: 'Thane', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/jupiter-finserve.png', phone: '9999999999', verified: true },
+    { name: 'COPPERKING', city: 'thane', username: 'copperking', category: 'Copper Exporter', location: 'Mira Road, Thane', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/d98c6772-d9e1-4328-9a9a-34b8fb8e1d12-1783707231398.png', phone: '9999999999', verified: true },
+    { name: 'Image Graphics', city: 'thane', username: 'image-graphics', category: 'Printing Service', location: 'Thane', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/88670e58-5ac4-4a08-bc43-b234c58306d3-1785415412484.png', phone: '9999999999', verified: true },
+    { name: 'Om Sai Fire Solutions', city: 'mumbai', username: 'om-sai-fire-solutions', category: 'Fire Fighting & Alarm System Contractors', location: 'Ghatkopar', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/88670e58-5ac4-4a08-bc43-b234c58306d3-1784736010557.png', phone: '9999999999', verified: true },
+    { name: 'Jupiter Finserve', city: 'thane', username: 'jupiter-finserve', category: 'Financial Services', location: 'Thane', img: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/directory/88670e58-5ac4-4a08-bc43-b234c58306d3-1784225261733.png', phone: '9999999999', verified: true },
   ];
 
   const plans = [
