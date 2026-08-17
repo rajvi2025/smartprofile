@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 // `adminOnly: true` means staff can never see or access this section, no matter their permissions.
 const BUILT_ITEMS = [
   { key: 'approvals', href: '/admin', label: 'Dashboard', icon: '📊' },
+  { key: 'business-profiles', href: '/admin/business-profiles', label: 'Business Profiles', icon: '🏢' },
   { key: 'reports', href: '/admin/reports', label: 'Reports', icon: '📈' },
   { key: 'payments', href: '/admin/payments', label: 'Payments', icon: '💰' },
   { key: 'nfc', href: '/admin/nfc', label: 'NFC Management', icon: '📶' },
@@ -24,8 +25,6 @@ const BUILT_ITEMS = [
 // up into BUILT_ITEMS (with a real href) the day it ships.
 const COMING_SOON_ITEMS = [
   { section: 'Business' },
-  { label: 'Users', icon: '👥' },
-  { label: 'Business Profiles', icon: '🏢' },
   { label: 'Directory', icon: '📁' },
   { label: 'Plans & Pricing', icon: '💳' },
   { label: 'Reviews', icon: '⭐' },
@@ -46,6 +45,7 @@ const COMING_SOON_ITEMS = [
 
 function keyForPath(pathname) {
   if (pathname.startsWith('/admin/staff')) return 'staff';
+  if (pathname.startsWith('/admin/business-profiles')) return 'business-profiles';
   if (pathname.startsWith('/admin/reports')) return 'reports';
   if (pathname.startsWith('/admin/payments')) return 'payments';
   if (pathname.startsWith('/admin/nfc')) return 'nfc';

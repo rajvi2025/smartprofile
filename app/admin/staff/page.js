@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 // Add new permission keys here as new admin sections get built.
 const PERMISSION_OPTIONS = [
   { key: 'approvals', label: 'Profile Approvals' },
+  { key: 'business-profiles', label: 'Business Profiles' },
   { key: 'reports', label: 'Reports' },
   { key: 'payments', label: 'Payments' },
   { key: 'nfc', label: 'NFC Management' },
