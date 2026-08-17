@@ -43,9 +43,15 @@ export async function generateMetadata({ params }) {
 
   const canonicalUrl = `https://www.smartprofile.in/directory/${city}/category/${category}`;
   const description = `Find ${count} verified ${categoryName}${count === 1 ? "" : "es"} in ${cityName} — contact details, reviews, products and services, all on SmartProfile Directory.`;
+  const fullTitle = `${categoryName} in ${cityName} | SmartProfile Directory`;
+  // Some category names (e.g. "Fire Fighting & Alarm System Contractor")
+  // are long enough on their own that adding the city pushes the title
+  // past a safe length — drop the city from the title in that case (it's
+  // still fully present in the description).
+  const title = fullTitle.length > 60 ? `${categoryName} | SmartProfile` : fullTitle;
 
   return {
-    title: `${categoryName} in ${cityName} | SmartProfile Directory`,
+    title,
     description,
     alternates: { canonical: canonicalUrl },
     robots: { index: true, follow: true },
