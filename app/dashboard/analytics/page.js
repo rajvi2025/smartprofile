@@ -19,6 +19,7 @@ const CARDS = [
 ];
 
 const RANGES = [
+  { key: 'today', label: 'Today' },
   { key: '7d', label: '7 Days' },
   { key: '28d', label: '28 Days' },
   { key: '90d', label: '3 Months' },
@@ -145,7 +146,7 @@ export default function AnalyticsPage() {
         </div>
       </div>
       <p style={{ fontSize: 13, color: '#64748b', margin: '4px 0 24px' }}>
-        {range === '1y' ? 'Last 1 year of activity on your profile.' : `Last ${range.replace('d', '')} days of activity on your profile.`}
+        {range === 'today' ? "Today's activity on your profile." : range === '1y' ? 'Last 1 year of activity on your profile.' : `Last ${range.replace('d', '')} days of activity on your profile.`}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 20 }}>

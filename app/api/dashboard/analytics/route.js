@@ -27,11 +27,13 @@ export async function GET(request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const range = searchParams.get('range') || '28d'; // '7d' | '28d' | '90d' | '1y'
+    const range = searchParams.get('range') || '28d'; // 'today' | '7d' | '28d' | '90d' | '1y'
 
     let since = new Date();
     let bucketBy = 'day';
-    if (range === '7d') {
+    if (range === 'today') {
+      // since stays as today, just needs the time zeroed below
+    } else if (range === '7d') {
       since.setDate(since.getDate() - 6);
     } else if (range === '90d') {
       since.setDate(since.getDate() - 89);
@@ -91,7 +93,7 @@ export async function GET(request) {
 
     const daily = [];
     if (bucketBy === 'day') {
-      const numDays = range === '7d' ? 7 : range === '90d' ? 90 : 28;
+      const numDays = range === 'today' ? 1 : range === '7d' ? 7 : range === '90d' ? 90 : 28;
       for (let i = 0; i < numDays; i++) {
         const d = new Date(since);
         d.setDate(d.getDate() + i);
