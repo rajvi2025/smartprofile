@@ -60,5 +60,6 @@ export async function generateMetadata({ params }) {
 
 export default async function Page({ params }) {
   const { username } = await params;
-  return <ProfileClient username={username} />;
+  const { data: profile } = await supabase.from("profiles").select("*").eq("username", username).single();
+  return <ProfileClient username={username} initialProfile={profile} />;
 }

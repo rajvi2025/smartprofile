@@ -536,14 +536,14 @@ function NoDigitalCard({ profile }) {
   );
 }
 
-export default function ProfileClient({ username }) {
-  const [profile, setProfile] = useState(null);
+export default function ProfileClient({ username, initialProfile = null }) {
+  const [profile, setProfile] = useState(initialProfile);
   const [products, setProducts] = useState([]);
   const [socials, setSocials] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [gallery, setGallery] = useState([]);
   const [bizPresence, setBizPresence] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialProfile);
 
   useEffect(() => {
     async function fetchProfile() {
