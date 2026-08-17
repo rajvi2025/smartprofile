@@ -58,7 +58,7 @@ export default function Footer() {
           {/* Product */}
           <div>
             <h4 style={{ color: 'white', fontWeight: 700, marginBottom: 16, fontSize: 15 }}>Product</h4>
-            {[['Features', '/'], ['Directory', '/directory'], ['NFC Cards', '/'], ['Pricing', '/#pricing'], ['How it Works', '/']].map(([label, href]) => (
+            {[['Features', '/'], ['Directory', '/directory'], ['NFC Cards', '/'], ['Pricing', '/#pricing'], ['How it Works', '/'], ['Spin & Win', '/spin']].map(([label, href]) => (
               <div key={label} style={{ marginBottom: 10 }}>
                 <Link href={href} style={{ color: '#64748b', fontSize: 14, textDecoration: 'none', transition: 'color 0.2s' }}
                   onMouseEnter={e => e.currentTarget.style.color = 'white'}
