@@ -237,7 +237,7 @@ export default function AdminDashboard() {
                 <a href="/admin/coupons" style={{ padding: '12px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, textAlign: 'center', background: '#eff6ff', color: '#1d4ed8', textDecoration: 'none' }}>🏷️ New Coupon</a>
                 <a href="/admin/staff" style={{ padding: '12px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, textAlign: 'center', background: '#eef2ff', color: '#4338ca', textDecoration: 'none' }}>🧑‍💼 Add Staff</a>
                 <div style={{ padding: '12px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, textAlign: 'center', background: '#f8fafc', color: '#94a3b8' }}>🏢 Add Business<br /><span style={{ fontSize: 9, fontWeight: 800 }}>SOON</span></div>
-                <div style={{ padding: '12px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, textAlign: 'center', background: '#f8fafc', color: '#94a3b8' }}>📈 Reports<br /><span style={{ fontSize: 9, fontWeight: 800 }}>SOON</span></div>
+                <a href="/admin/reports" style={{ padding: '12px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, textAlign: 'center', background: '#f0fdf4', color: '#166534', textDecoration: 'none' }}>📈 Reports</a>
               </div>
             </div>
 
