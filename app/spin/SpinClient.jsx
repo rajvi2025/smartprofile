@@ -91,7 +91,8 @@ export default function SpinClient() {
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl">
           <h1 className="text-2xl font-bold text-gray-800 mb-1">🎡 Spin & Win</h1>
-          <p className="text-gray-500 text-sm mb-3">SmartProfile Digital Business Card</p>
+          <p className="text-gray-500 text-sm mb-1">SmartProfile Digital Business Card</p>
+          <a href="/" className="inline-block text-blue-600 text-xs underline mb-3">← Back to Home</a>
 
           {/* Offer banner — make the deal unmistakably clear */}
           <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-amber-300 rounded-2xl px-4 py-3 mb-5">

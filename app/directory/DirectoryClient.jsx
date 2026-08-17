@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
+import { slugifyCity, slugifyCategory, slugifyState } from '@/lib/slugify';
 
 // Ad banners shown on the Directory homepage — as a sticky sidebar on
 // desktop, and interspersed every 5 listings on mobile (see AD_INTERVAL).
@@ -24,11 +25,6 @@ const categories = [
   { name: 'Travel Agents', icon: '✈️' },
   { name: 'Automotive', icon: '🚗' },
 ];
-
-// Converts a city name like "New Delhi" into a URL-safe slug like "new-delhi"
-function slugifyCity(city) {
-  return (city || "").toLowerCase().trim().replace(/\s+/g, "-");
-}
 
 function StarRating({ rating }) {
   return (
@@ -170,6 +166,20 @@ export default function DirectoryClient() {
     }
     fetchProfiles();
   }, []);
+
+  // Derived browse-lists for the "Browse Directory" section below — built from
+  // whatever is actually in the DB, so every city/category/combo/state page
+  // that has real listings gets a real crawlable link, and stays in sync
+  // automatically as new businesses are added (no manual list to maintain).
+  const uniqueCities = [...new Set(businesses.map(b => b.city).filter(Boolean))].sort();
+  const uniqueCategories = [...new Set(businesses.map(b => b.category).filter(Boolean))].sort();
+  const uniqueStates = [...new Set(businesses.map(b => b.state).filter(Boolean))].sort();
+  const cityCategoryPairs = [...new Set(
+    businesses.filter(b => b.city && b.category).map(b => `${b.city}|||${b.category}`)
+  )].map(pair => {
+    const [city, category] = pair.split('|||');
+    return { city, category };
+  });
 
   const filtered = businesses
     .filter(b => {
@@ -352,7 +362,7 @@ export default function DirectoryClient() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', margin: 0 }}>Browse by Categories</h2>
-            <a href="#" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all categories →</a>
+            <a href="#browse-directory" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all categories →</a>
           </div>
           <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 8 }}>
             {categories.map(cat => (
@@ -366,6 +376,74 @@ export default function DirectoryClient() {
         </div>
       </section>
 
+      {/* BROWSE DIRECTORY — real crawlable links to every city, category,
+          city+category combo, and state page that has actual listings.
+          Purely for discoverability (SEO + navigation); doesn't affect the
+          search/filter UI above. */}
+      {(uniqueCities.length > 0 || uniqueCategories.length > 0) && (
+        <section id="browse-directory" style={{ padding: '32px 24px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: '0 0 16px' }}>Browse Directory</h2>
+
+            {uniqueCities.length > 0 && (
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 8 }}>By City</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {uniqueCities.map(city => (
+                    <Link key={city} href={`/directory/${slugifyCity(city)}`}
+                      style={{ fontSize: 13, color: '#334155', background: 'white', border: '1px solid #e2e8f0', padding: '6px 14px', borderRadius: 999, textDecoration: 'none' }}>
+                      {city}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {uniqueCategories.length > 0 && (
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 8 }}>By Category</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {uniqueCategories.map(cat => (
+                    <Link key={cat} href={`/directory/category/${slugifyCategory(cat)}`}
+                      style={{ fontSize: 13, color: '#334155', background: 'white', border: '1px solid #e2e8f0', padding: '6px 14px', borderRadius: 999, textDecoration: 'none' }}>
+                      {cat}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {cityCategoryPairs.length > 0 && (
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 8 }}>By City &amp; Category</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {cityCategoryPairs.map(({ city, category }) => (
+                    <Link key={`${city}-${category}`} href={`/directory/${slugifyCity(city)}/category/${slugifyCategory(category)}`}
+                      style={{ fontSize: 13, color: '#334155', background: 'white', border: '1px solid #e2e8f0', padding: '6px 14px', borderRadius: 999, textDecoration: 'none' }}>
+                      {category} in {city}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {uniqueStates.length > 0 && (
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 8 }}>By State</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {uniqueStates.map(state => (
+                    <Link key={state} href={`/directory/state/${slugifyState(state)}`}
+                      style={{ fontSize: 13, color: '#334155', background: 'white', border: '1px solid #e2e8f0', padding: '6px 14px', borderRadius: 999, textDecoration: 'none' }}>
+                      {state}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* FEATURED BUSINESSES — JD-inspired rich cards, SmartProfile branding */}
       <section style={{ padding: '40px 24px', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -376,7 +454,7 @@ export default function DirectoryClient() {
                 <p style={{ fontSize: 12, color: '#3b82f6', margin: '4px 0 0', fontWeight: 500 }}>📍 Showing businesses near {nearbyCity} first</p>
               )}
             </div>
-            <a href="#" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all businesses →</a>
+            <a href="#browse-directory" style={{ fontSize: 13, color: '#3b82f6', fontWeight: 500, textDecoration: 'none' }}>View all businesses →</a>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1fr) 280px', gap: 24, alignItems: 'start' }}>
@@ -392,7 +470,7 @@ export default function DirectoryClient() {
 
                   {/* LEFT COLUMN: image + rating badge below it */}
                   <div style={{ width: isMobile ? '44%' : '42%', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: isMobile ? '14px 0 14px 14px' : '14px', alignItems: isMobile ? 'stretch' : 'center', justifyContent: isMobile ? 'flex-start' : 'center' }}>
-                    <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
+                    <Link href={`/directory/${slugifyCity(biz.city)}/${biz.username}`} style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 12, overflow: 'hidden', position: 'relative', display: 'block' }}>
                       {biz.img ? (
                         <Image src={biz.img} alt={biz.name} fill sizes="(max-width: 768px) 44vw, 280px" style={{ objectFit: 'cover' }} />
                       ) : (
@@ -400,7 +478,7 @@ export default function DirectoryClient() {
                           <span style={{ fontWeight: 800, color: biz.color, fontSize: isMobile ? 26 : 30 }}>{biz.initials}</span>
                         </div>
                       )}
-                    </div>
+                    </Link>
 
                     {/* Rating badge under the image — mobile only */}
                     {isMobile && (
@@ -423,7 +501,7 @@ export default function DirectoryClient() {
                   <div style={{ width: isMobile ? '56%' : '58%', padding: isMobile ? '14px 14px 14px 12px' : '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: isMobile ? 15 : 15 }}>{biz.name}</div>
+                        <Link href={`/directory/${slugifyCity(biz.city)}/${biz.username}`} style={{ fontWeight: 700, color: '#0f172a', fontSize: isMobile ? 15 : 15, textDecoration: 'none' }}>{biz.name}</Link>
                         {biz.verified && (
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="#3b82f6" style={{ flexShrink: 0 }}><path d="M12 2l2.4 2.4 3.4-.4.4 3.4L21 10l-2.8 2.6.4 3.4-3.4-.4L12 18l-2.4-2.4-3.4.4-.4-3.4L3 10l2.8-2.6-.4-3.4 3.4.4L12 2z"/><path d="M9.5 12l1.8 1.8 3.2-3.6" stroke="white" strokeWidth="1.5" fill="none"/></svg>
                         )}
