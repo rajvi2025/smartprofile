@@ -147,7 +147,7 @@ function TestimonialsSection({ testimonials, username }) {
 }
 
 // ---------- BASIC PLAN: simple digital visiting card ----------
-function BasicProfile({ profile }) {
+function BasicProfile({ profile, track }) {
   const { displayName, line2, line3 } = getCardIdentity(profile);
   const shareProfile = async () => {
     track('share_click');
@@ -244,7 +244,7 @@ function BasicProfile({ profile }) {
 }
 
 // ---------- BUSINESS+ PLANS: richer card-style with more sections ----------
-function BusinessProfile({ profile, products, socials, testimonials, gallery, bizPresence }) {
+function BusinessProfile({ profile, products, socials, testimonials, gallery, bizPresence, track }) {
   const { displayName, line2, line3 } = getCardIdentity(profile);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [productsOpen, setProductsOpen] = useState(false);
@@ -630,7 +630,7 @@ export default function ProfileClient({ username, initialProfile = null }) {
   }
 
   if (profile.plan === "business" || profile.plan === "premium" || profile.plan === "pro" || profile.plan === "ultimate") {
-    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} gallery={gallery} bizPresence={bizPresence} />;
+    return <BusinessProfile profile={profile} products={products} socials={socials} testimonials={testimonials} gallery={gallery} bizPresence={bizPresence} track={track} />;
   }
-  return <BasicProfile profile={profile} />;
+  return <BasicProfile profile={profile} track={track} />;
 }
