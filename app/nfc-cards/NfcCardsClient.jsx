@@ -556,7 +556,7 @@ export default function NfcCardsClient() {
         }
         .header-wrap {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: center;
           gap: 100px;
           max-width: 1500px;
@@ -623,15 +623,15 @@ export default function NfcCardsClient() {
           position: relative;
           flex-shrink: 0;
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
           transform: scale(0.9);
           transform-origin: center;
         }
         .price-badge {
-          position: absolute;
-          top: -18px;
-          left: -20px;
+          position: relative;
+          margin-bottom: 18px;
           z-index: 10;
         }
         .price-badge-top {
@@ -788,7 +788,7 @@ export default function NfcCardsClient() {
         .stat-text strong { font-size: 15px; color: #0a1a4f; }
         .stat-text small { font-size: 11px; color: #8a94a6; }
         @media (max-width: 900px) {
-          .header-wrap { flex-direction: column-reverse; text-align: center; gap: 40px; }
+          .header-wrap { flex-direction: column-reverse; align-items: center; text-align: center; gap: 40px; }
           .header-text { max-width: 100%; }
           .cta-row { justify-content: center; }
           .headline { font-size: 36px; }
