@@ -14,10 +14,36 @@ export default function NfcCardsClient() {
   const [selectedColor, setSelectedColor] = useState('black');
   const [form, setForm] = useState({ name: '', phone: '', email: '', business: '', address: '', notes: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [logoUrl, setLogoUrl] = useState('');
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadError, setUploadError] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadError('');
+    setUploadingLogo(true);
+    try {
+      const uploadData = new FormData();
+      uploadData.append('file', file);
+      const res = await fetch('/api/nfc-orders/upload-logo', {
+        method: 'POST',
+        body: uploadData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      setLogoUrl(data.url);
+    } catch (err) {
+      setUploadError(err.message || 'Upload failed. Please try again or paste a link instead.');
+      setLogoUrl('');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +54,10 @@ export default function NfcCardsClient() {
     }
     setSubmitting(true);
     try {
+      const combinedNotes = [
+        form.notes || '',
+        logoUrl ? `Logo file: ${logoUrl}` : '',
+      ].filter(Boolean).join(' | ');
       const res = await fetch('/api/nfc-orders/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -37,7 +67,7 @@ export default function NfcCardsClient() {
           email: form.email || null,
           business_name: form.business || null,
           delivery_address: form.address,
-          notes: form.notes || null,
+          notes: combinedNotes || null,
           card_color: selectedColor,
         }),
       });
@@ -58,7 +88,7 @@ export default function NfcCardsClient() {
 
           <div className="header-text">
             <h1 className="headline">
-              Tap. Connect.{" "}
+              Tap. Connect.<br />
               <span className="headline-accent">Grow.</span>
             </h1>
             <p className="subtext">
@@ -67,8 +97,8 @@ export default function NfcCardsClient() {
               <strong>free Premium Digital Card profile</strong> included.
             </p>
             <div className="cta-row">
-              <button className="cta-primary">Order Your NFC Card</button>
-              <button className="cta-secondary">See How It Works</button>
+              <button className="cta-primary" onClick={() => document.getElementById('order-form-section')?.scrollIntoView({ behavior: 'smooth' })}>Order Your NFC Card</button>
+              <button className="cta-secondary" onClick={() => document.getElementById('how-it-works-section')?.scrollIntoView({ behavior: 'smooth' })}>See How It Works</button>
             </div>
           </div>
 
@@ -365,7 +395,7 @@ export default function NfcCardsClient() {
             </div>
 
             {/* PROCESS STEPS */}
-            <div style={{ background: '#fff', borderRadius: 18, padding: '24px 26px', border: '1px solid #e2e8f0' }}>
+            <div id="how-it-works-section" style={{ background: '#fff', borderRadius: 18, padding: '24px 26px', border: '1px solid #e2e8f0' }}>
               <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 18 }}>How It Works</div>
               {[
                 { title: 'Order', desc: 'Choose your color and place your order for ₹599.' },
@@ -388,7 +418,7 @@ export default function NfcCardsClient() {
           </div>
 
           {/* ORDER FORM */}
-          <div>
+          <div id="order-form-section">
             {submitted ? (
               <div style={{ background: '#fff', borderRadius: 20, padding: '40px 28px', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
                 <div style={{ width: 56, height: 56, background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -432,7 +462,31 @@ export default function NfcCardsClient() {
                 </div>
 
                 <div style={{ marginBottom: 18 }}>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>Notes / Logo details (optional)</label>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>Your Logo (optional)</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                    <label style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 14px',
+                      borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, fontWeight: 600,
+                      color: '#334155', cursor: 'pointer', background: '#f8fafc', flexShrink: 0,
+                    }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 16V4M12 4L7 9M12 4l5 5" stroke="#334155" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="#334155" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      Upload File
+                      <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml" onChange={handleLogoUpload} style={{ display: 'none' }} />
+                    </label>
+                    {uploadingLogo && <span style={{ fontSize: 12, color: '#64748b' }}>Uploading...</span>}
+                    {logoUrl && !uploadingLogo && (
+                      <span style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#16a34a" fillOpacity="0.15"/><path d="M6 10l3 3 5-5" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        Uploaded
+                      </span>
+                    )}
+                  </div>
+                  {uploadError && <div style={{ fontSize: 12, color: '#dc2626', marginBottom: 6 }}>{uploadError}</div>}
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10 }}>Or paste a link to your logo in the notes field below.</div>
+                </div>
+
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>Notes / Logo Link (optional)</label>
                   <textarea
                     name="notes"
                     value={form.notes}
@@ -793,11 +847,11 @@ export default function NfcCardsClient() {
 
         @media (max-width: 640px) {
           .hero-section {
-            padding: 30px 16px 16px;
+            padding: 12px 16px 16px;
           }
           .header-wrap {
             gap: 24px;
-            padding: 30px 16px 16px;
+            padding: 12px 16px 16px;
           }
           .header-text {
             max-width: 100%;
