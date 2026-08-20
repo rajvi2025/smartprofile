@@ -632,7 +632,7 @@ export default function NfcCardsClient() {
           position: absolute;
           top: -18px;
           left: -20px;
-          z-index: 3;
+          z-index: 10;
         }
         .price-badge-top {
           display: flex;
