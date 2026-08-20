@@ -263,10 +263,10 @@ export default function NfcCardsClient() {
 
                     <div className="profile-card">
                       <div className="banner">
-                        <img src="https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/banners/d98c6772-d9e1-4328-9a9a-34b8fb8e1d12-1784007510440.png" alt="" />
+                        <img src="https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/banners/d98c6772-d9e1-4328-9a9a-34b8fb8e1d12-1784007510440.png" alt="CopperKing India banner" />
                       </div>
                       <div className="logo-wrap">
-                        <img className="logo" src="https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/logos/d98c6772-d9e1-4328-9a9a-34b8fb8e1d12-1783672579654.png" alt="" />
+                        <img className="logo" src="https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/profiles/logos/d98c6772-d9e1-4328-9a9a-34b8fb8e1d12-1783672579654.png" alt="CopperKing India logo" />
                       </div>
                       <div className="profile-body">
                         <div className="name">CopperKing Homee India Pvt Ltd</div>
@@ -684,6 +684,59 @@ export default function NfcCardsClient() {
                 text: item.a,
               },
             })),
+          }),
+        }}
+      />
+
+      {/* PRODUCT STRUCTURED DATA FOR SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: 'SmartProfile NFC Smart Business Card',
+            description: 'Tap-to-share NFC business card with custom logo, QR code, and a free Premium Digital Card profile. Works on any NFC-enabled smartphone, no app needed.',
+            image: 'https://lekyzsyadanghxafpjmh.supabase.co/storage/v1/object/public/NFC/black-nfc-card.webp',
+            brand: {
+              '@type': 'Brand',
+              name: 'SmartProfile',
+            },
+            offers: {
+              '@type': 'Offer',
+              url: 'https://www.smartprofile.in/nfc-cards',
+              priceCurrency: 'INR',
+              price: String(PRICE),
+              availability: 'https://schema.org/InStock',
+              itemCondition: 'https://schema.org/NewCondition',
+              shippingDetails: {
+                '@type': 'OfferShippingDetails',
+                shippingRate: {
+                  '@type': 'MonetaryAmount',
+                  value: '0',
+                  currency: 'INR',
+                },
+                shippingDestination: {
+                  '@type': 'DefinedRegion',
+                  addressCountry: 'IN',
+                },
+                deliveryTime: {
+                  '@type': 'ShippingDeliveryTime',
+                  handlingTime: {
+                    '@type': 'QuantitativeValue',
+                    minValue: 0,
+                    maxValue: 3,
+                    unitCode: 'DAY',
+                  },
+                  transitTime: {
+                    '@type': 'QuantitativeValue',
+                    minValue: 3,
+                    maxValue: 5,
+                    unitCode: 'DAY',
+                  },
+                },
+              },
+            },
           }),
         }}
       />
