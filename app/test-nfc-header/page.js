@@ -4,6 +4,24 @@ export default function TestNfcHeader() {
   return (
     <div className="page-root">
 
+      {/* NAVBAR */}
+      <nav className="navbar">
+        <div className="nav-logo">
+          <span className="nav-logo-mark">SP</span>
+          <span className="nav-logo-text">Smart<span className="nav-logo-accent">Profile</span></span>
+        </div>
+        <div className="nav-links">
+          <span>Home</span>
+          <span>Features</span>
+          <span>NFC Cards ▾</span>
+          <span>Business Profiles</span>
+          <span>Directory</span>
+          <span>Pricing</span>
+          <span>Resources ▾</span>
+        </div>
+        <button className="nav-cta">Order Now</button>
+      </nav>
+
       <div className="hero-section">
       <div className="header-wrap">
 
@@ -272,6 +290,58 @@ export default function TestNfcHeader() {
           background: #f7f6ff;
           min-height: 100vh;
           overflow: hidden;
+        }
+
+        /* ---------- NAVBAR ---------- */
+        .navbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 22px 60px;
+          background: #ffffff;
+        }
+        .nav-logo {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .nav-logo-mark {
+          width: 32px;
+          height: 32px;
+          border: 2px solid #005dff;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 13px;
+          color: #005dff;
+        }
+        .nav-logo-text {
+          font-size: 18px;
+          font-weight: 800;
+          color: #0a1a4f;
+        }
+        .nav-logo-accent { color: #005dff; }
+        .nav-links {
+          display: flex;
+          gap: 30px;
+          font-size: 14px;
+          font-weight: 500;
+          color: #3a4250;
+        }
+        .nav-cta {
+          background: linear-gradient(90deg, #005dff, #6c63ff);
+          color: #fff;
+          border: none;
+          padding: 10px 22px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        @media (max-width: 900px) {
+          .nav-links { display: none; }
         }
 
         /* ---------- HERO SECTION ---------- */
