@@ -687,7 +687,7 @@ export default function NfcCardsClient() {
           letter-spacing: 0.3px;
           padding: 7px 14px;
           border-radius: 8px;
-          display: flex;
+          display: inline-flex;
           align-items: center;
           gap: 6px;
           box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
