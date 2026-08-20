@@ -88,8 +88,9 @@ export default function NfcCardsClient() {
 
           <div className="header-text">
             <h1 className="headline">
-              Tap. Connect.<br />
-              <span className="headline-accent">Grow.</span>
+              <span className="headline-word">Tap.</span>
+              <span className="headline-word">Connect.</span>
+              <span className="headline-word headline-accent">Grow.</span>
             </h1>
             <p className="subtext">
               Tap on any phone, your SmartProfile opens instantly.
@@ -546,6 +547,9 @@ export default function NfcCardsClient() {
           margin: 0 0 20px;
           color: #0a1a4f;
         }
+        .headline-word {
+          display: block;
+        }
         .headline-accent {
           background: linear-gradient(90deg, #6c63ff, #005dff);
           -webkit-background-clip: text;
@@ -683,6 +687,8 @@ export default function NfcCardsClient() {
           .header-text { max-width: 100%; }
           .cta-row { justify-content: center; }
           .headline { font-size: 36px; }
+          .headline-word { display: inline; margin-right: 8px; }
+          .headline-word:last-child { margin-right: 0; }
         }
 
         .scene {
