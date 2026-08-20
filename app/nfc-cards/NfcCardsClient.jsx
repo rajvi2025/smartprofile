@@ -10,6 +10,41 @@ const CARDS = [
 
 const PRICE = 599;
 
+const FAQS = [
+  {
+    q: 'What is an NFC business card and how does it work?',
+    a: 'An NFC business card is a smart card with a tiny chip embedded inside it. When you tap the card on the back of any NFC-enabled smartphone, it instantly opens your SmartProfile digital business profile in the phone\'s browser — no app, no typing, no scanning needed.',
+  },
+  {
+    q: 'Do I need to install an app to use the NFC card?',
+    a: 'No. Both the person tapping the card and you as the card owner need zero apps. Modern Android and iPhone devices read NFC tags natively — the phone just needs NFC turned on, which is the default on almost all phones sold in the last few years.',
+  },
+  {
+    q: 'Is the NFC card compatible with all smartphones?',
+    a: "Yes. It works with any NFC-enabled smartphone. iPhone XS and newer read it automatically with no app; iPhone 7 and 8 need a free NFC-reader app from the App Store. Virtually all Android phones from the last several years support NFC by default. If a phone doesn't support NFC at all, the QR code printed on the card works as a backup.",
+  },
+  {
+    q: "What's included when I order an NFC card?",
+    a: 'You get the NFC Smart Card in your chosen colour with your logo/business name printed on it, a QR code linked to your profile, and a free Premium Digital Card profile (worth ₹599) — all for ₹599 total.',
+  },
+  {
+    q: 'How long does delivery take?',
+    a: 'Your card is dispatched from our Mumbai hub within 72 hours of order confirmation, and courier delivery typically takes another 3-5 days depending on your location.',
+  },
+  {
+    q: 'Can I update my profile information after the card is printed?',
+    a: 'Yes. The card only stores a link to your SmartProfile page — the actual content (contact details, about, gallery, socials) lives on your profile and can be edited anytime from your dashboard. You never need to reprint the card.',
+  },
+  {
+    q: 'Do I have to pay upfront to order?',
+    a: 'No. There\'s no upfront payment. We send you a payment link only after you\'ve approved your card design preview, so you know exactly what you\'re getting before you pay.',
+  },
+  {
+    q: 'What if my NFC card stops working or gets lost?',
+    a: 'The QR code on the card is a reliable backup if the NFC chip ever has an issue. If you lose your card or need a replacement, just contact us on WhatsApp or call — we can get a new one printed and dispatched quickly.',
+  },
+];
+
 export default function NfcCardsClient() {
   const [selectedColor, setSelectedColor] = useState('black');
   const [form, setForm] = useState({ name: '', phone: '', email: '', business: '', address: '', notes: '' });
@@ -19,6 +54,7 @@ export default function NfcCardsClient() {
   const [uploadError, setUploadError] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [openFaq, setOpenFaq] = useState(null);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -579,6 +615,78 @@ export default function NfcCardsClient() {
 
         </div>
       </section>
+
+      {/* ABOUT NFC - INFORMATION SECTION */}
+      <section style={{ padding: '56px 24px', background: '#fff' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', marginBottom: 18 }}>What is an NFC Business Card?</h2>
+          <div style={{ fontSize: 14.5, color: '#475569', lineHeight: 1.85 }}>
+            <p style={{ marginBottom: 16 }}>
+              An <strong>NFC business card</strong> (Near Field Communication card) is a smart, tap-to-share visiting card with a tiny chip embedded inside it. Instead of handing out a paper card that gets lost or thrown away, you simply tap your NFC card on the back of anyone's smartphone — and your complete digital business profile opens instantly in their browser. No app to download, no typing, no scanning required.
+            </p>
+            <p style={{ marginBottom: 16 }}>
+              Every SmartProfile NFC card comes paired with a <strong>free Premium Digital Card profile</strong>, so you get one permanent link (smartprofile.in/yourname) that shows your contact details, business description, product gallery, and social links — and it stays fully editable even after your physical card has been printed.
+            </p>
+            <p style={{ marginBottom: 16 }}>
+              NFC cards work on virtually every modern smartphone. On iPhone, models from the <strong>iPhone XS (2018) onwards</strong> read the tap automatically with no app needed; iPhone 7 and 8 owners can still read it with a free NFC-reader app from the App Store. Almost all Android phones from the last several years support NFC out of the box, usually turned on by default. A QR code is also printed on the card as a reliable backup for the rare device that doesn't support tap sharing.
+            </p>
+            <p>
+              For Indian SMBs, professionals, and business owners, an NFC smart card is a low-cost, reusable, and eco-friendly upgrade over paper visiting cards — you never run out, and your information is always up to date.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ SECTION */}
+      <section style={{ padding: '20px 24px 64px', background: '#f8fafc' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', marginBottom: 24, textAlign: 'center' }}>Frequently Asked Questions</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {FAQS.map((item, i) => (
+              <div key={i} style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  style={{
+                    width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer',
+                    padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                  }}
+                >
+                  <span style={{ fontSize: 14.5, fontWeight: 700, color: '#0f172a' }}>{item.q}</span>
+                  <span style={{
+                    flexShrink: 0, width: 22, height: 22, borderRadius: '50%', background: '#eef2ff', color: '#6366f1',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700,
+                    transform: openFaq === i ? 'rotate(45deg)' : 'rotate(0deg)', transition: 'transform 0.2s',
+                  }}>+</span>
+                </button>
+                {openFaq === i && (
+                  <div style={{ padding: '0 20px 18px', fontSize: 13.5, color: '#64748b', lineHeight: 1.7 }}>
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ STRUCTURED DATA FOR SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: FAQS.map((item) => ({
+              '@type': 'Question',
+              name: item.q,
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: item.a,
+              },
+            })),
+          }),
+        }}
+      />
 
       <style jsx>{`
         .anim-hero-wrap {
