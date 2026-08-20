@@ -105,6 +105,18 @@ export default function NfcCardsClient() {
                 </span>
               </div>
             </div>
+            <div className="price-badge">
+              <div className="price-badge-top">
+                <span className="price-badge-tag">SPECIAL OFFER</span>
+                <div className="price-badge-box">
+                  <span className="price-old">₹999</span>
+                  <span className="price-new">₹599<small>ONLY</small></span>
+                </div>
+              </div>
+              <div className="price-badge-delivery">
+                <span>🚚</span> FREE DELIVERY <span className="price-badge-dot">•</span> ALL OVER INDIA
+              </div>
+            </div>
             <h1 className="headline">
               <span className="headline-word">Tap.</span>
               <span className="headline-word">Connect.</span>
@@ -124,19 +136,6 @@ export default function NfcCardsClient() {
           <div className="visual-wrap">
             <div className="bg-ring bg-ring-1" />
             <div className="bg-ring bg-ring-2" />
-
-            <div className="price-badge">
-              <div className="price-badge-top">
-                <span className="price-badge-tag">SPECIAL OFFER</span>
-                <div className="price-badge-box">
-                  <span className="price-old">₹999</span>
-                  <span className="price-new">₹599<small>ONLY</small></span>
-                </div>
-              </div>
-              <div className="price-badge-delivery">
-                <span>🚚</span> FREE DELIVERY <span className="price-badge-dot">•</span> ALL OVER INDIA
-              </div>
-            </div>
 
             <div className="feature-float ff-1">
               <span className="ff-icon ff-icon-1">⚡</span>
