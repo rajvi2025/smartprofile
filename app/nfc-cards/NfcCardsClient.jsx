@@ -98,13 +98,6 @@ export default function NfcCardsClient() {
               </span>
             </div>
 
-            <div className="nfc-connector">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M6 12a6 6 0 0 1 6-6" stroke="#005dff" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M4 15a9 9 0 0 1 9-9" stroke="#6c63ff" strokeWidth="2" strokeLinecap="round" opacity="0.6"/>
-              </svg>
-            </div>
-
             <div className="header-visual">
               <div className="scene">
 
@@ -264,7 +257,6 @@ export default function NfcCardsClient() {
                   </div>
                   </div>
 
-                  <div className="tap-glow" />
                 </div>
 
               </div>
@@ -553,21 +545,6 @@ export default function NfcCardsClient() {
         }
         .bg-ring-1 { width: 360px; height: 360px; }
         .bg-ring-2 { width: 460px; height: 460px; border-color: rgba(108, 99, 255, 0.08); }
-        .nfc-connector {
-          position: absolute;
-          top: 50%;
-          left: calc(50% - 40px);
-          transform: translate(-50%, -50%) rotate(90deg);
-          width: 48px;
-          height: 48px;
-          background: #fff;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 6px 18px rgba(0,93,255,0.25);
-          z-index: 5;
-        }
         .pedestal {
           position: absolute;
           bottom: -10px;
@@ -798,20 +775,6 @@ export default function NfcCardsClient() {
           96% { transform: translateY(100%); opacity: 0; }
           100% { transform: translateY(100%); opacity: 0; }
         }
-        .tap-glow {
-          position: absolute; top: 30px; left: 60px; width: 90px; height: 90px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(0,93,255,0.5) 0%, rgba(0,93,255,0) 70%);
-          transform: scale(0.3); opacity: 0; z-index: 4;
-          animation: glowPulse 8s ease-in-out infinite;
-        }
-        @keyframes glowPulse {
-          0% { transform: scale(0.3); opacity: 0; }
-          25% { transform: scale(0.3); opacity: 0; }
-          31% { transform: scale(1.3); opacity: 1; }
-          38% { transform: scale(1.7); opacity: 0; }
-          100% { transform: scale(1.7); opacity: 0; }
-        }
         .nfc-card {
           position: absolute; top: -14px; left: 0; width: 220px; z-index: 1;
           filter: drop-shadow(0 14px 24px rgba(0, 17, 68, 0.4));
@@ -826,6 +789,65 @@ export default function NfcCardsClient() {
           78%  { transform: translateX(-380px) rotate(-10deg); opacity: 1; }
           86%  { transform: translateX(-380px) rotate(-10deg); opacity: 0; }
           100% { transform: translateX(-380px) rotate(-10deg); opacity: 0; }
+        }
+
+        @media (max-width: 640px) {
+          .hero-section {
+            padding: 30px 16px 16px;
+          }
+          .header-wrap {
+            gap: 24px;
+            padding: 30px 16px 16px;
+          }
+          .header-text {
+            max-width: 100%;
+            min-width: 0;
+          }
+          .headline {
+            font-size: 32px;
+          }
+          .subtext {
+            font-size: 15px;
+          }
+          .cta-row {
+            flex-direction: column;
+            width: 100%;
+          }
+          .cta-primary, .cta-secondary {
+            width: 100%;
+            text-align: center;
+          }
+          .visual-wrap {
+            transform: scale(0.62);
+            transform-origin: center;
+            margin: -60px 0 -100px;
+          }
+          .bg-ring,
+          .pedestal,
+          .nfc-connector,
+          .feature-float {
+            display: none;
+          }
+          .stats-bar {
+            margin: 0 16px 24px;
+            padding: 16px;
+            gap: 16px;
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .stat-item {
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 400px) {
+          .headline {
+            font-size: 26px;
+          }
+          .visual-wrap {
+            transform: scale(0.52);
+            margin: -80px 0 -130px;
+          }
         }
       `}</style>
 
