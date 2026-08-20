@@ -87,6 +87,24 @@ export default function NfcCardsClient() {
         <div className="header-wrap">
 
           <div className="header-text">
+            <div className="mobile-offer-bar">
+              <div className="mob-col">
+                <span className="mob-old">₹999</span>
+              </div>
+              <span className="mob-divider" />
+              <div className="mob-col mob-offer-col">
+                <span className="mob-offer-label">OFFER PRICE</span>
+                <span className="mob-offer-price">₹599<small>ONLY</small></span>
+              </div>
+              <span className="mob-divider" />
+              <div className="mob-col mob-delivery-col">
+                <span className="mob-truck">🚚</span>
+                <span className="mob-delivery-text">
+                  <strong>Free Delivery</strong>
+                  <small>All Over India</small>
+                </span>
+              </div>
+            </div>
             <h1 className="headline">
               <span className="headline-word">Tap.</span>
               <span className="headline-word">Connect.</span>
@@ -106,6 +124,19 @@ export default function NfcCardsClient() {
           <div className="visual-wrap">
             <div className="bg-ring bg-ring-1" />
             <div className="bg-ring bg-ring-2" />
+
+            <div className="price-badge">
+              <div className="price-badge-top">
+                <span className="price-badge-tag">SPECIAL OFFER</span>
+                <div className="price-badge-box">
+                  <span className="price-old">₹999</span>
+                  <span className="price-new">₹599<small>ONLY</small></span>
+                </div>
+              </div>
+              <div className="price-badge-delivery">
+                <span>🚚</span> FREE DELIVERY <span className="price-badge-dot">•</span> ALL OVER INDIA
+              </div>
+            </div>
 
             <div className="feature-float ff-1">
               <span className="ff-icon ff-icon-1">⚡</span>
@@ -594,6 +625,80 @@ export default function NfcCardsClient() {
           display: flex;
           align-items: center;
           justify-content: center;
+          transform: scale(0.9);
+          transform-origin: center;
+        }
+        .price-badge {
+          position: absolute;
+          top: -18px;
+          left: -20px;
+          z-index: 3;
+        }
+        .price-badge-top {
+          display: flex;
+          align-items: stretch;
+        }
+        .price-badge-tag {
+          background: linear-gradient(135deg, #1e2a6e, #005dff);
+          color: #fff;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.5px;
+          padding: 10px 16px 10px 14px;
+          display: flex;
+          align-items: center;
+          border-radius: 10px 0 0 10px;
+          clip-path: polygon(0 0, 100% 0, 88% 100%, 0% 100%);
+          padding-right: 26px;
+        }
+        .price-badge-box {
+          background: #ffffff;
+          border-radius: 0 12px 12px 0;
+          padding: 8px 16px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          box-shadow: 0 6px 18px rgba(0, 17, 68, 0.15);
+        }
+        .price-old {
+          font-size: 14px;
+          color: #94a3b8;
+          text-decoration: line-through;
+        }
+        .price-new {
+          font-size: 22px;
+          font-weight: 800;
+          color: #005dff;
+          line-height: 1;
+          display: flex;
+          align-items: baseline;
+          gap: 4px;
+        }
+        .price-new small {
+          font-size: 11px;
+          font-weight: 700;
+          color: #0f172a;
+        }
+        .price-badge-delivery {
+          margin-top: 4px;
+          background: linear-gradient(90deg, #fbbf24, #f59e0b);
+          color: #1e293b;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.3px;
+          padding: 7px 14px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+          white-space: nowrap;
+        }
+        .price-badge-dot {
+          opacity: 0.6;
+        }
+        .mobile-offer-bar {
+          display: none;
         }
         .bg-ring {
           position: absolute;
@@ -885,8 +990,80 @@ export default function NfcCardsClient() {
           .bg-ring,
           .pedestal,
           .nfc-connector,
-          .feature-float {
+          .feature-float,
+          .price-badge {
             display: none;
+          }
+          .mobile-offer-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 17, 68, 0.08);
+            padding: 12px 10px;
+            margin-bottom: 20px;
+            gap: 6px;
+          }
+          .mob-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+          }
+          .mob-old {
+            font-size: 14px;
+            color: #94a3b8;
+            text-decoration: line-through;
+          }
+          .mob-divider {
+            width: 1px;
+            align-self: stretch;
+            background: #e2e8f0;
+            flex-shrink: 0;
+          }
+          .mob-offer-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            color: #64748b;
+          }
+          .mob-offer-price {
+            font-size: 22px;
+            font-weight: 800;
+            color: #005dff;
+            line-height: 1.1;
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+          }
+          .mob-offer-price small {
+            font-size: 10px;
+            font-weight: 700;
+            color: #0f172a;
+          }
+          .mob-delivery-col {
+            flex-direction: row;
+            gap: 6px;
+          }
+          .mob-truck {
+            font-size: 18px;
+          }
+          .mob-delivery-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.25;
+          }
+          .mob-delivery-text strong {
+            font-size: 11px;
+            font-weight: 800;
+            color: #0f172a;
+          }
+          .mob-delivery-text small {
+            font-size: 10px;
+            color: #64748b;
           }
           .stats-bar {
             margin: 0 16px 24px;
@@ -907,6 +1084,28 @@ export default function NfcCardsClient() {
           .visual-wrap {
             transform: scale(0.52);
             margin: -80px 0 -130px;
+          }
+          .mobile-offer-bar {
+            padding: 10px 6px;
+            gap: 4px;
+          }
+          .mob-old {
+            font-size: 12px;
+          }
+          .mob-offer-label {
+            font-size: 8px;
+          }
+          .mob-offer-price {
+            font-size: 18px;
+          }
+          .mob-truck {
+            font-size: 15px;
+          }
+          .mob-delivery-text strong {
+            font-size: 10px;
+          }
+          .mob-delivery-text small {
+            font-size: 9px;
           }
         }
       `}</style>
