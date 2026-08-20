@@ -446,6 +446,22 @@ export default function NfcCardsClient() {
                 </div>
               ))}
             </div>
+
+            {/* HELP / CONTACT - DESKTOP */}
+            <div className="help-box-desktop" style={{ background: '#eef2ff', borderRadius: 18, padding: '20px 22px', border: '1px solid #e0e7ff', marginTop: 20 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#0f172a', marginBottom: 4 }}>Need help ordering?</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 14, lineHeight: 1.6 }}>
+                Have a question or stuck somewhere? Call or WhatsApp us — we'll help you right away.
+              </div>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <a href="tel:+919987029548" style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', border: '1px solid #c7d2fe', borderRadius: 10, padding: '10px 16px', fontSize: 13, fontWeight: 700, color: '#0f172a', textDecoration: 'none', flex: 1, justifyContent: 'center' }}>
+                  📞 Call Us
+                </a>
+                <a href="https://wa.me/919987029548" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#25d366', border: '1px solid #25d366', borderRadius: 10, padding: '10px 16px', fontSize: 13, fontWeight: 700, color: '#fff', textDecoration: 'none', flex: 1, justifyContent: 'center' }}>
+                  💬 WhatsApp Us
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* ORDER FORM */}
@@ -545,8 +561,8 @@ export default function NfcCardsClient() {
             )}
           </div>
 
-          {/* HELP / CONTACT */}
-          <div style={{ background: '#eef2ff', borderRadius: 18, padding: '20px 22px', border: '1px solid #e0e7ff' }}>
+          {/* HELP / CONTACT - MOBILE */}
+          <div className="help-box-mobile" style={{ background: '#eef2ff', borderRadius: 18, padding: '20px 22px', border: '1px solid #e0e7ff' }}>
             <div style={{ fontWeight: 700, fontSize: 14, color: '#0f172a', marginBottom: 4 }}>Need help ordering?</div>
             <div style={{ fontSize: 12, color: '#64748b', marginBottom: 14, lineHeight: 1.6 }}>
               Have a question or stuck somewhere? Call or WhatsApp us — we'll help you right away.
@@ -713,6 +729,9 @@ export default function NfcCardsClient() {
           opacity: 0.6;
         }
         .mobile-offer-bar {
+          display: none;
+        }
+        .help-box-mobile {
           display: none;
         }
         .bg-ring {
@@ -972,6 +991,12 @@ export default function NfcCardsClient() {
         }
 
         @media (max-width: 640px) {
+          .help-box-desktop {
+            display: none;
+          }
+          .help-box-mobile {
+            display: block;
+          }
           .hero-section {
             padding: 12px 16px 16px;
           }
