@@ -37,7 +37,7 @@ const FAQS = [
   },
   {
     q: 'Do I have to pay upfront to order?',
-    a: 'No. There\'s no upfront payment. We send you a payment link only after you\'ve approved your card design preview, so you know exactly what you\'re getting before you pay.',
+    a: 'Yes. Payment (₹599) is collected securely via Razorpay at the time of ordering. Once paid, our team sends you a design preview to approve before the card is printed and shipped.',
   },
   {
     q: 'What if my NFC card stops working or gets lost?',
@@ -81,6 +81,42 @@ export default function NfcCardsClient() {
     }
   };
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (typeof window !== 'undefined' && window.Razorpay) { resolve(true); return; }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const finalizeOrder = async (paymentDetails) => {
+    const combinedNotes = [
+      form.notes || '',
+      logoUrl ? `Logo file: ${logoUrl}` : '',
+    ].filter(Boolean).join(' | ');
+    const res = await fetch('/api/nfc-orders/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: form.name,
+        phone: form.phone,
+        email: form.email || null,
+        business_name: form.business || null,
+        delivery_address: form.address,
+        notes: combinedNotes || null,
+        card_color: selectedColor,
+        razorpay_order_id: paymentDetails.razorpay_order_id,
+        razorpay_payment_id: paymentDetails.razorpay_payment_id,
+        razorpay_signature: paymentDetails.razorpay_signature,
+      }),
+    });
+    if (!res.ok) throw new Error('Failed');
+    setSubmitted(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -90,28 +126,50 @@ export default function NfcCardsClient() {
     }
     setSubmitting(true);
     try {
-      const combinedNotes = [
-        form.notes || '',
-        logoUrl ? `Logo file: ${logoUrl}` : '',
-      ].filter(Boolean).join(' | ');
-      const res = await fetch('/api/nfc-orders/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          phone: form.phone,
-          email: form.email || null,
-          business_name: form.business || null,
-          delivery_address: form.address,
-          notes: combinedNotes || null,
-          card_color: selectedColor,
-        }),
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        setError('Payment gateway failed to load. Please check your connection and try again.');
+        setSubmitting(false);
+        return;
+      }
+
+      const orderRes = await fetch('/api/nfc-orders/create-payment-order', { method: 'POST' });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok || !orderData.order) {
+        setError('Failed to start payment. Please try again.');
+        setSubmitting(false);
+        return;
+      }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: orderData.order.amount,
+        currency: 'INR',
+        name: 'SmartProfile NFC Card',
+        description: `${CARDS.find(c => c.id === selectedColor)?.name} — ₹${PRICE}`,
+        order_id: orderData.order.id,
+        handler: async function (response) {
+          try {
+            await finalizeOrder(response);
+          } catch (err) {
+            setError('Payment succeeded, but saving your order failed. Please contact us on WhatsApp/Call with your payment ID — we\'ll sort it out.');
+          } finally {
+            setSubmitting(false);
+          }
+        },
+        prefill: { name: form.name, email: form.email || undefined, contact: form.phone },
+        theme: { color: '#005DFF' },
+        modal: { ondismiss: function () { setSubmitting(false); } },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        setError('Payment failed: ' + (response.error?.description || 'Please try again.'));
+        setSubmitting(false);
       });
-      if (!res.ok) throw new Error('Failed');
-      setSubmitted(true);
+      rzp.open();
     } catch (err) {
       setError('Something went wrong. Please try again or reach us on WhatsApp/Call.');
-    } finally {
       setSubmitting(false);
     }
   };
@@ -452,7 +510,7 @@ export default function NfcCardsClient() {
                 'Custom logo/business name printed on card',
                 'QR code linked to your SmartProfile',
                 'Free Premium Digital Card profile (worth ₹599)',
-                'No upfront payment — pay after approving your design preview',
+                'Secure online payment via Razorpay',
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 10, fontSize: 13, color: '#334155' }}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="8" cy="8" r="8" fill="#6366f1" fillOpacity="0.12"/><path d="M5 8l2 2 4-4" stroke="#6366f1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -507,8 +565,8 @@ export default function NfcCardsClient() {
                 <div style={{ width: 56, height: 56, background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
-                <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Order Request Received!</h3>
-                <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7 }}>Our team will contact you within 24 hours with your design preview and delivery details. Thank you!</p>
+                <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Payment Received — Order Confirmed!</h3>
+                <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7 }}>Our team will send you a design preview within 24 hours. Your card ships within 72 hours of approval. Thank you!</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
@@ -590,9 +648,9 @@ export default function NfcCardsClient() {
                     fontSize: 15, fontWeight: 700, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1,
                   }}
                 >
-                  {submitting ? 'Submitting...' : 'Request Order'}
+                  {submitting ? 'Processing...' : `Pay ₹${PRICE} & Place Order`}
                 </button>
-                <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>No payment now — we'll send a payment link once you approve your design preview.</p>
+                <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>Secure payment via Razorpay. We'll send your design preview within 24 hours.</p>
               </form>
             )}
           </div>

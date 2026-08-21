@@ -52,8 +52,13 @@ export async function POST(request) {
     // matching payments row (type='nfc_order'). We key off the status
     // *transition* (not already paid/shipped/delivered) so re-saving an
     // already-paid order's tracking number etc. doesn't create duplicates.
+    // Orders placed through the online checkout already have a
+    // razorpay_payment_id AND a matching payments row inserted at creation
+    // time (see /api/nfc-orders/create) — skip re-inserting for those, this
+    // step now only fires for legacy/manual orders that were never
+    // prepaid online.
     const alreadyPaid = ['paid', 'shipped', 'delivered'].includes(order.status);
-    if (status === 'paid' && !alreadyPaid) {
+    if (status === 'paid' && !alreadyPaid && !order.razorpay_payment_id) {
       if (!amount) {
         return Response.json({ error: 'Amount is required to mark an order as paid' }, { status: 400 });
       }

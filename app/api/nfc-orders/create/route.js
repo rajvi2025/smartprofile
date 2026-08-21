@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -11,14 +12,34 @@ const supabase = createClient(
 const ORDER_NOTIFY_EMAIL = 'rajvi.ecom@gmail.com';
 
 const CARD_LABELS = { black: 'Black Card', gold: 'Gold Card', silver: 'Metallic Silver Card' };
+const NFC_CARD_PRICE = 599;
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { name, phone, email, business_name, delivery_address, notes, card_color } = body;
+    const {
+      name, phone, email, business_name, delivery_address, notes, card_color,
+      razorpay_order_id, razorpay_payment_id, razorpay_signature,
+    } = body;
 
     if (!name?.trim() || !phone?.trim() || !delivery_address?.trim()) {
       return Response.json({ error: 'Name, phone, and delivery address are required.' }, { status: 400 });
+    }
+
+    // Payment is now mandatory at order time — no more "pay after design
+    // approval". Verify the signature server-side ourselves rather than
+    // trusting the client's earlier /api/razorpay/verify call, since that
+    // call's result never reaches us otherwise.
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return Response.json({ error: 'Payment is required to place this order.' }, { status: 400 });
+    }
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(razorpay_order_id + '|' + razorpay_payment_id)
+      .digest('hex');
+    if (expectedSignature !== razorpay_signature) {
+      console.error('NFC order: payment signature mismatch — rejecting', razorpay_order_id);
+      return Response.json({ error: 'Payment verification failed.' }, { status: 400 });
     }
 
     const { data, error } = await supabase
@@ -32,6 +53,9 @@ export async function POST(request) {
         notes: notes?.trim() || null,
         card_color: card_color || 'black',
         status: 'design_pending',
+        price: NFC_CARD_PRICE,
+        razorpay_order_id,
+        razorpay_payment_id,
       }])
       .select('id')
       .single();
@@ -39,6 +63,25 @@ export async function POST(request) {
     if (error) {
       console.error('NFC order create error:', error);
       return Response.json({ error: 'Failed to create order' }, { status: 500 });
+    }
+
+    // Golden Rule: every paid flow must insert into payments. Signature is
+    // already verified above, so this order is genuinely paid.
+    const { error: paymentError } = await supabase
+      .from('payments')
+      .insert([{
+        profile_id: null,
+        user_id: null,
+        type: 'nfc_order',
+        plan: card_color || 'black',
+        amount: NFC_CARD_PRICE,
+        razorpay_order_id,
+        razorpay_payment_id,
+      }]);
+    if (paymentError) {
+      // Don't fail the order over this — money is captured and the order
+      // row is saved, but flag loudly since revenue reporting depends on it.
+      console.error('NFC order: payments insert failed (order still saved)', paymentError);
     }
 
     // Email notification — best-effort, same as the leads route. If Resend
@@ -54,9 +97,9 @@ export async function POST(request) {
         body: JSON.stringify({
           from: 'SmartProfile Orders <onboarding@resend.dev>',
           to: ORDER_NOTIFY_EMAIL,
-          subject: `New NFC Card Order: ${name}`,
+          subject: `New NFC Card Order (PAID): ${name}`,
           html: `
-            <h2>New NFC card order</h2>
+            <h2>New NFC card order — ₹${NFC_CARD_PRICE} received</h2>
             <p><strong>Name:</strong> ${name}</p>
             <p><strong>Phone:</strong> ${phone}</p>
             <p><strong>Email:</strong> ${email || '(not given)'}</p>
@@ -64,6 +107,7 @@ export async function POST(request) {
             <p><strong>Card Color:</strong> ${CARD_LABELS[card_color] || card_color}</p>
             <p><strong>Delivery Address:</strong> ${delivery_address}</p>
             <p><strong>Notes:</strong> ${notes || '(none)'}</p>
+            <p><strong>Razorpay Payment ID:</strong> ${razorpay_payment_id}</p>
             <p style="color:#888;font-size:12px;">View and manage this order in Admin Dashboard → NFC Management.</p>
           `,
         }),
