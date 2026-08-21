@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const CARDS = [
   { key: 'view', label: 'Profile Views', icon: '👁️', color: '#005DFF' },
@@ -117,6 +118,9 @@ export default function AnalyticsPage() {
   if (!hasProfile) {
     return (
       <div style={{ padding: 40, maxWidth: 500, margin: '0 auto', textAlign: 'center' }}>
+        <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: '#005DFF', textDecoration: 'none', marginBottom: 14 }}>
+          ← Back to Dashboard
+        </Link>
         <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
         <h1 style={{ fontSize: 20, fontWeight: 800, color: '#001144', marginBottom: 8 }}>No profile yet</h1>
         <p style={{ color: '#64748b', fontSize: 14 }}>Create your business profile first to start tracking views, QR scans, and clicks.</p>
@@ -126,6 +130,9 @@ export default function AnalyticsPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
+      <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: '#005DFF', textDecoration: 'none', marginBottom: 14 }}>
+        ← Back to Dashboard
+      </Link>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 4 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: '#001144', margin: 0 }}>Analytics</h1>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
