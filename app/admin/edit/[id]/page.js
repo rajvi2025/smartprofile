@@ -28,9 +28,9 @@ const FIELDS = [
 ];
 
 const IMAGE_FIELDS = [
-  ['logo_url', 'Logo', 'logos'],
-  ['banner_url', 'Banner', 'banners'],
-  ['directory_image_url', 'Directory Listing Image', 'directory'],
+  ['logo_url', 'Logo', 'logos', '1:1 ratio · 500×500px'],
+  ['banner_url', 'Banner', 'banners', '2:1 ratio · 1600×800px'],
+  ['directory_image_url', 'Directory Listing Image', 'directory', '1:1 ratio · 500×500px'],
 ];
 
 const TEXTAREA_FIELDS = [
@@ -166,7 +166,7 @@ export default function EditProfilePage() {
         <div style={{ background: 'white', borderRadius: 12, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', marginBottom: 16 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 14 }}>Images</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 18 }}>
-            {IMAGE_FIELDS.map(([key, label, folder]) => (
+            {IMAGE_FIELDS.map(([key, label, folder, sizeHint]) => (
               <div key={key}>
                 <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 6 }}>
                   {label}
@@ -200,6 +200,9 @@ export default function EditProfilePage() {
                 >
                   {uploadingField === key ? 'Uploading…' : `📤 Upload ${label}`}
                 </label>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 5 }}>
+                  Recommended: {sizeHint}
+                </div>
               </div>
             ))}
           </div>
