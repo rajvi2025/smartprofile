@@ -636,34 +636,6 @@ export default function NfcCardsClient() {
                   )}
                 </p>
 
-                <div style={{ marginBottom: 18 }}>
-                  {appliedCoupon ? (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '9px 12px' }}>
-                      <span style={{ fontSize: 13, color: '#166534', fontWeight: 700 }}>✓ {appliedCoupon.code} applied — ₹{appliedCoupon.discountAmount} off</span>
-                      <button type="button" onClick={removeCoupon} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Remove</button>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input
-                        type="text"
-                        placeholder="Have a coupon code?"
-                        value={couponInput}
-                        onChange={e => setCouponInput(e.target.value)}
-                        style={{ flex: 1, padding: '9px 12px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }}
-                      />
-                      <button
-                        type="button"
-                        disabled={couponChecking}
-                        onClick={applyCoupon}
-                        style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0f172a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: couponChecking ? 'not-allowed' : 'pointer', opacity: couponChecking ? 0.6 : 1, whiteSpace: 'nowrap' }}
-                      >
-                        {couponChecking ? 'Checking...' : 'Apply'}
-                      </button>
-                    </div>
-                  )}
-                  {couponError && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 6 }}>{couponError}</div>}
-                </div>
-
                 {['name', 'phone', 'email', 'business'].map((field) => (
                   <div key={field} style={{ marginBottom: 14 }}>
                     <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>
@@ -727,6 +699,35 @@ export default function NfcCardsClient() {
                     placeholder="e.g. logo file link, special instructions"
                     style={{ width: '100%', padding: '11px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
                   />
+                </div>
+
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 5 }}>Coupon Code (optional)</label>
+                  {appliedCoupon ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '9px 12px' }}>
+                      <span style={{ fontSize: 13, color: '#166534', fontWeight: 700 }}>✓ {appliedCoupon.code} applied — ₹{appliedCoupon.discountAmount} off</span>
+                      <button type="button" onClick={removeCoupon} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Remove</button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input
+                        type="text"
+                        placeholder="Have a coupon code?"
+                        value={couponInput}
+                        onChange={e => setCouponInput(e.target.value)}
+                        style={{ flex: 1, padding: '9px 12px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }}
+                      />
+                      <button
+                        type="button"
+                        disabled={couponChecking}
+                        onClick={applyCoupon}
+                        style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0f172a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: couponChecking ? 'not-allowed' : 'pointer', opacity: couponChecking ? 0.6 : 1, whiteSpace: 'nowrap' }}
+                      >
+                        {couponChecking ? 'Checking...' : 'Apply'}
+                      </button>
+                    </div>
+                  )}
+                  {couponError && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 6 }}>{couponError}</div>}
                 </div>
 
                 {error && <div style={{ background: '#fef2f2', color: '#dc2626', fontSize: 13, padding: '10px 14px', borderRadius: 10, marginBottom: 14 }}>{error}</div>}
