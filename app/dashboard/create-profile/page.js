@@ -692,6 +692,7 @@ export default function CreateProfilePage() {
               <div>
                 <input type="file" accept="image/*" onChange={e=>handleImage(e,'logo')} className="hidden" id="logo-up"/>
                 <label htmlFor="logo-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 Upload Logo</label>
+                <p className="text-xs text-gray-400 mt-1">Recommended: 1:1 ratio · 500×500px</p>
                 {logoPreview && <p className="text-xs text-green-600 mt-1">✓ Logo ready!</p>}
               </div>
             </div>
@@ -707,6 +708,7 @@ export default function CreateProfilePage() {
                 </div>
                 <input type="file" accept="image/*" onChange={e=>handleImage(e,'banner')} className="hidden" id="banner-up"/>
                 <label htmlFor="banner-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 Upload Banner</label>
+                <p className="text-xs text-gray-400 mt-1">Recommended: 2:1 ratio · 1600×800px</p>
                 {bannerPreview && <span className="ml-2 text-xs text-green-600 font-semibold">✓ Banner ready!</span>}
               </>
             )}
@@ -722,6 +724,7 @@ export default function CreateProfilePage() {
               </div>
               <input type="file" accept="image/*" onChange={e=>handleImage(e,'directory')} className="hidden" id="directory-img-up"/>
               <label htmlFor="directory-img-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 Upload Directory Image</label>
+              <p className="text-xs text-gray-400 mt-1">Recommended: 1:1 ratio · 500×500px</p>
               {directoryImagePreview && <span className="ml-2 text-xs text-green-600 font-semibold">✓ Ready!</span>}
             </div>
           )}

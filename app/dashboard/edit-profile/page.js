@@ -687,7 +687,7 @@ export default function EditProfilePage() {
                 <div>
                   <input type="file" accept="image/*" onChange={e=>handleImage(e,'logo')} className="hidden" id="logo-up"/>
                   <label htmlFor="logo-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {logoPreview ? 'Change Logo' : 'Upload Logo'}</label>
-                  <p className={sizeHint}>Recommended: 400×400px (square)</p>
+                  <p className={sizeHint}>Recommended: 1:1 ratio · 500×500px (square)</p>
                 </div>
               </div>
             </div>
@@ -710,7 +710,7 @@ export default function EditProfilePage() {
                   </div>
                   <input type="file" accept="image/*" onChange={e=>handleImage(e,'banner')} className="hidden" id="banner-up"/>
                   <label htmlFor="banner-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {bannerPreview ? 'Change Banner' : 'Upload Banner'}</label>
-                  <p className={sizeHint}>Recommended: 1200×400px (wide)</p>
+                  <p className={sizeHint}>Recommended: 2:1 ratio · 1600×800px (wide)</p>
                 </>
               )}
             </div>
@@ -803,13 +803,13 @@ export default function EditProfilePage() {
 
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h2 className="font-bold text-gray-800 mb-2">📸 Directory Main Image</h2>
-              <p className="text-xs text-gray-500 mb-3">This is the photo customers see first on the Directory listing. Any size works — it auto-adjusts to fit.</p>
+              <p className="text-xs text-gray-500 mb-3">This is the photo customers see first on the Directory listing.</p>
               <div className="w-full aspect-square rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 overflow-hidden mb-3 flex items-center justify-center">
                 {directoryImagePreview ? <img src={directoryImagePreview} className="w-full h-full object-cover"/> : <span className="text-gray-400 text-sm">Upload directory image</span>}
               </div>
               <input type="file" accept="image/*" onChange={e=>handleImage(e,'directory')} className="hidden" id="directory-img-up"/>
               <label htmlFor="directory-img-up" className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700">📤 {directoryImagePreview ? 'Change Image' : 'Upload Image'}</label>
-              <p className={sizeHint}>Square photo works best (e.g. 800×800px) — it's shown as a square on the Directory. Non-square photos are auto-centred and cropped to fit.</p>
+              <p className={sizeHint}>Recommended: 1:1 ratio · 500×500px (square) — non-square photos are auto-centred and cropped to fit.</p>
             </div>
 
             <div className="bg-white rounded-2xl p-5 shadow-sm">
