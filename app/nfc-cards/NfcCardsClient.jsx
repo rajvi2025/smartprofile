@@ -55,6 +55,39 @@ export default function NfcCardsClient() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [openFaq, setOpenFaq] = useState(null);
+  const [couponInput, setCouponInput] = useState('');
+  const [couponChecking, setCouponChecking] = useState(false);
+  const [couponError, setCouponError] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null); // { id, code, discountAmount, finalAmount }
+
+  const applyCoupon = async () => {
+    setCouponError('');
+    if (!couponInput.trim()) { setCouponError('Enter a coupon code.'); return; }
+    setCouponChecking(true);
+    try {
+      const res = await fetch('/api/nfc-orders/validate-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponInput.trim(), phone: form.phone }),
+      });
+      const result = await res.json();
+      if (!res.ok || !result.valid) {
+        setCouponError(result.error || 'This coupon code is not valid.');
+        setCouponChecking(false);
+        return;
+      }
+      setAppliedCoupon({ id: result.couponId, code: result.code, discountAmount: result.discountAmount, finalAmount: result.finalAmount });
+    } catch {
+      setCouponError('Something went wrong. Please try again.');
+    }
+    setCouponChecking(false);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponError('');
+  };
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -92,7 +125,7 @@ export default function NfcCardsClient() {
     });
   };
 
-  const finalizeOrder = async (paymentDetails) => {
+  const finalizeOrder = async (paymentDetails, chargeInfo) => {
     const combinedNotes = [
       form.notes || '',
       logoUrl ? `Logo file: ${logoUrl}` : '',
@@ -111,6 +144,10 @@ export default function NfcCardsClient() {
         razorpay_order_id: paymentDetails.razorpay_order_id,
         razorpay_payment_id: paymentDetails.razorpay_payment_id,
         razorpay_signature: paymentDetails.razorpay_signature,
+        coupon_id: chargeInfo.couponId || null,
+        coupon_code: chargeInfo.couponCode || null,
+        discount_amount: chargeInfo.discountAmount || 0,
+        amount_paid: chargeInfo.finalAmount || PRICE,
       }),
     });
     if (!res.ok) throw new Error('Failed');
@@ -133,24 +170,40 @@ export default function NfcCardsClient() {
         return;
       }
 
-      const orderRes = await fetch('/api/nfc-orders/create-payment-order', { method: 'POST' });
+      const orderRes = await fetch('/api/nfc-orders/create-payment-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couponCode: appliedCoupon?.code || null, phone: form.phone }),
+      });
       const orderData = await orderRes.json();
       if (!orderRes.ok || !orderData.order) {
         setError('Failed to start payment. Please try again.');
         setSubmitting(false);
         return;
       }
+      // Keep the client's applied-coupon amount in sync with what the server
+      // actually charged (in case the coupon became invalid between apply
+      // and checkout, e.g. someone else used a single-use code first).
+      if (appliedCoupon && orderData.finalAmount !== appliedCoupon.finalAmount) {
+        setAppliedCoupon(prev => prev ? { ...prev, finalAmount: orderData.finalAmount, discountAmount: orderData.discountAmount } : null);
+      }
+      const chargeInfo = {
+        couponId: orderData.couponId || null,
+        couponCode: orderData.couponId ? (appliedCoupon?.code || null) : null,
+        discountAmount: orderData.discountAmount || 0,
+        finalAmount: orderData.finalAmount || PRICE,
+      };
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: orderData.order.amount,
         currency: 'INR',
         name: 'SmartProfile NFC Card',
-        description: `${CARDS.find(c => c.id === selectedColor)?.name} — ₹${PRICE}`,
+        description: `${CARDS.find(c => c.id === selectedColor)?.name} — ₹${orderData.finalAmount}`,
         order_id: orderData.order.id,
         handler: async function (response) {
           try {
-            await finalizeOrder(response);
+            await finalizeOrder(response, chargeInfo);
           } catch (err) {
             setError('Payment succeeded, but saving your order failed. Please contact us on WhatsApp/Call with your payment ID — we\'ll sort it out.');
           } finally {
@@ -571,7 +624,45 @@ export default function NfcCardsClient() {
             ) : (
               <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: 20, padding: '28px 26px', border: '1px solid #e2e8f0', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Order Details</h3>
-                <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>Selected: <strong style={{ color: '#0f172a' }}>{CARDS.find(c => c.id === selectedColor)?.name}</strong> — ₹{PRICE}</p>
+                <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
+                  Selected: <strong style={{ color: '#0f172a' }}>{CARDS.find(c => c.id === selectedColor)?.name}</strong> —{' '}
+                  {appliedCoupon ? (
+                    <>
+                      <span style={{ textDecoration: 'line-through', color: '#94a3b8' }}>₹{PRICE}</span>{' '}
+                      <strong style={{ color: '#16a34a' }}>₹{appliedCoupon.finalAmount}</strong>
+                    </>
+                  ) : (
+                    <>₹{PRICE}</>
+                  )}
+                </p>
+
+                <div style={{ marginBottom: 18 }}>
+                  {appliedCoupon ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '9px 12px' }}>
+                      <span style={{ fontSize: 13, color: '#166534', fontWeight: 700 }}>✓ {appliedCoupon.code} applied — ₹{appliedCoupon.discountAmount} off</span>
+                      <button type="button" onClick={removeCoupon} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Remove</button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input
+                        type="text"
+                        placeholder="Have a coupon code?"
+                        value={couponInput}
+                        onChange={e => setCouponInput(e.target.value)}
+                        style={{ flex: 1, padding: '9px 12px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }}
+                      />
+                      <button
+                        type="button"
+                        disabled={couponChecking}
+                        onClick={applyCoupon}
+                        style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0f172a', color: '#fff', fontSize: 13, fontWeight: 700, cursor: couponChecking ? 'not-allowed' : 'pointer', opacity: couponChecking ? 0.6 : 1, whiteSpace: 'nowrap' }}
+                      >
+                        {couponChecking ? 'Checking...' : 'Apply'}
+                      </button>
+                    </div>
+                  )}
+                  {couponError && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 6 }}>{couponError}</div>}
+                </div>
 
                 {['name', 'phone', 'email', 'business'].map((field) => (
                   <div key={field} style={{ marginBottom: 14 }}>
@@ -648,7 +739,7 @@ export default function NfcCardsClient() {
                     fontSize: 15, fontWeight: 700, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1,
                   }}
                 >
-                  {submitting ? 'Processing...' : `Pay ₹${PRICE} & Place Order`}
+                  {submitting ? 'Processing...' : `Pay ₹${appliedCoupon ? appliedCoupon.finalAmount : PRICE} & Place Order`}
                 </button>
                 <p style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>Secure payment via Razorpay. We'll send your design preview within 24 hours.</p>
               </form>

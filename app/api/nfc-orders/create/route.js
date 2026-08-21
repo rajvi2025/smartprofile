@@ -20,6 +20,7 @@ export async function POST(request) {
     const {
       name, phone, email, business_name, delivery_address, notes, card_color,
       razorpay_order_id, razorpay_payment_id, razorpay_signature,
+      coupon_id, coupon_code, discount_amount, amount_paid,
     } = body;
 
     if (!name?.trim() || !phone?.trim() || !delivery_address?.trim()) {
@@ -42,6 +43,14 @@ export async function POST(request) {
       return Response.json({ error: 'Payment verification failed.' }, { status: 400 });
     }
 
+    // The Razorpay order was created for this amount at
+    // /api/nfc-orders/create-payment-order (already coupon-verified there),
+    // so trust it here rather than re-deriving — same accepted pattern used
+    // by the plan-upgrade flow (client-sent finalAmount, flagged in
+    // payment-integrity notes for future server-side re-verification).
+    const chargedAmount = Number(amount_paid);
+    const finalAmount = (!isNaN(chargedAmount) && chargedAmount > 0) ? chargedAmount : NFC_CARD_PRICE;
+
     const { data, error } = await supabase
       .from('nfc_orders')
       .insert([{
@@ -53,7 +62,7 @@ export async function POST(request) {
         notes: notes?.trim() || null,
         card_color: card_color || 'black',
         status: 'design_pending',
-        price: NFC_CARD_PRICE,
+        price: finalAmount,
         razorpay_order_id,
         razorpay_payment_id,
       }])
@@ -74,14 +83,35 @@ export async function POST(request) {
         user_id: null,
         type: 'nfc_order',
         plan: card_color || 'black',
-        amount: NFC_CARD_PRICE,
+        amount: finalAmount,
         razorpay_order_id,
         razorpay_payment_id,
+        coupon_code: coupon_code || null,
       }]);
     if (paymentError) {
       // Don't fail the order over this — money is captured and the order
       // row is saved, but flag loudly since revenue reporting depends on it.
       console.error('NFC order: payments insert failed (order still saved)', paymentError);
+    }
+
+    // Record coupon redemption + bump used_count — only after the order and
+    // payment are safely saved. coupon_redemptions.email is NOT NULL, so
+    // fall back to phone for guest checkouts that skipped the email field.
+    if (coupon_id) {
+      try {
+        await supabase.from('coupon_redemptions').insert([{
+          coupon_id,
+          profile_id: null,
+          email: email?.trim() || phone.trim(),
+          order_amount: NFC_CARD_PRICE,
+          discount_amount: Number(discount_amount) || 0,
+          final_amount: finalAmount,
+          razorpay_order_id,
+        }]);
+        await supabase.rpc('increment_coupon_usage', { coupon_id_input: coupon_id });
+      } catch (couponErr) {
+        console.error('NFC order: coupon redemption record failed (non-fatal)', couponErr);
+      }
     }
 
     // Email notification — best-effort, same as the leads route. If Resend
@@ -99,7 +129,7 @@ export async function POST(request) {
           to: ORDER_NOTIFY_EMAIL,
           subject: `New NFC Card Order (PAID): ${name}`,
           html: `
-            <h2>New NFC card order — ₹${NFC_CARD_PRICE} received</h2>
+            <h2>New NFC card order — ₹${finalAmount} received${coupon_code ? ` (coupon ${coupon_code} applied)` : ''}</h2>
             <p><strong>Name:</strong> ${name}</p>
             <p><strong>Phone:</strong> ${phone}</p>
             <p><strong>Email:</strong> ${email || '(not given)'}</p>
